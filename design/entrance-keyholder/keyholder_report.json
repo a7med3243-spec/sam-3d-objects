@@ -1,0 +1,16 @@
+{
+  "watertight": true,
+  "winding_consistent": true,
+  "volume_cm3": 205.89,
+  "bbox_mm": [
+    210.0,
+    122.0,
+    55.0
+  ],
+  "triangles": 25788,
+  "overhang_area_mm2": 11491.0,
+  "overhang_share_pct": 13.4,
+  "est_mass_g_20pct_infill": 76.6,
+  "phrase": "ولسوف يعطيك ربك فترضى",
+  "phrase_glyphs": 21
+}
