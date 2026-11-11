@@ -12,7 +12,7 @@ Size 180 x 240 mm (18x24 cm frame). PLA, 0.2 mm layer height.
 - AMS / multi-color: import files 1–3 together as one multi-part object and assign colors.
 - Single-color printer: use the merged file with a filament change at 2.0 mm (white -> black) and 7.0 mm (black -> white).
 - Print sequence: by layer (not by object).
-- Approx. filament (15% infill): ~75 g white + ~13 g black.
+- Approx. filament (15% infill): ~100 g white + ~13 g black.
 
 `build_plaque.py` regenerates the meshes (needs trimesh, shapely, manifold3d, scikit-image, opencv, Pillow with raqm, Amiri + EB Garamond fonts).
 
