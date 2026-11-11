@@ -108,8 +108,8 @@ def bitmap_polys(bm):
 F = S + '/fonts/'
 ar_lines = ['رَبَّنَا', 'وَلَا', 'تُحَمِّلْنَا', 'مَا لَا', 'طَاقَةَ', 'لَنَا بِهِۦ']
 en_lines = ['Our Lord,', 'and burden', 'us not with', 'that which we', 'have no', 'ability to bear']
-ax, _ = px2mm(515, 0)
-ex, _ = px2mm(735, 0)
+ax, _ = px2mm(515, 0); ax -= P.get('AR_DX', 0)
+ex, _ = px2mm(735, 0); ex += P.get('EN_DX', 0)
 lead_ar = P.get('AR_LEAD', 10.6); lead_en = P.get('EN_LEAD', 49 * s)
 ar_bm = text_layer(ar_lines, F + 'amiri700.ttf', P.get('AR_SIZE', 7.0), ax, H - 785 * s, lead_ar, 'c', True)
 en_bm = text_layer(en_lines, F + 'garamond600.ttf', P.get('EN_SIZE', 5.4), ex, H - 850 * s, lead_en, 'l', False)
@@ -146,6 +146,13 @@ import os; os.makedirs(out, exist_ok=True)
 plate.export(out + 'plaque_base_white.stl')
 black_u.export(out + 'plaque_rope_text_black.stl')
 fill_mesh.export(out + 'plaque_text_fill_color.stl')
+# measure gap between text outline and rope footprint
+mku = mk.astype(np.uint8)
+cs, _ = cv2.findContours(mku, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+rp = unary_union([Polygon(np.c_[xs[0] + c[:, 0, 0] * R, c[:, 0, 1] * R]).buffer(0) for c in cs if len(c) > 3])
+ar_poly = unary_union(bitmap_polys(ar_bm)).buffer(OUTL); en_poly = unary_union(bitmap_polys(en_bm)).buffer(OUTL)
+print('GAP arabic-rope mm', round(ar_poly.distance(rp), 2), ' english-rope mm', round(en_poly.distance(rp), 2))
+print('TEXT BOUNDS ar', np.round(ar_poly.bounds, 1), 'en', np.round(en_poly.bounds, 1))
 import os as _o
 if _o.path.exists(out + 'plaque_full_single.stl'): _o.remove(out + 'plaque_full_single.stl')
 cv2.imwrite(out + 'text_debug.png', 255 - (ar_bm | en_bm)[::4, ::4])
