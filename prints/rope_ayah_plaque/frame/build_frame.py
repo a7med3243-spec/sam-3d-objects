@@ -28,7 +28,7 @@ assert abs((OW - rec_w) / 2 - P['WALL']) < 0.5, (OW, rec_w)
 Z_REC = P['BACK_T']                    # back board: z 0..2.0
 Z_PKT = Z_REC + P['PT'] + 0.2          # plaque pocket: z 2.0..4.2
 Z_CHAMF = Z_PKT + P['OVER']            # 45 deg lip chamfer up to here
-Z_NOTCH = Z_PKT + 5.0 + 0.8            # clearance over rope relief at the edges
+Z_NOTCH = Z_PKT + 4.7 + 0.6            # clearance over rope relief at the edges (rope is 4.7 mm tall there)
 print('outer', OW, OH, 'window', win_w, win_h, 'pocket', pocket_w, pocket_h)
 
 def M(t):
@@ -57,7 +57,7 @@ def profile(v):
     # inner bevel down to the window
     a = s >= 9.6; c = (s - 9.6) / 1.4
     h = np.where(a, 13.4 - 0.8 * c, h)
-    return h
+    return h - P.get('DROP', 1.5)
 
 # ---------------- wood grain ----------------
 rng = np.random.default_rng(7)
@@ -164,12 +164,12 @@ bw, bh, bt = rec_w - 2 * P['BACK_CL'], rec_h - 2 * P['BACK_CL'], P['BACK_T']
 bx0, by0 = ox_r + P['BACK_CL'], oy_r + P['BACK_CL']
 board = box(bx0, bx0 + bw, by0, by0 + bh, 0, bt)
 # lightening windows (leave rim 16, centre bars)
-rim, vbar, hbar_y, hbar_h = 16.0, 22.0, by0 + bh * 0.47, 44.0
+rim, vbar, hbar_y, hbar_h = 10.0, 14.0, by0 + bh * 0.47, 16.0
 cx = bx0 + bw / 2
 def rrect(x0, x1, y0, y1, r=6):
     sq = m3d.CrossSection.square([x1 - x0 - 2 * r, y1 - y0 - 2 * r]).translate([x0 + r, y0 + r]).offset(r, m3d.JoinType.Round)
     return m3d.Manifold.extrude(sq, bt + 2).translate([0, 0, -1])
-win_y = [(by0 + rim, hbar_y - hbar_h / 2), (hbar_y + hbar_h / 2, by0 + bh - rim - 28)]
+win_y = [(by0 + rim, hbar_y - hbar_h / 2), (hbar_y + hbar_h / 2, by0 + bh - rim)]
 for (y0, y1) in win_y:
     board -= rrect(bx0 + rim, cx - vbar / 2, y0, y1)
     board -= rrect(cx + vbar / 2, bx0 + bw - rim, y0, y1)
@@ -213,20 +213,20 @@ for b in bumps:
 board -= box(OW / 2 - 6, OW / 2 + 6, by0 - 1, by0 + 1.2, -1, 1.2)
 
 # keyhole boss (wall hanging), top centre, on the back (z < 0)
-ky = by0 + bh - rim - 14
-kb = box(cx - 14, cx + 14, ky - 14, ky + 14, -5.0, 0.01)
+ky = by0 + bh - rim - 13
+kb = box(cx - 9, cx + 9, ky - 13, ky + 12, -5.0, 0.01)
 kh = m3d.Manifold.cylinder(6, 4.8, 4.8, 48).translate([cx, ky - 5, -5.5])                 # head entry
 kh += box(cx - 2.3, cx + 2.3, ky - 5, ky + 6, -5.5, -0.5 - 2.5)                           # shank slot
 kh += box(cx - 4.8, cx + 4.8, ky - 5, ky + 6, -3.0, -0.6)                                 # head channel
 kh += m3d.Manifold.cylinder(2.4, 4.8, 4.8, 48).translate([cx, ky + 6, -3.0])
 kh += m3d.Manifold.cylinder(6, 2.3, 2.3, 48).translate([cx, ky + 6, -5.5])
+board += box(cx - 11, cx + 11, ky - 15, ky + 14, 0, bt)   # solid patch under the keyhole
 board += kb - kh
 
 # desk-stand socket on the centre bar
 ALPHA, THETA = np.radians(15), np.radians(32)     # lean back 15 deg; leg 32 deg from the board
 LW, LT, CLs = 18.0, 4.0, 0.15
 sy = hbar_y + 12
-boss = box(cx - 15, cx + 15, sy - 30, sy + 4, -11.0, 0.01)
 dvec = np.array([0, -np.cos(THETA), -np.sin(THETA)])
 nvec = np.array([0, np.sin(THETA), -np.cos(THETA)])
 top_c = np.array([cx, sy, -1.2]) + nvec * (LT / 2 + CLs + 0.8)   # centre of the leg's top end
@@ -236,6 +236,11 @@ def leg_solid(length, w, t, start):
     A = np.c_[rot, start]
     return m.transform(A[:3].tolist())
 sock = leg_solid(40, LW + 2 * CLs, LT + 2 * CLs, top_c)
+sleeve = leg_solid(20, LW + 2 * CLs + 4.4, LT + 2 * CLs + 3.2, top_c - dvec * 1.6)
+bb = sleeve.bounding_box()
+foot = box(bb[0], bb[3], bb[1], bb[4], -0.6, 0.01)
+boss = m3d.Manifold.batch_hull([sleeve, foot])
+board += box(bb[0] - 2, bb[3] + 2, bb[1] - 2, bb[4] + 2, 0, bt)   # solid patch under the stand socket
 board += boss - sock - box(cx - 20, cx + 20, sy - 60, sy + 10, 0.0, 5)  # keep board front flat
 # leg length so that the foot meets the desk with the frame leaning back ALPHA
 up = np.array([0, np.cos(ALPHA), np.sin(ALPHA)])
