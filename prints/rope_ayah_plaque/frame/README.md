@@ -21,3 +21,10 @@ Assembly: glue the 4 frame parts at the mitres with the corner keys pressed into
 then put the plaque face-down in the pocket and snap the back board in (10 tabs). Push the leg into the socket.
 
 Build: `python3 build_frame.py <out_dir>` (defaults: BORDER 20, BACK_T 1.6, RES 0.25).
+
+## Bambu Lab A2L (330 x 320 bed)
+
+The one-piece frame fits, so no corner keys are needed.
+- `A2L_plate1_frame_and_leg.stl`: one-piece frame + stand leg (262 x 272 mm), plate 1.
+- `A2L_plate2_back_board.stl`: back board, plate 2.
+- `A2L_ALL_frame_parts_one_file.stl`: all three parts in one file. In Bambu Studio use right-click > Split > To objects, then move the back board to a second plate.
