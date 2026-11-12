@@ -11,12 +11,12 @@ OUT = sys.argv[1]
 P = dict(
     PW=180.0, PH=240.0, PT=2.0,          # printed plaque
     CL=0.3,                              # plaque clearance per side
-    BORDER=11.0,                         # visible face width
+    BORDER=20.0,                         # visible face width
     OVER=4.3,                            # lip overlap over plaque edge
-    BACK_T=2.0,                          # back board thickness
+    BACK_T=1.6,                          # back board thickness
     BACK_CL=0.2,                         # back board clearance per side
     WALL=4.7,                            # rear wall thickness
-    RES=0.2,
+    RES=0.25,
 )
 if len(sys.argv) > 2: P.update(json.loads(sys.argv[2]))
 R = P['RES']
@@ -24,7 +24,6 @@ pocket_w, pocket_h = P['PW'] + 2 * P['CL'], P['PH'] + 2 * P['CL']
 win_w, win_h = pocket_w - 2 * P['OVER'], pocket_h - 2 * P['OVER']
 OW, OH = win_w + 2 * P['BORDER'], win_h + 2 * P['BORDER']
 rec_w, rec_h = pocket_w + 4.0, pocket_h + 4.0          # back-board recess
-assert abs((OW - rec_w) / 2 - P['WALL']) < 0.5, (OW, rec_w)
 Z_REC = P['BACK_T']                    # back board: z 0..2.0
 Z_PKT = Z_REC + P['PT'] + 0.2          # plaque pocket: z 2.0..4.2
 Z_CHAMF = Z_PKT + P['OVER']            # 45 deg lip chamfer up to here
@@ -153,10 +152,28 @@ cut += box(nx0, nx1, oy_p - 0.01, oy_w + 1.0, Z_PKT - 0.01, Z_NOTCH)
 cut += box(nx0, nx1, OH - oy_w - 1.0, OH - oy_p + 0.01, Z_PKT - 0.01, Z_NOTCH)
 # coin slot to pry the back board out (bottom edge, centre)
 cut += box(OW / 2 - 6, OW / 2 + 6, oy_r - 1.6, oy_r + 0.1, -1, 1.2)
-frame = fr - cut
+# hollow channel from the back inside each member (saves filament), 45 deg gable roof -> no bridging
+CH0, CH1 = 2.0, (OW - rec_w) / 2 - 2.5      # from outer edge: 2 mm outer skin ... 2.5 mm inner wall
+CHZ = 5.2                                   # vertical part of the channel
+half = (CH1 - CH0) / 2; mid = (CH0 + CH1) / 2
+def member_channel(axis, lo_side):
+    # bottom member (axis='x', lo_side=True) etc. Built as hull of base box + ridge line, ends mitred by the hull.
+    if axis == 'x':
+        y0, y1 = (CH0, CH1) if lo_side else (OH - CH1, OH - CH0)
+        ym = (y0 + y1) / 2
+        base = box(CH0, OW - CH0, y0, y1, -1, CHZ)
+        ridge = box(mid, OW - mid, ym - 0.05, ym + 0.05, CHZ, CHZ + half - 0.05)
+    else:
+        x0, x1 = (CH0, CH1) if lo_side else (OW - CH1, OW - CH0)
+        xm = (x0 + x1) / 2
+        base = box(x0, x1, CH0, OH - CH0, -1, CHZ)
+        ridge = box(xm - 0.05, xm + 0.05, mid, OH - mid, CHZ, CHZ + half - 0.05)
+    return m3d.Manifold.batch_hull([base, ridge])
+chan = member_channel('x', True) + member_channel('x', False) + member_channel('y', True) + member_channel('y', False)
+frame = fr - cut - chan
+frame = frame.simplify(0.012)
 frame_t = T(frame)
-vv, ff = fs.simplify(np.asarray(frame_t.vertices, np.float32), np.asarray(frame_t.faces), target_reduction=0.45)
-frame_t = trimesh.Trimesh(vv, ff)
+print('channel width', round(CH1 - CH0, 2), 'roof top z', round(CHZ + half, 2))
 print('frame tris', len(frame_t.faces), 'bounds', frame_t.bounds.round(2).tolist())
 
 # ---------------- back board ----------------
@@ -258,9 +275,34 @@ leg2d = leg2d - m3d.CrossSection.square([6, 30]).translate([-3, Ltot - 40]).offs
 leg = m3d.Manifold.extrude(leg2d, LT)
 leg_t = T(leg)
 
+# ---------------- 4-piece split along the mitres + corner keys ----------------
+K = 60.0
+def prism(pts):
+    return m3d.Manifold.extrude(m3d.CrossSection([pts]), 40).translate([0, 0, -5])
+pieces = {
+    'bottom': prism([[0, 0], [OW, 0], [OW - K, K], [K, K]]),
+    'top':    prism([[0, OH], [K, OH - K], [OW - K, OH - K], [OW, OH]]),
+    'left':   prism([[0, 0], [K, K], [K, OH - K], [0, OH]]),
+    'right':  prism([[OW, 0], [OW, OH], [OW - K, OH - K], [OW - K, K]]),
+}
+KC, KL = 0.25, 30.0                              # key clearance, leg length from the outer corner
+def corner_key():
+    a, b = CH0 + KC, CH1 - KC
+    z0, z1 = 0.4, CHZ - KC
+    return box(a, KL, a, b, z0, z1) + box(a, b, a, KL, z0, z1)
 # ---------------- export ----------------
 os.makedirs(OUT, exist_ok=True)
-frame_t.export(OUT + '/frame_front_navy.stl')
+frame_t.export(OUT + '/frame_front_navy_ONE_PIECE.stl')
+for nm, pr in pieces.items():
+    pt = T((frame ^ pr).simplify(0.012))
+    if nm in ('left', 'right'):                     # long sides: pre-rotated 45 deg to fit a 256 mm bed
+        pt.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 4, [0, 0, 1]))
+    pt.apply_translation(-pt.bounds[0] * [1, 1, 1])
+    pt.export(OUT + f'/frame_part_{nm}.stl')
+    print('part', nm, 'bbox', (pt.bounds[1] - pt.bounds[0]).round(1).tolist(), 'wt', pt.is_watertight)
+ck = corner_key(); keys = [T(ck.translate([i * 32.0, 0, 0])) for i in range(4)]
+kk = trimesh.util.concatenate(keys); kk.apply_translation(-kk.bounds[0]); kk.export(OUT + '/frame_corner_keys_x4.stl')
+T(ck).export(OUT + '/_key_assembled.stl')
 bt_print = board_t.copy(); bt_print.apply_transform(trimesh.transformations.reflection_matrix([0, 0, 0], [0, 0, 1]))
 bt_print.apply_translation((0, 0, -bt_print.bounds[0, 2]))
 board_t.export(OUT + '/_board_assembled.stl')
@@ -268,7 +310,7 @@ bt_print.export(OUT + '/frame_back_board.stl')
 leg_t.export(OUT + '/frame_stand_leg.stl')
 # assembled leg for previews
 lg = T(leg_solid(Ltot, LW, LT, top_c)); lg.export(OUT + '/_leg_assembled.stl')
-for n in ['frame_front_navy', 'frame_back_board', 'frame_stand_leg']:
+for n in ['frame_front_navy_ONE_PIECE', 'frame_back_board', 'frame_stand_leg', 'frame_corner_keys_x4']:
     m = trimesh.load(OUT + f'/{n}.stl')
     print(n, 'vol cm3', round(abs(m.volume) / 1000, 1), 'size', (m.bounds[1] - m.bounds[0]).round(1).tolist(), 'wt', m.is_watertight)
 json.dump(dict(OW=OW, OH=OH, plaque_xy=[ox_p + P['CL'], oy_p + P['CL']], plaque_z=Z_REC), open(OUT + '/_layout.json', 'w'))
