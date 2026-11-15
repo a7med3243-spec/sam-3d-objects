@@ -1,4 +1,26 @@
-# 25 Percent Cafe – serving set (coaster + serving tray)
+# 25 Percent Cafe – serving set
+
+## NEW: 4-cup serving tray (fits the A2L plate)
+
+![4-cup tray](previews/0a_tray_4cups_with_cups.png)
+
+| | |
+|---|---|
+| File | `tray_4cups/25cafe_tray_4cups.3mf` (+ 3 STLs) |
+| Size | **310 × 232 × 16 mm**. It fits the A2L plate (330 × 320) with room for the prime tower |
+| Holds | **4 coffees**: four cup pockets for cup bottoms up to Ø 69 mm. Cups are spaced so 12 oz takeaway cups (≈ 92 mm across the top) don't touch each other or the rim |
+| Sweets | oval dish in the middle, 104 × 76 mm, 1.6 mm deep |
+| Carry | a hand slot at each end (22 × 90 mm) and a 1 cm raised rim |
+| Design | logo between the top cups, "TWENTY-FIVE PERCENT CAFE" and the Instagram handle between the bottom cups, a thin brown ring around each cup pocket, two coffee beans |
+| Underside | 6 pockets for **10 mm round rubber bumper feet** (optional) |
+| Weight (estimate) | ≈ 200–250 g (Bambu Studio shows the exact number) |
+| Colour changes | 22 per print |
+
+Print: one tray per plate, flat, **no supports**, 0.20 mm layers, 2 walls, 10–15 % infill. **PETG** is recommended for hot coffee. On a print this large, if the corners lift, add a 5 mm brim.
+
+---
+
+## Coaster and single-cup tray
 
 ![set](previews/1_set.png)
 

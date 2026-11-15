@@ -58,6 +58,17 @@ if (view === 'set') {
   const c2 = await cup(); c2.position.set(175, 4.0, 40); c2.rotation.y = Math.PI * 0.55; scene.add(c2);
   const co2 = await coaster(); co2.position.set(140, 0, -110); scene.add(co2);
   key.position.set(-250, 420, 260); camera.position.set(-40, 330, 470); camera.lookAt(40, 30, -10);
+} else if (view === 'tray4' || view === 'tray4_top' || view === 'tray4_empty') {
+  const t = await item('25cafe_tray_4cups', T3); scene.add(t);
+  if (view !== 'tray4_empty' && view !== 'tray4_top') {
+    const spots = [[-76, 56], [76, 56], [-76, -56], [76, -56]];
+    for (const [i, [x, y]] of spots.entries()) { const c = await cup(); c.position.set(x, 5.2 - 2.4, -y); c.rotation.y = Math.PI * (0.45 + 0.08 * i); scene.add(c); }
+    const cm = new THREE.MeshStandardMaterial({ color: 0x8a5a2e, roughness: 0.9 }), cm2 = new THREE.MeshStandardMaterial({ color: 0xe9d9b8, roughness: 0.9 });
+    for (const [x, z, m] of [[-22, 8, cm], [20, -6, cm2], [2, 16, cm]]) { const k = new THREE.Mesh(new THREE.CylinderGeometry(17, 17, 7, 64), m); k.position.set(x, 3.6 + 3.5, z); k.castShadow = k.receiveShadow = true; scene.add(k); }
+  }
+  if (view === 'tray4_top') { key.position.set(-160, 600, 220); camera = new THREE.PerspectiveCamera(24, W / H, 1, 5000); camera.position.set(0, 760, 0.01); camera.lookAt(0, 0, 0); }
+  else if (view === 'tray4_empty') { key.position.set(-250, 420, 260); camera.position.set(-60, 330, 420); camera.lookAt(0, 0, 0); }
+  else { key.position.set(-260, 460, 300); camera.position.set(-40, 420, 520); camera.lookAt(0, 40, 0); }
 } else if (view === 'coaster_top') {
   const co = await coaster(); scene.add(co);
   key.position.set(-120, 400, 160); camera = new THREE.PerspectiveCamera(16, W / H, 1, 5000); camera.position.set(0, 400, 0.01); camera.lookAt(0, 0, 0);
@@ -72,6 +83,12 @@ if (view === 'set') {
   const co = await coaster(); scene.add(co);
   const c2 = await cup(); c2.position.set(0, 4.0, 0); c2.rotation.y = Math.PI * 0.55; scene.add(c2);
   key.position.set(-200, 300, 200); camera.position.set(-120, 150, 230); camera.lookAt(0, 40, 0);
+} else if (view === 'plate_tray4') {
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(330, 2, 320), new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.85 }));
+  plate.position.y = -1; plate.receiveShadow = true; scene.add(plate);
+  const t = await item('25cafe_tray_4cups', T3); t.position.set(0, 0, -36); scene.add(t);
+  const tw = new THREE.Mesh(new THREE.BoxGeometry(35, 16, 35), mat(0x8a7a66)); tw.position.set(120, 8, 128); tw.castShadow = true; scene.add(tw);
+  key.position.set(-160, 420, 260); camera.position.set(-40, 430, 430); camera.lookAt(0, 0, 0);
 } else if (view === 'plate_coaster' || view === 'plate_tray') {
   const plate = new THREE.Mesh(new THREE.BoxGeometry(330, 2, 320), new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.85 }));
   plate.position.y = -1; plate.receiveShadow = true; scene.add(plate);

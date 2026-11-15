@@ -153,8 +153,69 @@ def tray():
     brown = ext(art.intersection(inner.buffer(-1.5)), Z['floor'] - Z['inlay'], Z['floor'])
     return dict(black=black, beige=beige, brown=brown), dict(face=inner, outer=outer, art=art, Z=Z, pocket=(cup_c, r_top, depth))
 
+def rrect(w, h, r):
+    return box(-w / 2 + r, -h / 2 + r, w / 2 - r, h / 2 - r).buffer(r, quad_segs=Q)
+
+def text_block(lines, cap, gap, lead, cx, cy):
+    """straight centred lines, block centred at (cx, cy)"""
+    sc = cap / CAPREF; rows = []
+    for ln in lines:
+        x, parts = 0.0, []
+        for ch in ln:
+            if not isinstance(ch, str):
+                g = ch
+            elif ch == ' ':
+                x += cap * 0.35; continue
+            else:
+                g = affinity.scale(glyph(ch), sc, sc, origin=(0, 0))
+            g = affinity.translate(g, x - g.bounds[0], 0); parts.append(g); x = g.bounds[2] + gap
+        row = unary_union(parts); rows.append(affinity.translate(row, -(row.bounds[0] + row.bounds[2]) / 2, 0))
+    out = []
+    for i, r in enumerate(rows):
+        out.append(affinity.translate(r, cx, cy + ((len(rows) - 1) / 2 - i) * (cap + lead) - cap / 2))
+    return unary_union(out)
+
+def tray4():
+    """4-cup serving tray with a sweets dish, hand slots and rubber-feet pockets. Fits the A2L plate."""
+    L, Wd, R, rim = 310.0, 232.0, 30.0, 7.0
+    outer, inner = rrect(L, Wd, R), rrect(L - 2 * rim, Wd - 2 * rim, R - rim)
+    cups = [(sx * 76.0, sy * 56.0) for sx in (-1, 1) for sy in (-1, 1)]
+    r_top, depth = 37.0, 2.4
+    Z = dict(base=1.6, floor=5.2, inlay=0.6, rim=16.0, dish=1.6)
+    slots = unary_union([LineString([(sx * 131.0, -34.0), (sx * 131.0, 34.0)]).buffer(11.0, quad_segs=32) for sx in (-1, 1)])
+    frame = slots.buffer(3.0, quad_segs=32)                      # black frame around each hand slot
+    floor = inner.difference(frame)
+    feet = unary_union([Point(x, y).buffer(5.25, quad_segs=24) for x in (-112, 0, 112) for y in (-86, 86)])
+    da, db = 52.0, 38.0                                           # sweets dish: 104 x 76 mm oval, 1.6 mm deep
+    art = [place_logo(44.0, 0.0, 78.0),
+           text_block(['TWENTY-FIVE', 'PERCENT CAFE'], 5.0, 0.75, 2.4, 0.0, -74.0),
+           text_block([[affinity.translate(ig_icon(5.6), 0, 2.2)] + list('25percent.cafe')], 4.4, 0.6, 0, 0.0, -99.0)]
+    for c in cups:                                                # thin brown ring around each cup pocket
+        art.append(Point(*c).buffer(40.0, quad_segs=64).difference(Point(*c).buffer(38.6, quad_segs=64)))
+    for sx in (-1, 1):
+        art.append(affinity.translate(bean(7.0, 4.2, 90, 0.9), sx * 63.0, 0.0))
+    art = unary_union(art)
+    pockets = None
+    for c in cups:
+        p = Manifold.cylinder(depth + 0.02, r_top - depth, r_top + 0.02, 256).translate([c[0], c[1], Z['floor'] - depth])
+        pockets = p if pockets is None else pockets + p
+    ell = affinity.scale(Point(0, 0).buffer(1, quad_segs=96), da - Z['dish'], db - Z['dish'])
+    dish = Manifold.extrude(cs_of(ell), Z['dish'] + 0.02, 0, 0, (da / (da - Z['dish']), db / (db - Z['dish']))).translate([0, 0, Z['floor'] - Z['dish']])
+    black = (ext(outer.buffer(-0.3, quad_segs=Q).difference(feet).difference(slots.buffer(0.3)), 0, 0.2)
+             + ext(outer.buffer(-0.15, quad_segs=Q).difference(feet).difference(slots.buffer(0.15)), 0.2, 0.4, 0.02)
+             + ext(outer.difference(feet).difference(slots), 0.4, 0.8, 0.02)
+             + ext(outer.difference(slots), 0.8, Z['base'], 0.02)
+             + ext(outer.difference(inner).union(frame.difference(slots)), Z['base'], Z['floor'], 0.02)
+             + ext(outer.difference(inner), Z['floor'], Z['rim'] - 0.2, 0.02)
+             + ext(outer.buffer(-0.4, quad_segs=Q).difference(inner.buffer(0.4, quad_segs=Q)), Z['rim'] - 0.2, Z['rim'], 0.02))
+    beige = ext(floor, Z['base'], Z['floor']) - pockets - dish - ext(art, Z['floor'] - Z['inlay'], Z['floor'] + 0.1)
+    brown = ext(art.intersection(floor.buffer(-1.5)), Z['floor'] - Z['inlay'], Z['floor'])
+    return dict(black=black, beige=beige, brown=brown), dict(face=floor, outer=outer, art=art, Z=Z,
+                                                             pockets=[(c, r_top, depth) for c in cups], dish=(da, db), slots=slots)
+
 if __name__ == '__main__':
-    for name, fn in (('coaster', coaster), ('tray', tray)):
+    todo = sys.argv[3].split(',') if len(sys.argv) > 3 else ['coaster', 'tray']
+    for name, fn in [(n, globals()[n]) for n in todo]:
         parts, info = fn()
         d = os.path.join(OUT, name); os.makedirs(d, exist_ok=True)
         rep = {}
