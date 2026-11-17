@@ -11,7 +11,7 @@ OUT = sys.argv[1]
 P = dict(
     PW=180.0, PH=240.0, PT=2.0,          # printed plaque
     CL=0.3,                              # plaque clearance per side
-    BORDER=20.0,                         # visible face width
+    BORDER=15.0,                         # visible face width
     OVER=4.3,                            # lip overlap over plaque edge
     BACK_T=1.6,                          # back board thickness
     BACK_CL=0.2,                         # back board clearance per side
@@ -144,7 +144,19 @@ cut += m3d.Manifold.batch_hull([box(ox_p, OW - ox_p, oy_p, OH - oy_p, Z_PKT - 0.
 cut += box(ox_w, OW - ox_w, oy_w, OH - oy_w, Z_CHAMF, 30)                      # window
 # snap groove around the recess wall (back board bumps click in here)
 G0, G1, GD = 0.5, 1.5, 0.8
-cut += box(ox_r - GD, OW - ox_r + GD, oy_r - GD, OH - oy_r + GD, G0, G1) - box(ox_r, OW - ox_r, oy_r, OH - oy_r, G0 - 1, G1 + 1)
+# ---- turn-button pivots on the back face (replace the old snap groove) ----
+RZ = (OW - rec_w) / 2                      # width of the solid rear zone
+VP = RZ / 2                                # pivot distance from the outer edge
+PIV = [('L', VP, OH * 0.27), ('L', VP, OH * 0.73), ('R', OW - VP, OH * 0.27), ('R', OW - VP, OH * 0.73),
+       ('B', OW * 0.3, VP), ('B', OW * 0.7, VP), ('T', OW * 0.3, OH - VP), ('T', OW * 0.7, OH - VP)]
+HOLE_D, HOLE_Z, CH_D, CH_Z = 4.15, 5.4, 4.9, 6.9
+def pivot_hole(x, y):
+    h = m3d.Manifold.cylinder(HOLE_Z + 1, HOLE_D / 2, HOLE_D / 2, 48).translate([x, y, -1])
+    h += m3d.Manifold.cylinder(CH_Z - HOLE_Z - 0.75, CH_D / 2, CH_D / 2, 48).translate([x, y, HOLE_Z])          # barb chamber
+    h += m3d.Manifold.cylinder(0.75, CH_D / 2, 1.2, 48).translate([x, y, CH_Z - 0.75])                         # 45 deg roof
+    return h
+for _, x, y in PIV:
+    cut += pivot_hole(x, y)
 # rope notches (rope runs under the lip at top and bottom; mirrored so the plaque fits either way up)
 pl_x0 = ox_p + P['CL']
 nx0, nx1 = pl_x0 + 80.5, pl_x0 + 99.5
@@ -170,6 +182,10 @@ def member_channel(axis, lo_side):
         ridge = box(xm - 0.05, xm + 0.05, mid, OH - mid, CHZ, CHZ + half - 0.05)
     return m3d.Manifold.batch_hull([base, ridge])
 chan = member_channel('x', True) + member_channel('x', False) + member_channel('y', True) + member_channel('y', False)
+pivot_blocks = m3d.Manifold()
+for _, x, y in PIV:
+    pivot_blocks += box(x - 8, x + 8, y - 8, y + 8, -2, 30)
+chan = chan - pivot_blocks                  # keep the members solid around each pivot
 frame = fr - cut - chan
 frame = frame.simplify(0.012)
 frame_t = T(frame)
@@ -220,9 +236,9 @@ def tab(edge, pos):
         b = m3d.Manifold.extrude(cs, 7.0)
         b = b.transform([[0, 0, 1, x1 - 8.0], [sgn * -1, 0, 0, y_e], [0, 1, 0, 0]])
         bumps.append(b)
-for yy in (by0 + bh * 0.2, by0 + bh * 0.5, by0 + bh * 0.8):
+for yy in ():
     tab('L', yy); tab('R', yy)
-for xx in (bx0 + bw * 0.27, bx0 + bw * 0.73):
+for xx in ():
     tab('B', xx); tab('T', xx)
 for b in bumps:
     board += b
@@ -293,16 +309,17 @@ def corner_key():
 # ---------------- export ----------------
 os.makedirs(OUT, exist_ok=True)
 frame_t.export(OUT + '/frame_front_navy_ONE_PIECE.stl')
-for nm, pr in pieces.items():
+for nm, pr in ({} if not P.get('SPLIT') else pieces).items():
     pt = T((frame ^ pr).simplify(0.012))
     if nm in ('left', 'right'):                     # long sides: pre-rotated 45 deg to fit a 256 mm bed
         pt.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 4, [0, 0, 1]))
     pt.apply_translation(-pt.bounds[0] * [1, 1, 1])
     pt.export(OUT + f'/frame_part_{nm}.stl')
     print('part', nm, 'bbox', (pt.bounds[1] - pt.bounds[0]).round(1).tolist(), 'wt', pt.is_watertight)
-ck = corner_key(); keys = [T(ck.translate([i * 32.0, 0, 0])) for i in range(4)]
-kk = trimesh.util.concatenate(keys); kk.apply_translation(-kk.bounds[0]); kk.export(OUT + '/frame_corner_keys_x4.stl')
-T(ck).export(OUT + '/_key_assembled.stl')
+ck = corner_key()
+if P.get('SPLIT'):
+  keys = [T(ck.translate([i * 32.0, 0, 0])) for i in range(4)]
+  kk = trimesh.util.concatenate(keys); kk.apply_translation(-kk.bounds[0]); kk.export(OUT + '/frame_corner_keys_x4.stl')
 bt_print = board_t.copy(); bt_print.apply_transform(trimesh.transformations.reflection_matrix([0, 0, 0], [0, 0, 1]))
 bt_print.apply_translation((0, 0, -bt_print.bounds[0, 2]))
 board_t.export(OUT + '/_board_assembled.stl')
@@ -310,7 +327,30 @@ bt_print.export(OUT + '/frame_back_board.stl')
 leg_t.export(OUT + '/frame_stand_leg.stl')
 # assembled leg for previews
 lg = T(leg_solid(Ltot, LW, LT, top_c)); lg.export(OUT + '/_leg_assembled.stl')
-for n in ['frame_front_navy_ONE_PIECE', 'frame_back_board', 'frame_stand_leg', 'frame_corner_keys_x4']:
+# ---------------- turn buttons ----------------
+BL, BWID, BT = 10.8, 8.0, 2.0            # arm length (pivot -> tip centre), width, thickness
+PEG_D, BARB_D = 4.0, 4.55
+def button_local():
+    arm = m3d.CrossSection.square([BL, BWID]).translate([0, -BWID / 2]) + m3d.CrossSection.circle(BWID / 2, 64) + m3d.CrossSection.circle(BWID / 2, 64).translate([BL, 0])
+    b = m3d.Manifold.extrude(arm, BT).translate([0, 0, -BT])                       # plate z -2..0
+    b += box(BL * 0.45, BL * 0.45 + 1.2, -BWID / 2 + 1, BWID / 2 - 1, -BT - 1.2, -BT)  # thumb ridge (back side)
+    b += m3d.Manifold.cylinder(0.3, 1.6, 1.0, 32).translate([BL, 0, 0])            # 0.3 mm pressure nub at the tip
+    peg = m3d.Manifold.cylinder(HOLE_Z - 0.2, PEG_D / 2, PEG_D / 2, 48)
+    peg += m3d.Manifold.cylinder(0.5, PEG_D / 2, BARB_D / 2, 48).translate([0, 0, HOLE_Z - 0.2])
+    peg += m3d.Manifold.cylinder(1.0, BARB_D / 2, 1.6, 48).translate([0, 0, HOLE_Z + 0.3])
+    peg -= box(-3, 3, -0.5, 0.5, 1.2, 10)                                           # split -> springy barb
+    return b + peg
+btn = button_local()
+DIRS = {'L': 0, 'R': np.pi, 'B': np.pi / 2, 'T': -np.pi / 2}   # arm points inward = locked
+asm = m3d.Manifold()
+for sd, x, y in PIV:
+    a = DIRS[sd]; c_, s_ = np.cos(a), np.sin(a)
+    asm += btn.transform([[c_, -s_, 0, x], [s_, c_, 0, y], [0, 0, 1, 0]])
+T(asm).export(OUT + '/_buttons_assembled.stl')
+bl = [T(btn.translate([0, 0, BT + 1.2]).translate([i % 4 * 22.0, i // 4 * 12.0, 0])) for i in range(len(PIV))]
+bb_ = trimesh.util.concatenate(bl); bb_.apply_translation(-bb_.bounds[0]); bb_.export(OUT + '/frame_turn_buttons_x8.stl')
+print('rear zone', round(RZ, 2), 'button reach over board', round(VP + BL + BWID / 2 - RZ, 2))
+for n in ['frame_front_navy_ONE_PIECE', 'frame_back_board', 'frame_stand_leg', 'frame_turn_buttons_x8']:
     m = trimesh.load(OUT + f'/{n}.stl')
     print(n, 'vol cm3', round(abs(m.volume) / 1000, 1), 'size', (m.bounds[1] - m.bounds[0]).round(1).tolist(), 'wt', m.is_watertight)
 json.dump(dict(OW=OW, OH=OH, plaque_xy=[ox_p + P['CL'], oy_p + P['CL']], plaque_z=Z_REC), open(OUT + '/_layout.json', 'w'))
