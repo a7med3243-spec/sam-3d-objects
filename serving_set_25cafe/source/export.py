@@ -15,6 +15,9 @@ PARTS = [  # file tag, part name shown in the slicer, display colour
     ('2_beige', '2 - Beige (top surface)', '#D8C8ADFF'),
     ('3_brown', '3 - Dark brown (logo and text)', '#4A3426FF'),
 ] if MODE == 'serve' else [
+    ('1_beige', '1 - Beige (tray)', '#E9DFC9FF'),
+    ('2_brown', '2 - Dark brown (rim, handles, logo)', '#3E2A1EFF'),
+] if MODE == 'tray2' else [
     ('1_black', '1 - Black (lid and loop)', '#1E1E1EFF'),
     ('2_beige', '2 - Beige (cup)', '#D8C8ADFF'),
     ('3_brown', '3 - Dark brown (logo and text)', '#4A3426FF'),
@@ -47,7 +50,7 @@ model = f'''<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
 <metadata name="Title">25 Percent Cafe - cup keychain</metadata>
 <metadata name="Designer">Claude Code</metadata>
-<metadata name="Description">{'25 Percent Cafe serving piece: black base and rim, beige top, dark-brown logo inlaid flush. Print flat, no supports.' if MODE == 'serve' else '3-colour keychain: black lid/outline, beige cup, dark-brown logo. Print face up, no supports, 0.2 mm layers.' if MODE == 'flat' else '3D mini cup keychain: black lid+loop, beige cup, dark-brown logo/text, white bottom ring. Print upright, no supports.'}</metadata>
+<metadata name="Description">{'25 Percent Cafe classic serving tray: beige tray, dark-brown rim, handles and logo. Print upright, no supports.' if MODE == 'tray2' else '25 Percent Cafe serving piece: black base and rim, beige top, dark-brown logo inlaid flush. Print flat, no supports.' if MODE == 'serve' else '3-colour keychain: black lid/outline, beige cup, dark-brown logo. Print face up, no supports, 0.2 mm layers.' if MODE == 'flat' else '3D mini cup keychain: black lid+loop, beige cup, dark-brown logo/text, white bottom ring. Print upright, no supports.'}</metadata>
 <resources>
 <basematerials id="1">{''.join(mats)}</basematerials>
 {chr(10).join(objs)}

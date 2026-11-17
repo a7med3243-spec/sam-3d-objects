@@ -1,5 +1,26 @@
 # 25 Percent Cafe – serving set
 
+## NEW: classic serving tray (from your reference picture)
+
+![classic tray](previews/00a_classic_tray.png)
+
+| | |
+|---|---|
+| File | `classic_tray/25cafe_classic_tray.3mf` (+ 2 STLs) |
+| Size | **302 × 210 × 42 mm**. It fits the A2L plate with room for the prime tower |
+| Shape | sloped walls, rounded corners, rounded inside corners (easy to wipe clean), dark-brown rim |
+| Handles | a hand slot in each end wall (84 × 24 mm), with a thicker dark-brown grip above it |
+| Logo | **only the "25 CAFE" logo, in the middle of the floor** (114 × 104 mm), inlaid flush so cups stand flat |
+| Holds | 4 takeaway coffees + sweets (flat floor about 256 × 164 mm) |
+| Colours | **only 2 filaments**: 1 Beige (tray), 2 Dark brown (rim, handle grips, logo) |
+| Colour changes | about 29 per print |
+| Weight (estimate) | ≈ 230–260 g (Bambu Studio shows the exact number) |
+| Underside | 4 pockets for 10 mm round rubber bumper feet (optional) |
+
+**Print:** one tray per plate, **no supports**, 0.20 mm layers, 2 walls, 15 % infill. **PETG** is recommended for hot coffee. The top of each hand slot is a short bridge (about 60 mm), which Bambu printers handle with their default bridge settings.
+
+---
+
 ## NEW: 4-cup serving tray (fits the A2L plate)
 
 ![4-cup tray](previews/0a_tray_4cups_with_cups.png)

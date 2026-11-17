@@ -110,9 +110,13 @@ small_bean = fillet(bS, 2.0)
 px2mm = [s, 0, 0, s, 0, 778*s]
 T = lambda g: affinity.affine_transform(g, px2mm)
 G = dict(block5=T(block5), block2=T(p2), slash=T(slash_px), bean=T(big_bean), crease=T(big_crease), sbean=T(small_bean))
+G['cafe'] = T(unary_union(pcs[5:]))          # traced CAFE word: used for its original size/position
 rough = unary_union([G['block5'], G['block2'], G['bean'], G['sbean'], G['slash'].buffer(0.3)])
 _rb = rough.bounds; _cx = (_rb[0] + _rb[2]) / 2
-rough = unary_union([rough, box(_cx - 5.2, _rb[1] - P['text_cap'] - P['text_below'], _cx + 5.2, _rb[1])])  # room for CAFE
+if P.get('cafe_mode', 'below') == 'below':
+    rough = unary_union([rough, box(_cx - 5.2, _rb[1] - P['text_cap'] - P['text_below'], _cx + 5.2, _rb[1])])  # room for CAFE
+else:
+    rough = unary_union([rough, G['cafe']])
 
 # fit: biggest logo (k <= k_max) whose centre sits near the visual centre of the cup face
 target_cy = P['logo_cy_frac'] * 273*s
@@ -227,10 +231,21 @@ def make_text(cap_mm):
     return unary_union(out)
 slash = slash_body(p_bot0, p_top); trim = 0.0
 mark = unary_union([blocks, beans, slash])
-cap_txt = P['text_cap']
-t1 = make_text(cap_txt)
-mb = mark.bounds
-text = affinity.translate(t1, (mb[0] + mb[2]) / 2 - (t1.bounds[0] + t1.bounds[2]) / 2, mb[1] - P['text_below'] - t1.bounds[3])
+if P.get('cafe_mode', 'below') == 'original':
+    # big logos: CAFE in its original spot (bottom-left, on the baseline of the "5"), original size
+    cb = G['cafe'].bounds; cap_txt = (cb[3] - cb[1]) * 0.97; target_w = cb[2] - cb[0]
+    t0 = make_text(cap_txt); w0 = t0.bounds[2] - t0.bounds[0]
+    P['letter_gap'] = max(0.45, P['letter_gap'] + (target_w - w0) / 3); t1 = make_text(cap_txt)
+    base_y = G['block5'].bounds[1]
+    text = affinity.translate(t1, cb[0] - t1.bounds[0], base_y - t1.bounds[1])
+    for _ in range(200):                                    # keep clear of the slash and the "5"
+        if text.distance(slash) >= P['text_gap'] and text.distance(blocks) >= P['text_gap']: break
+        text = affinity.translate(text, 0.05, 0)
+else:
+    cap_txt = P['text_cap']
+    t1 = make_text(cap_txt)
+    mb = mark.bounds
+    text = affinity.translate(t1, (mb[0] + mb[2]) / 2 - (t1.bounds[0] + t1.bounds[2]) / 2, mb[1] - P['text_below'] - t1.bounds[3])
 # re-centre logo + text group vertically on the face
 grp = unary_union([mark, text]); gb = grp.bounds
 dy_g = P['logo_cy_frac'] * 273*s - (gb[1] + gb[3]) / 2

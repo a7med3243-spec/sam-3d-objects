@@ -213,6 +213,49 @@ def tray4():
     return dict(black=black, beige=beige, brown=brown), dict(face=floor, outer=outer, art=art, Z=Z,
                                                              pockets=[(c, r_top, depth) for c in cups], dish=(da, db), slots=slots)
 
+def tray_classic():
+    """Classic serving tray (like the reference picture): flared walls, rounded corners, brown rim lip,
+    hand slots with brown grips at both ends, one logo in the middle of the floor. Two filaments."""
+    LT, WT, RT, H, ang = 300.0, 208.0, 28.0, 42.0, np.radians(14)   # top size, corner radius, height, wall flare
+    t, F, rf = 3.4, 3.6, 8.0                       # wall (horizontal), floor thickness, inner floor fillet
+    top = rrect(LT, WT, RT)
+    outer = lambda z: top.buffer(-(H - z) * np.tan(ang), quad_segs=Q)
+    inner = lambda z: outer(z).buffer(-t, quad_segs=Q)
+    slab = lambda g, z: Manifold.extrude(cs_of(g), 0.001).translate([0, 0, z])
+    body = Manifold.batch_hull([slab(outer(0).buffer(-1.4, quad_segs=Q), 0), slab(outer(2.0), 2.0), slab(outer(H - 3.8), H - 3.8),
+                                slab(outer(H - 2.2).buffer(1.2, quad_segs=Q), H - 2.2), slab(outer(H - 0.4).buffer(1.2, quad_segs=Q), H - 0.4),
+                                slab(outer(H).buffer(0.8, quad_segs=Q), H)])
+    cav = [slab(inner(H + 1), H + 1)]
+    for a in np.radians(np.linspace(0, 90, 10)):  # rounded floor-to-wall corner inside (easy to clean)
+        z = F + rf - rf * np.cos(a)
+        cav.append(slab(inner(z).buffer(-(rf - rf * np.sin(a)), quad_segs=Q), z))
+    tray = body - Manifold.batch_hull(cav)
+    # hand slots in both end walls + a thicker grip block above/around them (45 deg underside, no support)
+    sl_half, sl_h, sl_top = 42.0, 24.0, H - 9.0
+    xin = lambda z: inner(z).bounds[2]
+    zb = sl_top - sl_h - 6.0
+    for sx in (-1, 1):
+        def rect_x(z, extra):
+            x0 = xin(z) - extra; return rrect(1, 1, 0.4) if False else box(x0, -(sl_half + 10), x0 + 30, sl_half + 10).buffer(-4, quad_segs=16).buffer(4, quad_segs=16)
+        blk = Manifold.batch_hull([slab(rect_x(zb, 0.0), zb), slab(rect_x(zb + 4.5, 4.5), zb + 4.5), slab(rect_x(H, 4.5), H)])
+        if sx < 0: blk = blk.mirror([1, 0, 0])
+        tray = tray + (blk ^ body)
+    stad = LineString([(-(sl_half - sl_h / 2), sl_top - sl_h / 2), (sl_half - sl_h / 2, sl_top - sl_h / 2)]).buffer(sl_h / 2, quad_segs=32)
+    cut = Manifold.extrude(cs_of(stad), 60).warp_batch(lambda p: np.c_[p[:, 2] - 30, p[:, 0], p[:, 1]])
+    x_end = LT / 2 - 12
+    tray = tray - cut.translate([x_end, 0, 0]) - cut.translate([-x_end, 0, 0])
+    feet = unary_union([Point(x, y).buffer(5.25, quad_segs=24) for x in (-115, 115) for y in (-70, 70)])
+    tray = tray - ext(feet, -1, 0.8)
+    # colours: brown rim band + brown grips above the slots + logo; everything else beige
+    band = Manifold.cube([LT + 20, WT + 20, 4.2]).translate([-(LT + 20) / 2, -(WT + 20) / 2, H - 4.0])
+    gz = Manifold.cube([60, 2 * (sl_half + 12), H]).translate([LT / 2 - 45, -(sl_half + 12), sl_top])
+    grips = gz + gz.mirror([1, 0, 0])
+    logo = place_logo(104.0, 0.0, 0.0)
+    inlay = ext(logo, F - 0.6, F + 0.01)
+    brown = (tray ^ (band + grips)) + (tray ^ inlay)
+    beige = tray - band - grips - inlay
+    return dict(beige=beige, brown=brown), dict(face=inner(F).buffer(-rf), outer=outer(H).buffer(1.2), art=logo, Z=dict(H=H, F=F), size=(LT + 2.4, WT + 2.4, H))
+
 if __name__ == '__main__':
     todo = sys.argv[3].split(',') if len(sys.argv) > 3 else ['coaster', 'tray']
     for name, fn in [(n, globals()[n]) for n in todo]:
