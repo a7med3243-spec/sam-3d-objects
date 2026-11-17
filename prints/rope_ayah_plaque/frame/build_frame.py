@@ -147,8 +147,7 @@ G0, G1, GD = 0.5, 1.5, 0.8
 # ---- turn-button pivots on the back face (replace the old snap groove) ----
 RZ = (OW - rec_w) / 2                      # width of the solid rear zone
 VP = RZ / 2                                # pivot distance from the outer edge
-PIV = [('L', VP, OH * 0.27), ('L', VP, OH * 0.73), ('R', OW - VP, OH * 0.27), ('R', OW - VP, OH * 0.73),
-       ('B', OW * 0.3, VP), ('B', OW * 0.7, VP), ('T', OW * 0.3, OH - VP), ('T', OW * 0.7, OH - VP)]
+PIV = [('L', VP, OH / 2), ('R', OW - VP, OH / 2), ('B', OW / 2, VP), ('T', OW / 2, OH - VP)]   # one per side
 HOLE_D, HOLE_Z, CH_D, CH_Z = 4.15, 5.4, 4.9, 6.9
 def pivot_hole(x, y):
     h = m3d.Manifold.cylinder(HOLE_Z + 1, HOLE_D / 2, HOLE_D / 2, 48).translate([x, y, -1])
@@ -162,8 +161,6 @@ pl_x0 = ox_p + P['CL']
 nx0, nx1 = pl_x0 + 80.5, pl_x0 + 99.5
 cut += box(nx0, nx1, oy_p - 0.01, oy_w + 1.0, Z_PKT - 0.01, Z_NOTCH)
 cut += box(nx0, nx1, OH - oy_w - 1.0, OH - oy_p + 0.01, Z_PKT - 0.01, Z_NOTCH)
-# coin slot to pry the back board out (bottom edge, centre)
-cut += box(OW / 2 - 6, OW / 2 + 6, oy_r - 1.6, oy_r + 0.1, -1, 1.2)
 # hollow channel from the back inside each member (saves filament), 45 deg gable roof -> no bridging
 CH0, CH1 = 2.0, (OW - rec_w) / 2 - 2.5      # from outer edge: 2 mm outer skin ... 2.5 mm inner wall
 CHZ = 5.2                                   # vertical part of the channel
@@ -197,7 +194,7 @@ bw, bh, bt = rec_w - 2 * P['BACK_CL'], rec_h - 2 * P['BACK_CL'], P['BACK_T']
 bx0, by0 = ox_r + P['BACK_CL'], oy_r + P['BACK_CL']
 board = box(bx0, bx0 + bw, by0, by0 + bh, 0, bt)
 # lightening windows (leave rim 16, centre bars)
-rim, vbar, hbar_y, hbar_h = 10.0, 14.0, by0 + bh * 0.47, 16.0
+rim, vbar, hbar_y, hbar_h = 10.0, 14.0, OH / 2, 16.0
 cx = bx0 + bw / 2
 def rrect(x0, x1, y0, y1, r=6):
     sq = m3d.CrossSection.square([x1 - x0 - 2 * r, y1 - y0 - 2 * r]).translate([x0 + r, y0 + r]).offset(r, m3d.JoinType.Round)
@@ -242,45 +239,53 @@ for xx in ():
     tab('B', xx); tab('T', xx)
 for b in bumps:
     board += b
-# pry notch matching the coin slot
-board -= box(OW / 2 - 6, OW / 2 + 6, by0 - 1, by0 + 1.2, -1, 1.2)
+cy = OH / 2
+def place(m, landscape):
+    """parts are modelled for portrait at x=0; landscape = rotate -90 deg (up becomes +x) and centre on y."""
+    if not landscape:
+        return m.translate([cx, 0, 0])
+    return m.transform([[0, 1, 0, 0], [-1, 0, 0, cy], [0, 0, 1, 0]])
 
-# keyhole boss (wall hanging), top centre, on the back (z < 0)
-ky = by0 + bh - rim - 13
-kb = box(cx - 9, cx + 9, ky - 13, ky + 12, -5.0, 0.01)
-kh = m3d.Manifold.cylinder(6, 4.8, 4.8, 48).translate([cx, ky - 5, -5.5])                 # head entry
-kh += box(cx - 2.3, cx + 2.3, ky - 5, ky + 6, -5.5, -0.5 - 2.5)                           # shank slot
-kh += box(cx - 4.8, cx + 4.8, ky - 5, ky + 6, -3.0, -0.6)                                 # head channel
-kh += m3d.Manifold.cylinder(2.4, 4.8, 4.8, 48).translate([cx, ky + 6, -3.0])
-kh += m3d.Manifold.cylinder(6, 2.3, 2.3, 48).translate([cx, ky + 6, -5.5])
-board += box(cx - 11, cx + 11, ky - 15, ky + 14, 0, bt)   # solid patch under the keyhole
-board += kb - kh
+# keyholes (wall hanging): portrait at the top centre, landscape at the right-side centre
+def keyhole_parts(k):
+    kb = box(-9, 9, k - 13, k + 12, -5.0, 0.01)
+    kh = m3d.Manifold.cylinder(6, 4.8, 4.8, 48).translate([0, k - 5, -5.5])                 # head entry
+    kh += box(-2.3, 2.3, k - 5, k + 6, -5.5, -3.0)                                          # shank slot
+    kh += box(-4.8, 4.8, k - 5, k + 6, -3.0, -0.6)                                          # head channel
+    kh += m3d.Manifold.cylinder(2.4, 4.8, 4.8, 48).translate([0, k + 6, -3.0])
+    kh += m3d.Manifold.cylinder(6, 2.3, 2.3, 48).translate([0, k + 6, -5.5])
+    return box(-11, 11, k - 15, k + 14, 0, bt), kb - kh
+ky_p = by0 + bh - rim - 13                 # distance from the portrait bottom edge
+kx_l = bx0 + bw - rim - 13                 # distance from the landscape bottom (left) edge
+for k, land in ((ky_p, False), (kx_l, True)):
+    patch, kbm = keyhole_parts(k)
+    board += place(patch, land); board += place(kbm, land)
 
-# desk-stand socket on the centre bar
+# desk-stand sockets: same distance D from the resting edge in both orientations -> one leg fits both
 ALPHA, THETA = np.radians(15), np.radians(32)     # lean back 15 deg; leg 32 deg from the board
 LW, LT, CLs = 18.0, 4.0, 0.15
-sy = hbar_y + 12
+D = OW / 2
 dvec = np.array([0, -np.cos(THETA), -np.sin(THETA)])
 nvec = np.array([0, np.sin(THETA), -np.cos(THETA)])
-top_c = np.array([cx, sy, -1.2]) + nvec * (LT / 2 + CLs + 0.8)   # centre of the leg's top end
+top0 = np.array([0, D, -1.2]) + nvec * (LT / 2 + CLs + 0.8)   # leg top end (portrait, x=0)
 def leg_solid(length, w, t, start):
-    rot = np.c_[[1, 0, 0], -dvec, nvec]          # local x, y(=-d), z(=n)
+    rot = np.c_[[1, 0, 0], -dvec, nvec]
     m = box(-w / 2, w / 2, -length, 0, -t / 2, t / 2)
-    A = np.c_[rot, start]
-    return m.transform(A[:3].tolist())
-sock = leg_solid(40, LW + 2 * CLs, LT + 2 * CLs, top_c)
-sleeve = leg_solid(20, LW + 2 * CLs + 4.4, LT + 2 * CLs + 3.2, top_c - dvec * 1.6)
+    return m.transform(np.c_[rot, start][:3].tolist())
+sock = leg_solid(40, LW + 2 * CLs, LT + 2 * CLs, top0)
+sleeve = leg_solid(20, LW + 2 * CLs + 4.4, LT + 2 * CLs + 3.2, top0 - dvec * 1.6)
 bb = sleeve.bounding_box()
 foot = box(bb[0], bb[3], bb[1], bb[4], -0.6, 0.01)
-boss = m3d.Manifold.batch_hull([sleeve, foot])
-board += box(bb[0] - 2, bb[3] + 2, bb[1] - 2, bb[4] + 2, 0, bt)   # solid patch under the stand socket
-board += boss - sock - box(cx - 20, cx + 20, sy - 60, sy + 10, 0.0, 5)  # keep board front flat
-# leg length so that the foot meets the desk with the frame leaning back ALPHA
+boss = m3d.Manifold.batch_hull([sleeve, foot]) - sock - box(-20, 20, D - 60, D + 10, 0.0, 5)
+patch = box(bb[0] - 2, bb[3] + 2, bb[1] - 2, bb[4] + 2, 0, bt)
+socks = m3d.Manifold()
+for land in (False, True):
+    board += place(patch, land); board += place(boss, land); socks += place(sock, land)
+board -= socks
 up = np.array([0, np.cos(ALPHA), np.sin(ALPHA)])
-# frame pivots on its bottom-back edge (y=0, z=0) -> heights measured along 'up'
-Lfoot = -(top_c @ up) / (dvec @ up)
-INS = 12.0
-print('leg length', round(Lfoot, 1), 'foot behind pivot', round(-(top_c + Lfoot * dvec) @ np.array([0, np.sin(ALPHA), -np.cos(ALPHA)]) * -1, 1))
+Lfoot = -(top0 @ up) / (dvec @ up)
+print('leg length', round(Lfoot, 1), 'foot behind pivot', round((top0 + Lfoot * dvec) @ np.array([0, -np.sin(ALPHA), np.cos(ALPHA)]) * -1, 1),
+      'CG behind pivot portrait/landscape', round(OH / 2 * np.sin(ALPHA) + 7 * np.cos(ALPHA), 1), round(OW / 2 * np.sin(ALPHA) + 7 * np.cos(ALPHA), 1))
 board_t = T(board)
 print('board tris', len(board_t.faces), 'bounds', board_t.bounds.round(2).tolist())
 
@@ -326,7 +331,8 @@ board_t.export(OUT + '/_board_assembled.stl')
 bt_print.export(OUT + '/frame_back_board.stl')
 leg_t.export(OUT + '/frame_stand_leg.stl')
 # assembled leg for previews
-lg = T(leg_solid(Ltot, LW, LT, top_c)); lg.export(OUT + '/_leg_assembled.stl')
+lg = leg_solid(Ltot, LW, LT, top0)
+T(place(lg, False)).export(OUT + '/_leg_assembled.stl'); T(place(lg, True)).export(OUT + '/_leg_land_assembled.stl')
 # ---------------- turn buttons ----------------
 BL, BWID, BT = 10.8, 8.0, 2.0            # arm length (pivot -> tip centre), width, thickness
 PEG_D, BARB_D = 4.0, 4.55
@@ -347,10 +353,10 @@ for sd, x, y in PIV:
     a = DIRS[sd]; c_, s_ = np.cos(a), np.sin(a)
     asm += btn.transform([[c_, -s_, 0, x], [s_, c_, 0, y], [0, 0, 1, 0]])
 T(asm).export(OUT + '/_buttons_assembled.stl')
-bl = [T(btn.translate([0, 0, BT + 1.2]).translate([i % 4 * 22.0, i // 4 * 12.0, 0])) for i in range(len(PIV))]
-bb_ = trimesh.util.concatenate(bl); bb_.apply_translation(-bb_.bounds[0]); bb_.export(OUT + '/frame_turn_buttons_x8.stl')
+bl = [T(btn.translate([0, 0, BT + 1.2]).translate([i * 22.0, 0, 0])) for i in range(len(PIV))]
+bb_ = trimesh.util.concatenate(bl); bb_.apply_translation(-bb_.bounds[0]); bb_.export(OUT + '/frame_turn_buttons_x4.stl')
 print('rear zone', round(RZ, 2), 'button reach over board', round(VP + BL + BWID / 2 - RZ, 2))
-for n in ['frame_front_navy_ONE_PIECE', 'frame_back_board', 'frame_stand_leg', 'frame_turn_buttons_x8']:
+for n in ['frame_front_navy_ONE_PIECE', 'frame_back_board', 'frame_stand_leg', 'frame_turn_buttons_x4']:
     m = trimesh.load(OUT + f'/{n}.stl')
     print(n, 'vol cm3', round(abs(m.volume) / 1000, 1), 'size', (m.bounds[1] - m.bounds[0]).round(1).tolist(), 'wt', m.is_watertight)
 json.dump(dict(OW=OW, OH=OH, plaque_xy=[ox_p + P['CL'], oy_p + P['CL']], plaque_z=Z_REC), open(OUT + '/_layout.json', 'w'))
