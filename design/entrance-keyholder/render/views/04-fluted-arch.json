@@ -1,0 +1,138 @@
+[
+ {
+  "name": "04-fluted-arch-hero",
+  "base": "/kh/04-fluted-arch/assembly/",
+  "width": 1400,
+  "height": 1400,
+  "wall": "#cbc3b7",
+  "wallKind": "plaster",
+  "exposure": 0.95,
+  "hemi": 0.3,
+  "envIntensity": 0.42,
+  "sun": 2.6,
+  "camera": [
+   200,
+   170,
+   640
+  ],
+  "target": [
+   0,
+   112,
+   30
+  ],
+  "fov": 30,
+  "light": [
+   -300,
+   520,
+   560
+  ],
+  "props": [
+   {
+    "type": "plant",
+    "x": -38,
+    "y": 68,
+    "z": 50,
+    "r": 24,
+    "h": 40
+   },
+   {
+    "type": "keys",
+    "x": 49.5,
+    "y": 28,
+    "z": 26,
+    "fob": "black",
+    "tilt": 2
+   }
+  ]
+ },
+ {
+  "name": "04-fluted-arch-front",
+  "base": "/kh/04-fluted-arch/assembly/",
+  "width": 1400,
+  "height": 1400,
+  "wall": "#cbc3b7",
+  "wallKind": "plaster",
+  "exposure": 0.95,
+  "hemi": 0.3,
+  "envIntensity": 0.42,
+  "sun": 2.6,
+  "camera": [
+   0,
+   115,
+   760
+  ],
+  "target": [
+   0,
+   108,
+   0
+  ],
+  "fov": 24,
+  "light": [
+   -300,
+   480,
+   600
+  ],
+  "props": []
+ },
+ {
+  "name": "04-fluted-arch-detail",
+  "base": "/kh/04-fluted-arch/assembly/",
+  "width": 1400,
+  "height": 1000,
+  "wall": "#cbc3b7",
+  "wallKind": "plaster",
+  "exposure": 0.95,
+  "hemi": 0.3,
+  "envIntensity": 0.45,
+  "sun": 2.6,
+  "camera": [
+   120,
+   230,
+   330
+  ],
+  "target": [
+   0,
+   160,
+   10
+  ],
+  "fov": 30,
+  "light": [
+   -300,
+   520,
+   560
+  ],
+  "props": []
+ },
+ {
+  "name": "04-fluted-arch-verse-alone",
+  "base": "/kh/04-fluted-arch/assembly/",
+  "width": 1600,
+  "height": 1000,
+  "wall": "#cbc3b7",
+  "wallKind": "plaster",
+  "exposure": 0.95,
+  "hemi": 0.3,
+  "envIntensity": 0.45,
+  "sun": 2.6,
+  "camera": [
+   0,
+   150,
+   520
+  ],
+  "target": [
+   0,
+   145,
+   0
+  ],
+  "fov": 24,
+  "light": [
+   -300,
+   520,
+   560
+  ],
+  "only": [
+   "verse.stl"
+  ],
+  "props": []
+ }
+]

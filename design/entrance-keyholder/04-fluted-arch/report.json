@@ -1,0 +1,95 @@
+{
+ "meta": {
+  "design": "04-fluted-arch",
+  "verse_em_mm": 25.7,
+  "verse_size_mm": [
+   205.0,
+   130.4,
+   3.2
+  ],
+  "verse_pieces": 1,
+  "verse_bridges": 5,
+  "verse_strokes_under_0.8mm_pct": 0.06,
+  "verse_trim_mm": 2.4,
+  "verse_top_above_arch_mm": 15.4,
+  "pins": [
+   [
+    98.0,
+    102.4
+   ],
+   [
+    64.9,
+    155.4
+   ],
+   [
+    0.0,
+    179.0
+   ],
+   [
+    -64.9,
+    155.4
+   ],
+   [
+    -98.0,
+    102.4
+   ]
+  ],
+  "reeds": 33,
+  "assembly_clashes_mm3": {},
+  "overall_mm": [
+   210.0,
+   198.4,
+   92.0
+  ]
+ },
+ "parts": [
+  {
+   "part": "panel.stl",
+   "watertight": true,
+   "size_mm": [
+    210.0,
+    183.0,
+    9.6
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 262.1,
+   "overhang_mm2_over_45deg": 504.8
+  },
+  {
+   "part": "shelf.stl",
+   "watertight": true,
+   "size_mm": [
+    210.0,
+    85.0,
+    26.0
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 165.1,
+   "overhang_mm2_over_45deg": 30.6
+  },
+  {
+   "part": "verse.stl",
+   "watertight": true,
+   "size_mm": [
+    205.0,
+    130.4,
+    9.2
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 7.1,
+   "overhang_mm2_over_45deg": 0.0
+  },
+  {
+   "part": "peg.stl",
+   "watertight": true,
+   "size_mm": [
+    13.0,
+    13.0,
+    39.5
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 4.2,
+   "overhang_mm2_over_45deg": 0.0
+  }
+ ]
+}

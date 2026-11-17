@@ -199,6 +199,35 @@ function addProp(p) {
   } else if (p.type === 'pod') {
     m = rbox(p.w || 46, p.h || 22, p.d || 54, 10, new THREE.MeshPhysicalMaterial({ color: 0xf6f6f4, roughness: 0.25, clearcoat: 0.8 }));
     m.position.set(p.x, p.y, p.z);
+  } else if (p.type === 'plant') {
+    // small concrete pot with a leafy sprig, sitting on (x, y, z)
+    m = new THREE.Group();
+    const r = p.r || 26, h = p.h || 42;
+    const potMat = new THREE.MeshPhysicalMaterial({ color: 0xcfcac2, roughness: 0.92 });
+    const pot = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 0.86, h, 48, 1, false), potMat);
+    pot.position.y = h / 2; pot.castShadow = pot.receiveShadow = true; m.add(pot);
+    const soil = new THREE.Mesh(new THREE.CylinderGeometry(r - 2.5, r - 2.5, 1, 32), new THREE.MeshStandardMaterial({ color: 0x3b2f25, roughness: 1 }));
+    soil.position.y = h - 3; m.add(soil);
+    const leafMat = new THREE.MeshPhysicalMaterial({ color: 0x6f8a55, roughness: 0.7, sheen: 0.4 });
+    const stemMat = new THREE.MeshStandardMaterial({ color: 0x5c6e45, roughness: 0.8 });
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let s = 0; s < 16; s++) {
+      const ang = rnd() * Math.PI * 2, tilt = 0.25 + rnd() * 0.75, len = 34 + rnd() * 34;
+      const dir = new THREE.Vector3(Math.cos(ang) * Math.sin(tilt), Math.cos(tilt), Math.sin(ang) * Math.sin(tilt));
+      const base = new THREE.Vector3((rnd() - 0.5) * 10, h - 3, (rnd() - 0.5) * 10);
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, len, 6), stemMat);
+      stem.position.copy(base.clone().add(dir.clone().multiplyScalar(len / 2)));
+      stem.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir); m.add(stem);
+      for (let k = 0; k < 9; k++) {
+        const t = 0.25 + 0.75 * k / 8;
+        const leaf = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), leafMat);
+        leaf.scale.set(2.6, 0.7, 5.2 - 2.2 * t);
+        leaf.position.copy(base.clone().add(dir.clone().multiplyScalar(len * t)));
+        leaf.rotation.set(rnd() * 3, rnd() * 3, rnd() * 3);
+        leaf.castShadow = true; m.add(leaf);
+      }
+    }
+    m.position.set(p.x, p.y, p.z);
   }
   if (m) scene.add(m);
 }
@@ -207,6 +236,7 @@ function addProp(p) {
 const loader = new STLLoader();
 const manifest = await (await fetch(cfg.base + 'manifest.json')).json();
 for (const item of manifest) {
+  if (cfg.only && !cfg.only.includes(item.file)) continue;
   const geo = await loader.loadAsync(cfg.base + item.file);
   const matKey = (cfg.materialMap && cfg.materialMap[item.material]) || item.material;
   if (matKey === 'wood' || matKey === 'walnut') boxUV(geo);
