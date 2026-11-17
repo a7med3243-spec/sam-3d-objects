@@ -1,0 +1,74 @@
+{
+ "meta": {
+  "design": "02-floating-shelf",
+  "calligraphy_colour_change_z_mm": 3.6,
+  "text_mm": [
+   186.0,
+   33.5
+  ],
+  "calligraphy_height_above_shelf_mm": 46.7,
+  "gold_area_in_strokes_under_0.8mm_pct": 0.04
+ },
+ "parts": [
+  {
+   "part": "shelf.stl",
+   "watertight": true,
+   "size_mm": [
+    210.0,
+    90.0,
+    86.0
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 244.8,
+   "overhang_mm2_over_45deg": 901.0
+  },
+  {
+   "part": "calligraphy.stl",
+   "watertight": true,
+   "size_mm": [
+    202.2,
+    50.4,
+    4.8
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 37.4,
+   "overhang_mm2_over_45deg": 0.0
+  },
+  {
+   "part": "calligraphy_base_clear.stl",
+   "watertight": true,
+   "size_mm": [
+    202.2,
+    50.4,
+    3.6
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 36.1,
+   "overhang_mm2_over_45deg": 0.0
+  },
+  {
+   "part": "calligraphy_accent_gold.stl",
+   "watertight": true,
+   "size_mm": [
+    186.2,
+    33.7,
+    1.2
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 1.4,
+   "overhang_mm2_over_45deg": 0.0
+  },
+  {
+   "part": "peg.stl",
+   "watertight": true,
+   "size_mm": [
+    14.0,
+    14.0,
+    38.5
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 3.4,
+   "overhang_mm2_over_45deg": 0.0
+  }
+ ]
+}

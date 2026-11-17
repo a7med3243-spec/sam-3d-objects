@@ -1,0 +1,98 @@
+[
+ {
+  "name": "01-mihrab-hero",
+  "base": "/kh/01-mihrab/assembly/",
+  "width": 1200,
+  "height": 1500,
+  "wall": "#c4baa9",
+  "wallKind": "linen",
+  "camera": [
+   230,
+   165,
+   690
+  ],
+  "target": [
+   0,
+   98,
+   18
+  ],
+  "fov": 27,
+  "light": [
+   -320,
+   520,
+   560
+  ],
+  "props": [
+   {
+    "type": "keys",
+    "x": -40,
+    "y": 14,
+    "z": 24,
+    "fob": "brown",
+    "tilt": 3
+   },
+   {
+    "type": "phone",
+    "x": -10,
+    "y": 67.5,
+    "z": 18,
+    "w": 146,
+    "h": 71,
+    "rot": [
+     -7,
+     0,
+     0
+    ]
+   },
+   {
+    "type": "box",
+    "material": "leather",
+    "x": 36,
+    "y": 66,
+    "z": 27.5,
+    "w": 78,
+    "h": 66,
+    "d": 9,
+    "r": 4,
+    "rot": [
+     -4,
+     0,
+     0
+    ]
+   }
+  ],
+  "exposure": 0.95,
+  "hemi": 0.28,
+  "envIntensity": 0.38,
+  "sun": 2.7
+ },
+ {
+  "name": "01-mihrab-front",
+  "base": "/kh/01-mihrab/assembly/",
+  "width": 1200,
+  "height": 1500,
+  "wall": "#c4baa9",
+  "wallKind": "linen",
+  "camera": [
+   0,
+   108,
+   820
+  ],
+  "target": [
+   0,
+   102,
+   0
+  ],
+  "fov": 22,
+  "light": [
+   -300,
+   480,
+   600
+  ],
+  "props": [],
+  "exposure": 0.95,
+  "hemi": 0.28,
+  "envIntensity": 0.38,
+  "sun": 2.7
+ }
+]

@@ -1,0 +1,75 @@
+{
+ "meta": {
+  "design": "01-mihrab",
+  "colour_change_z_mm": 7.0,
+  "verse_line_widths_mm": [
+   96.2,
+   75.3
+  ],
+  "apex_y": 210.0,
+  "spring_y": 115.3,
+  "gold_area_in_strokes_under_0.8mm_pct": 0.28
+ },
+ "parts": [
+  {
+   "part": "panel.stl",
+   "watertight": true,
+   "size_mm": [
+    160.0,
+    210.0,
+    8.2
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 208.7,
+   "overhang_mm2_over_45deg": 336.5
+  },
+  {
+   "part": "panel_base_black.stl",
+   "watertight": true,
+   "size_mm": [
+    160.0,
+    210.0,
+    7.0
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 206.7,
+   "overhang_mm2_over_45deg": 336.5
+  },
+  {
+   "part": "panel_accent_gold.stl",
+   "watertight": true,
+   "size_mm": [
+    147.0,
+    196.9,
+    1.2
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 2.1,
+   "overhang_mm2_over_45deg": 0.0
+  },
+  {
+   "part": "pocket.stl",
+   "watertight": true,
+   "size_mm": [
+    160.0,
+    30.0,
+    42.0
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 79.3,
+   "overhang_mm2_over_45deg": 116.3
+  },
+  {
+   "part": "peg.stl",
+   "watertight": true,
+   "size_mm": [
+    14.0,
+    14.0,
+    38.5
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 3.4,
+   "overhang_mm2_over_45deg": 0.0
+  }
+ ]
+}

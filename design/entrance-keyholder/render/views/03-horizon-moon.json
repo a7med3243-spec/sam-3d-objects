@@ -1,0 +1,93 @@
+[
+ {
+  "name": "03-horizon-moon-hero",
+  "base": "/kh/03-horizon-moon/assembly/",
+  "width": 1400,
+  "height": 1400,
+  "wall": "#8f9a8c",
+  "wallKind": "linen",
+  "exposure": 0.95,
+  "hemi": 0.28,
+  "envIntensity": 0.4,
+  "sun": 2.7,
+  "camera": [
+   220,
+   90,
+   650
+  ],
+  "target": [
+   0,
+   -12,
+   20
+  ],
+  "fov": 29,
+  "light": [
+   -320,
+   520,
+   560
+  ],
+  "props": [
+   {
+    "type": "keys",
+    "x": 0,
+    "y": -74,
+    "z": 24,
+    "fob": "brown",
+    "tilt": 2
+   },
+   {
+    "type": "keys",
+    "x": 34,
+    "y": -74,
+    "z": 22,
+    "fob": "black",
+    "tilt": -3
+   },
+   {
+    "type": "box",
+    "material": "leatherblack",
+    "x": -40,
+    "y": -15,
+    "z": 24,
+    "w": 82,
+    "h": 50,
+    "d": 9,
+    "r": 4,
+    "rot": [
+     -9,
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ {
+  "name": "03-horizon-moon-front",
+  "base": "/kh/03-horizon-moon/assembly/",
+  "width": 1400,
+  "height": 1400,
+  "wall": "#8f9a8c",
+  "wallKind": "linen",
+  "exposure": 0.95,
+  "hemi": 0.28,
+  "envIntensity": 0.4,
+  "sun": 2.7,
+  "camera": [
+   0,
+   -8,
+   760
+  ],
+  "target": [
+   0,
+   -10,
+   0
+  ],
+  "fov": 24,
+  "light": [
+   -300,
+   480,
+   600
+  ],
+  "props": []
+ }
+]

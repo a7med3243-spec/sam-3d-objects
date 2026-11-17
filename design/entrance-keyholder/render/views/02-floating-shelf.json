@@ -1,0 +1,90 @@
+[
+ {
+  "name": "02-floating-shelf-hero",
+  "base": "/kh/02-floating-shelf/assembly/",
+  "width": 1600,
+  "height": 1200,
+  "wall": "#9fa596",
+  "wallKind": "linen",
+  "exposure": 0.95,
+  "hemi": 0.28,
+  "envIntensity": 0.4,
+  "sun": 2.7,
+  "camera": [
+   70,
+   150,
+   660
+  ],
+  "target": [
+   0,
+   82,
+   30
+  ],
+  "fov": 29,
+  "light": [
+   -320,
+   520,
+   560
+  ],
+  "props": [
+   {
+    "type": "keys",
+    "x": -22,
+    "y": 34,
+    "z": 24,
+    "fob": "black",
+    "tilt": -2
+   },
+   {
+    "type": "keys",
+    "x": 66,
+    "y": 34,
+    "z": 22,
+    "fob": "brown",
+    "tilt": 4
+   },
+   {
+    "type": "phone",
+    "x": -30,
+    "y": 90.5,
+    "z": 54,
+    "w": 72,
+    "h": 148,
+    "rot": [
+     -90,
+     0,
+     90
+    ]
+   }
+  ]
+ },
+ {
+  "name": "02-floating-shelf-front",
+  "base": "/kh/02-floating-shelf/assembly/",
+  "width": 1600,
+  "height": 1200,
+  "wall": "#9fa596",
+  "wallKind": "linen",
+  "exposure": 0.95,
+  "hemi": 0.28,
+  "envIntensity": 0.4,
+  "sun": 2.7,
+  "camera": [
+   0,
+   92,
+   700
+  ],
+  "target": [
+   0,
+   82,
+   0
+  ],
+  "fov": 24,
+  "light": [
+   -300,
+   480,
+   600
+  ],
+  "props": []
+ }
+]

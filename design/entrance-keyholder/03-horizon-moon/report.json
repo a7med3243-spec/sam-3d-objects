@@ -1,0 +1,78 @@
+{
+ "meta": {
+  "design": "03-horizon-moon",
+  "colour_change_z_mm": 7.0,
+  "text_em_mm": 16.4,
+  "text_height_mm": 16.6,
+  "arc_text_bounds": [
+   -72.1,
+   22.6,
+   74.2,
+   80.3
+  ],
+  "arc_span_deg": 139.5,
+  "gold_area_in_strokes_under_0.8mm_pct": 0.25
+ },
+ "parts": [
+  {
+   "part": "disc.stl",
+   "watertight": true,
+   "size_mm": [
+    200.0,
+    200.0,
+    8.2
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 219.6,
+   "overhang_mm2_over_45deg": 336.5
+  },
+  {
+   "part": "disc_base_ivory.stl",
+   "watertight": true,
+   "size_mm": [
+    200.0,
+    200.0,
+    7.0
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 217.5,
+   "overhang_mm2_over_45deg": 336.5
+  },
+  {
+   "part": "disc_accent_gold.stl",
+   "watertight": true,
+   "size_mm": [
+    189.0,
+    189.0,
+    1.2
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 2.1,
+   "overhang_mm2_over_45deg": 0.0
+  },
+  {
+   "part": "shelf.stl",
+   "watertight": true,
+   "size_mm": [
+    210.0,
+    60.0,
+    20.0
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 88.9,
+   "overhang_mm2_over_45deg": 24.5
+  },
+  {
+   "part": "peg.stl",
+   "watertight": true,
+   "size_mm": [
+    14.0,
+    14.0,
+    38.5
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 3.4,
+   "overhang_mm2_over_45deg": 0.0
+  }
+ ]
+}
