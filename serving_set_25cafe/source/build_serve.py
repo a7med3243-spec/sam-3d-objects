@@ -213,11 +213,12 @@ def tray4():
     return dict(black=black, beige=beige, brown=brown), dict(face=floor, outer=outer, art=art, Z=Z,
                                                              pockets=[(c, r_top, depth) for c in cups], dish=(da, db), slots=slots)
 
-def tray_classic():
+def tray_classic(H=42.0, t=3.4, F=3.6, rf=8.0, sl_h=24.0, sl_from_top=9.0, grip_extra=4.5, grip_drop=None, band_h=4.2,
+                 LT=300.0, WT=208.0, RT=28.0, logo_h=104.0, feet_xy=(115, 70)):
     """Classic serving tray (like the reference picture): flared walls, rounded corners, brown rim lip,
     hand slots with brown grips at both ends, one logo in the middle of the floor. Two filaments."""
-    LT, WT, RT, H, ang = 300.0, 208.0, 28.0, 42.0, np.radians(14)   # top size, corner radius, height, wall flare
-    t, F, rf = 3.4, 3.6, 8.0                       # wall (horizontal), floor thickness, inner floor fillet
+    ang = np.radians(14)                            # wall flare; LT x WT top size, RT corner radius
+    # H height, t wall (horizontal), F floor thickness, rf inner floor fillet
     top = rrect(LT, WT, RT)
     outer = lambda z: top.buffer(-(H - z) * np.tan(ang), quad_segs=Q)
     inner = lambda z: outer(z).buffer(-t, quad_segs=Q)
@@ -231,30 +232,35 @@ def tray_classic():
         cav.append(slab(inner(z).buffer(-(rf - rf * np.sin(a)), quad_segs=Q), z))
     tray = body - Manifold.batch_hull(cav)
     # hand slots in both end walls + a thicker grip block above/around them (45 deg underside, no support)
-    sl_half, sl_h, sl_top = 42.0, 24.0, H - 9.0
+    sl_half, sl_top = 42.0, H - sl_from_top
     xin = lambda z: inner(z).bounds[2]
-    zb = sl_top - sl_h - 6.0
+    zb = sl_top - sl_h - 6.0 if grip_drop is None else sl_top - grip_drop - grip_extra
     for sx in (-1, 1):
         def rect_x(z, extra):
             x0 = xin(z) - extra; return rrect(1, 1, 0.4) if False else box(x0, -(sl_half + 10), x0 + 30, sl_half + 10).buffer(-4, quad_segs=16).buffer(4, quad_segs=16)
-        blk = Manifold.batch_hull([slab(rect_x(zb, 0.0), zb), slab(rect_x(zb + 4.5, 4.5), zb + 4.5), slab(rect_x(H, 4.5), H)])
+        blk = Manifold.batch_hull([slab(rect_x(zb, 0.0), zb), slab(rect_x(zb + grip_extra, grip_extra), zb + grip_extra), slab(rect_x(H, grip_extra), H)])
         if sx < 0: blk = blk.mirror([1, 0, 0])
         tray = tray + (blk ^ body)
     stad = LineString([(-(sl_half - sl_h / 2), sl_top - sl_h / 2), (sl_half - sl_h / 2, sl_top - sl_h / 2)]).buffer(sl_h / 2, quad_segs=32)
     cut = Manifold.extrude(cs_of(stad), 60).warp_batch(lambda p: np.c_[p[:, 2] - 30, p[:, 0], p[:, 1]])
     x_end = LT / 2 - 12
     tray = tray - cut.translate([x_end, 0, 0]) - cut.translate([-x_end, 0, 0])
-    feet = unary_union([Point(x, y).buffer(5.25, quad_segs=24) for x in (-115, 115) for y in (-70, 70)])
+    feet = unary_union([Point(x, y).buffer(5.25, quad_segs=24) for x in (-feet_xy[0], feet_xy[0]) for y in (-feet_xy[1], feet_xy[1])])
     tray = tray - ext(feet, -1, 0.8)
     # colours: brown rim band + brown grips above the slots + logo; everything else beige
-    band = Manifold.cube([LT + 20, WT + 20, 4.2]).translate([-(LT + 20) / 2, -(WT + 20) / 2, H - 4.0])
+    band = Manifold.cube([LT + 20, WT + 20, band_h]).translate([-(LT + 20) / 2, -(WT + 20) / 2, H - band_h + 0.2])
     gz = Manifold.cube([60, 2 * (sl_half + 12), H]).translate([LT / 2 - 45, -(sl_half + 12), sl_top])
     grips = gz + gz.mirror([1, 0, 0])
-    logo = place_logo(104.0, 0.0, 0.0)
+    logo = place_logo(logo_h, 0.0, 0.0)
     inlay = ext(logo, F - 0.6, F + 0.01)
     brown = (tray ^ (band + grips)) + (tray ^ inlay)
     beige = tray - band - grips - inlay
     return dict(beige=beige, brown=brown), dict(face=inner(F).buffer(-rf), outer=outer(H).buffer(1.2), art=logo, Z=dict(H=H, F=F), size=(LT + 2.4, WT + 2.4, H))
+
+def tray_lite():
+    """Same design, lighter and faster: lower 32 mm walls, 2 mm walls, 3 mm floor, small grips only above the slots."""
+    return tray_classic(H=32.0, t=1.6, F=2.6, rf=4.0, sl_h=18.0, sl_from_top=7.0, grip_extra=3.0, grip_drop=2.4, band_h=3.0,
+                        LT=254.0, WT=184.0, RT=24.0, logo_h=92.0, feet_xy=(95, 58))
 
 if __name__ == '__main__':
     todo = sys.argv[3].split(',') if len(sys.argv) > 3 else ['coaster', 'tray']

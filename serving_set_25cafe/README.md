@@ -1,5 +1,27 @@
 # 25 Percent Cafe – serving set
 
+## NEW: LITE tray (lighter, faster, same look) ← recommended
+
+![lite tray](previews/000b_tray_lite_with_cups.png)
+
+| | Classic tray (before) | **Lite tray (new)** |
+|---|---|---|
+| File | `classic_tray/` | **`tray_lite/25cafe_tray_lite.3mf`** |
+| Size | 302 × 210 × 42 mm | **256 × 186 × 32 mm** |
+| Walls / floor | 3.4 mm / 3.6 mm | **1.6 mm / 2.6 mm** |
+| Filament (estimate) | ≈ 232 g | **≈ 146 g (default) / ≈ 123 g (fast settings below)** |
+| Print time | 100 % | **roughly 50–60 % of before** (Bambu Studio shows the exact time) |
+| Holds | 4 coffees + sweets | 4 coffees + sweets |
+| Colour changes | 29 | 25 |
+
+Same design: sloped walls, dark-brown rim, hand slots with brown grips, and **only the 25 CAFE logo in the middle**.
+
+**Fast settings (Bambu Studio):** layer height **0.24 mm** · wall loops **2** · top shell thickness **0.8 mm** · bottom shell layers **2** · sparse infill **10 %** (grid) · no supports · prime tower on, "Flush into objects' infill" on · timelapse off. Use **PETG** for hot coffee.
+
+**Fill the plate:** two lite trays do not fit on one plate (2 × 186 mm is more than the 320 mm plate), but **one tray + 2 coasters fit together** (see `previews/000d_…`). Set the coaster's "1 - Black" part to the dark-brown filament so everything prints with the same 2 colours.
+
+---
+
 ## NEW: classic serving tray (from your reference picture)
 
 ![classic tray](previews/00a_classic_tray.png)

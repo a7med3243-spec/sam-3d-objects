@@ -86,22 +86,29 @@ if (view === 'set') {
 } else if (view.startsWith('classic')) {
   const CC = { cream: mat(0xece2cc, 0.55), dark: mat(0x3b281d, 0.45) };
   const g = new THREE.Group();
-  for (const [t, c] of [['1_beige', 'cream'], ['2_brown', 'dark']]) { const m = new THREE.Mesh(await load(`25cafe_classic_tray_${t}.stl`), CC[c]); m.castShadow = m.receiveShadow = true; g.add(m); }
+  for (const [t, c] of [['1_beige', 'cream'], ['2_brown', 'dark']]) { const m = new THREE.Mesh(await load(`${q.get('name') || '25cafe_classic_tray'}_${t}.stl`), CC[c]); m.castShadow = m.receiveShadow = true; g.add(m); }
   g.rotation.x = -Math.PI / 2;
   if (view === 'classic_plate') {
     scene.background = new THREE.Color(0xe9e6e1);
     const plate = new THREE.Mesh(new THREE.BoxGeometry(330, 2, 320), new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.85 }));
     plate.position.y = -1; plate.receiveShadow = true; scene.add(plate);
+    if (q.get('name')) {      // lite tray + 2 coasters (coaster black part printed in dark brown) + prime tower
+      g.position.set(0, 0, -62); scene.add(g);
+      for (const x of [-110, 0]) { const co = await coaster(); co.traverse(o => { if (o.isMesh && o.material === COL.black) o.material = CC.dark; if (o.isMesh && o.material === COL.beige) o.material = CC.cream; });
+        co.position.set(x, 0, 105); scene.add(co); }
+      const tw = new THREE.Mesh(new THREE.BoxGeometry(35, 32, 35), mat(0x8a7a66)); tw.position.set(115, 16, 110); tw.castShadow = true; scene.add(tw);
+    } else {
     g.position.set(0, 0, -45); scene.add(g);
     const tw = new THREE.Mesh(new THREE.BoxGeometry(35, 42, 35), mat(0x8a7a66)); tw.position.set(120, 21, 115); tw.castShadow = true; scene.add(tw);
+    }
     key.position.set(-160, 420, 260); camera.position.set(-40, 430, 430); camera.lookAt(0, 0, 0);
   } else {
     scene.add(g);
     if (view === 'classic_cups') {
-      const spots = [[-72, 48], [-72, -48], [10, 48], [10, -48]];
+      const spots = q.get('name') ? [[-80, 47], [-80, -47], [15, 47], [15, -47]] : [[-72, 48], [-72, -48], [10, 48], [10, -48]];
       for (const [i, [x, y]] of spots.entries()) { const c = await cup(); c.position.set(x, 3.6, -y); c.rotation.y = Math.PI * (0.45 + 0.07 * i); scene.add(c); }
       const cm = new THREE.MeshStandardMaterial({ color: 0x8a5a2e, roughness: 0.9 }), cm2 = new THREE.MeshStandardMaterial({ color: 0xe9d9b8, roughness: 0.9 });
-      for (const [x, z, m] of [[95, 20, cm], [100, -25, cm2], [70, 0, cm]]) { const k = new THREE.Mesh(new THREE.CylinderGeometry(17, 17, 7, 64), m); k.position.set(x, 3.6 + 3.5, z); k.castShadow = true; scene.add(k); }
+      for (const [x, z, m] of (q.get('name') ? [[78, 22, cm], [84, -22, cm2], [92, 2, cm]] : [[95, 20, cm], [100, -25, cm2], [70, 0, cm]])) { const k = new THREE.Mesh(new THREE.CylinderGeometry(17, 17, 7, 64), m); k.position.set(x, 3.6 + 3.5, z); k.castShadow = true; scene.add(k); }
       key.position.set(-260, 460, 300); camera.position.set(-60, 380, 470); camera.lookAt(10, 30, 0);
     } else if (view === 'classic_top') {
       key.position.set(-160, 600, 220); camera = new THREE.PerspectiveCamera(22, W / H, 1, 5000); camera.position.set(0, 700, 0.01); camera.lookAt(0, 0, 0);
