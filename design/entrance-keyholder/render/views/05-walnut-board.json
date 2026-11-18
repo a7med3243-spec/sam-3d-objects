@@ -1,9 +1,5 @@
 [
  {
-  "name": "05-walnut-board-hero",
-  "base": "/kh/05-walnut-board/assembly/",
-  "width": 1400,
-  "height": 1400,
   "wall": "#d3c9bb",
   "wallKind": "plaster",
   "grain": "horizontal",
@@ -11,85 +7,89 @@
   "hemi": 0.32,
   "envIntensity": 0.45,
   "sun": 2.6,
+  "light": [
+   -320,
+   560,
+   620
+  ],
+  "name": "05-walnut-board-large-hero",
+  "base": "/kh/05-walnut-board/large/assembly/",
+  "width": 1500,
+  "height": 1300,
   "camera": [
-   170,
-   120,
-   560
+   260,
+   175,
+   900
   ],
   "target": [
    0,
-   62,
-   25
+   105,
+   40
   ],
   "fov": 30,
-  "light": [
-   -300,
-   520,
-   560
-  ],
   "props": [
    {
     "type": "plant",
-    "x": -55,
-    "y": 89,
-    "z": 32,
-    "r": 21,
-    "h": 34
+    "x": -110,
+    "y": 152,
+    "z": 45,
+    "r": 30,
+    "h": 46
    },
    {
     "type": "box",
     "material": "brass",
-    "x": 50,
-    "y": 91.5,
-    "z": 34,
-    "w": 80,
-    "h": 4,
-    "d": 44,
-    "r": 6
+    "x": 85,
+    "y": 154.5,
+    "z": 55,
+    "w": 110,
+    "h": 5,
+    "d": 62,
+    "r": 8
    },
    {
-    "type": "pod",
-    "x": 52,
-    "y": 104.5,
-    "z": 36,
-    "w": 46,
-    "h": 22,
-    "d": 54
+    "type": "phone",
+    "x": 80,
+    "y": 161,
+    "z": 55,
+    "w": 72,
+    "h": 148,
+    "rot": [
+     -90,
+     0,
+     90
+    ]
    },
    {
     "type": "keys",
-    "x": -76,
-    "y": 16,
-    "z": 16,
+    "x": -137.5,
+    "y": 27,
+    "z": 22,
     "fob": "black",
     "tilt": 2,
-    "peg_r": 4
+    "peg_r": 5.5
    },
    {
     "type": "keys",
-    "x": 0,
-    "y": 16,
-    "z": 16,
+    "x": -27.5,
+    "y": 27,
+    "z": 22,
     "fob": "brown",
     "tilt": -3,
-    "peg_r": 4
+    "peg_r": 5.5
    },
    {
     "type": "keys",
-    "x": 76,
-    "y": 16,
-    "z": 15,
+    "x": 82.5,
+    "y": 27,
+    "z": 21,
     "fob": "brown",
     "tilt": 3,
-    "peg_r": 4
+    "peg_r": 5.5
    }
   ]
  },
  {
-  "name": "05-walnut-board-front",
-  "base": "/kh/05-walnut-board/assembly/",
-  "width": 1400,
-  "height": 1000,
   "wall": "#d3c9bb",
   "wallKind": "plaster",
   "grain": "horizontal",
@@ -97,6 +97,75 @@
   "hemi": 0.32,
   "envIntensity": 0.45,
   "sun": 2.6,
+  "light": [
+   -320,
+   560,
+   620
+  ],
+  "name": "05-walnut-board-large-front",
+  "base": "/kh/05-walnut-board/large/assembly/",
+  "width": 1500,
+  "height": 1000,
+  "camera": [
+   0,
+   110,
+   1040
+  ],
+  "target": [
+   0,
+   104,
+   0
+  ],
+  "fov": 24,
+  "props": []
+ },
+ {
+  "wall": "#d3c9bb",
+  "wallKind": "plaster",
+  "grain": "horizontal",
+  "exposure": 0.95,
+  "hemi": 0.32,
+  "envIntensity": 0.45,
+  "sun": 2.6,
+  "light": [
+   -260,
+   420,
+   520
+  ],
+  "name": "05-walnut-board-verse-detail",
+  "base": "/kh/05-walnut-board/large/assembly/",
+  "width": 1600,
+  "height": 800,
+  "camera": [
+   40,
+   110,
+   430
+  ],
+  "target": [
+   0,
+   97,
+   10
+  ],
+  "fov": 24,
+  "props": []
+ },
+ {
+  "wall": "#d3c9bb",
+  "wallKind": "plaster",
+  "grain": "horizontal",
+  "exposure": 0.95,
+  "hemi": 0.32,
+  "envIntensity": 0.45,
+  "sun": 2.6,
+  "light": [
+   -320,
+   560,
+   620
+  ],
+  "name": "05-walnut-board-small-front",
+  "base": "/kh/05-walnut-board/small/assembly/",
+  "width": 1400,
+  "height": 1000,
   "camera": [
    0,
    66,
@@ -108,68 +177,6 @@
    0
   ],
   "fov": 24,
-  "light": [
-   -300,
-   480,
-   600
-  ],
   "props": []
- },
- {
-  "name": "05-walnut-board-verse",
-  "base": "/kh/05-walnut-board/assembly_verse/",
-  "width": 1400,
-  "height": 1400,
-  "wall": "#d3c9bb",
-  "wallKind": "plaster",
-  "grain": "horizontal",
-  "exposure": 0.95,
-  "hemi": 0.32,
-  "envIntensity": 0.45,
-  "sun": 2.6,
-  "camera": [
-   150,
-   115,
-   560
-  ],
-  "target": [
-   0,
-   62,
-   25
-  ],
-  "fov": 30,
-  "light": [
-   -300,
-   520,
-   560
-  ],
-  "props": [
-   {
-    "type": "plant",
-    "x": -55,
-    "y": 89,
-    "z": 32,
-    "r": 21,
-    "h": 34
-   },
-   {
-    "type": "keys",
-    "x": -38,
-    "y": 16,
-    "z": 16,
-    "fob": "black",
-    "tilt": 2,
-    "peg_r": 4
-   },
-   {
-    "type": "keys",
-    "x": 38,
-    "y": 16,
-    "z": 15,
-    "fob": "brown",
-    "tilt": 3,
-    "peg_r": 4
-   }
-  ]
  }
 ]

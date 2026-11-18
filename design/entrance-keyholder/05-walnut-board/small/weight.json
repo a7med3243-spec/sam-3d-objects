@@ -1,0 +1,44 @@
+{
+ "size": "small",
+ "settings": "0.2 mm layers, 3 walls, 15% gyroid, PLA 1.24 g/cm3",
+ "parts": [
+  {
+   "part": "board.stl",
+   "count": 1,
+   "grams_each": 94.76,
+   "time_each": "9h 51m 19s"
+  },
+  {
+   "part": "shelf.stl",
+   "count": 1,
+   "grams_each": 45.02,
+   "time_each": "4h 25m 35s"
+  },
+  {
+   "part": "panel_white_with_verse.stl",
+   "count": 1,
+   "grams_each": 47.87,
+   "time_each": "5h 11m 1s"
+  },
+  {
+   "part": "mmu_verse_dark.stl",
+   "count": 0,
+   "grams_each": 3.66,
+   "time_each": "42m 9s"
+  },
+  {
+   "part": "knob.stl",
+   "count": 5,
+   "grams_each": 1.96,
+   "time_each": "19m 16s"
+  }
+ ],
+ "total_grams": 197.5,
+ "total_print_hours": 21.1,
+ "by_colour_grams": {
+  "walnut": 139.8,
+  "white+dark": 47.9,
+  "brass": 9.8,
+  "dark (part of white+dark)": 3.7
+ }
+}

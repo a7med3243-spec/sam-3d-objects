@@ -1,0 +1,101 @@
+{
+ "meta": {
+  "design": "05-walnut-board",
+  "size": "small",
+  "overall_mm": [
+   210.0,
+   122.0,
+   63.0
+  ],
+  "verse_text": "وَلَسَوۡفَ يُعۡطِيكَ رَبُّكَ فَتَرۡضَىٰٓ",
+  "verse_codepoints": "U+0648 U+064E U+0644 U+064E U+0633 U+064E U+0648 U+06E1 U+0641 U+064E U+0020 U+064A U+064F U+0639 U+06E1 U+0637 U+0650 U+064A U+0643 U+064E U+0020 U+0631 U+064E U+0628 U+0651 U+064F U+0643 U+064E U+0020 U+0641 U+064E U+062A U+064E U+0631 U+06E1 U+0636 U+064E U+0649 U+0670 U+0653",
+  "verse_font": "Amiri Quran",
+  "verse_em_mm": 19.9,
+  "verse_size_mm": [
+   180.2,
+   34.7
+  ],
+  "verse_pieces_dots_and_marks": 36,
+  "verse_smallest_gap_mm": 0.47,
+  "verse_strokes_under_0.8mm_pct": 4.05,
+  "panel_colour_change_z_mm": 7.0,
+  "assembly_clashes_mm3": {},
+  "counts": {
+   "knob.stl": 5
+  }
+ },
+ "parts": [
+  {
+   "part": "board.stl",
+   "watertight": true,
+   "size_mm": [
+    210.0,
+    122.0,
+    8.0
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 191.2,
+   "overhang_mm2_over_45deg": 336.5
+  },
+  {
+   "part": "panel_white_with_verse.stl",
+   "watertight": true,
+   "size_mm": [
+    200.0,
+    49.0,
+    8.4
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 57.5,
+   "overhang_mm2_over_45deg": 0.0
+  },
+  {
+   "part": "mmu_panel_white.stl",
+   "watertight": true,
+   "size_mm": [
+    200.0,
+    49.0,
+    7.0
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 54.4,
+   "overhang_mm2_over_45deg": 0.0
+  },
+  {
+   "part": "mmu_verse_dark.stl",
+   "watertight": true,
+   "size_mm": [
+    180.2,
+    34.7,
+    4.4
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 3.0,
+   "overhang_mm2_over_45deg": 0.0
+  },
+  {
+   "part": "shelf.stl",
+   "watertight": true,
+   "size_mm": [
+    210.0,
+    55.0,
+    8.0
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 92.2,
+   "overhang_mm2_over_45deg": 61.2
+  },
+  {
+   "part": "knob.stl",
+   "watertight": true,
+   "size_mm": [
+    14.0,
+    14.0,
+    25.5
+   ],
+   "fits_220_bed": true,
+   "volume_cm3": 2.0,
+   "overhang_mm2_over_45deg": 0.0
+  }
+ ]
+}

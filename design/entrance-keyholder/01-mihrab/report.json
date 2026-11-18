@@ -4,11 +4,11 @@
   "colour_change_z_mm": 7.0,
   "verse_line_widths_mm": [
    96.2,
-   75.3
+   76.2
   ],
   "apex_y": 210.0,
   "spring_y": 115.3,
-  "gold_area_in_strokes_under_0.8mm_pct": 0.28
+  "gold_area_in_strokes_under_0.8mm_pct": 0.32
  },
  "parts": [
   {
