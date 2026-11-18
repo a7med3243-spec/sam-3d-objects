@@ -2,3 +2,5 @@
 **/assembly/
 **/assembly_verse/
 __pycache__/
+**/print_kit/exploded/
+**/print_kit/plates/

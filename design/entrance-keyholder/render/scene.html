@@ -122,8 +122,8 @@ function boxUV(geo, scale = 1 / 260) {
 
 // ---------- wall ----------
 const wallMat = new THREE.MeshStandardMaterial({ map: wallTexture(cfg.wall || '#c9c4b8', cfg.wallKind || 'plaster'), roughness: 0.95 });
-wallMat.map.repeat.set(6, 6);
-const wall = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), wallMat);
+wallMat.map.repeat.set(21, 21);
+const wall = new THREE.Mesh(new THREE.PlaneGeometry(5000, 5000), wallMat);
 wall.position.set(cfg.target?.[0] || 0, cfg.target?.[1] || 0, -0.2);
 wall.receiveShadow = true;
 scene.add(wall);
