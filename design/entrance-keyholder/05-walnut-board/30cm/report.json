@@ -1,30 +1,30 @@
 {
  "meta": {
   "design": "05-walnut-board",
-  "size": "large",
+  "size": "30cm",
   "overall_mm": [
-   360.0,
-   209.0,
-   100.0
+   300.0,
+   174.0,
+   84.0
   ],
   "verse_text": "وَلَسَوۡفَ يُعۡطِيكَ رَبُّكَ فَتَرۡضَىٰٓ",
   "verse_codepoints": "U+0648 U+064E U+0644 U+064E U+0633 U+064E U+0648 U+06E1 U+0641 U+064E U+0020 U+064A U+064F U+0639 U+06E1 U+0637 U+0650 U+064A U+0643 U+064E U+0020 U+0631 U+064E U+0628 U+0651 U+064F U+0643 U+064E U+0020 U+0641 U+064E U+062A U+064E U+0631 U+06E1 U+0636 U+064E U+0649 U+0670 U+0653",
   "verse_font": "Amiri Quran",
-  "verse_em_mm": 33.0,
+  "verse_em_mm": 27.4,
   "verse_size_mm": [
-   298.3,
-   57.4
+   248.2,
+   47.8
   ],
   "verse_pieces_dots_and_marks": 36,
-  "verse_smallest_gap_mm": 0.74,
-  "verse_strokes_under_0.8mm_pct": 0.06,
-  "panel_colour_change_z_mm": 9.0,
+  "verse_smallest_gap_mm": 0.63,
+  "verse_strokes_under_0.8mm_pct": 0.35,
+  "panel_colour_change_z_mm": 8.4,
   "assembly_clashes_mm3": {},
   "counts": {
    "knob.stl": 6
   },
-  "panel_cut_x_mm": -16.5,
-  "panel_cut_clearance_mm": 6.71,
+  "panel_cut_x_mm": -13.5,
+  "panel_cut_clearance_mm": 5.36,
   "shelf_cut_x_mm": 20.0
  },
  "parts": [
@@ -32,132 +32,132 @@
    "part": "board_left.stl",
    "watertight": true,
    "size_mm": [
-    180.0,
-    209.0,
-    10.0
+    150.0,
+    174.0,
+    9.0
    ],
    "fits_220_bed": true,
-   "volume_cm3": 355.6,
+   "volume_cm3": 219.9,
    "overhang_mm2_over_45deg": 230.9
   },
   {
    "part": "board_right.stl",
    "watertight": true,
    "size_mm": [
-    180.0,
-    209.0,
-    10.0
+    150.0,
+    174.0,
+    9.0
    ],
    "fits_220_bed": true,
-   "volume_cm3": 355.6,
+   "volume_cm3": 219.9,
    "overhang_mm2_over_45deg": 230.9
   },
   {
    "part": "panel_left_white_with_verse.stl",
    "watertight": true,
    "size_mm": [
-    153.5,
-    85.0,
-    10.6
+    128.5,
+    71.0,
+    10.0
    ],
    "fits_220_bed": true,
-   "volume_cm3": 97.3,
+   "volume_cm3": 64.7,
    "overhang_mm2_over_45deg": 0.0
   },
   {
    "part": "mmu_panel_left_white.stl",
    "watertight": true,
    "size_mm": [
-    153.5,
-    85.0,
-    9.0
+    128.5,
+    71.0,
+    8.4
    ],
    "fits_220_bed": true,
-   "volume_cm3": 92.4,
+   "volume_cm3": 61.7,
    "overhang_mm2_over_45deg": 0.0
   },
   {
    "part": "mmu_verse_left_dark.stl",
    "watertight": true,
    "size_mm": [
-    125.9,
-    52.4,
-    5.6
+    104.8,
+    43.6,
+    5.0
    ],
    "fits_220_bed": true,
-   "volume_cm3": 4.9,
+   "volume_cm3": 3.0,
    "overhang_mm2_over_45deg": 0.0
   },
   {
    "part": "panel_right_white_with_verse.stl",
    "watertight": true,
    "size_mm": [
-    186.5,
-    85.0,
-    10.6
+    155.5,
+    71.0,
+    10.0
    ],
    "fits_220_bed": true,
-   "volume_cm3": 118.1,
+   "volume_cm3": 78.3,
    "overhang_mm2_over_45deg": 0.0
   },
   {
    "part": "mmu_panel_right_white.stl",
    "watertight": true,
    "size_mm": [
-    186.5,
-    85.0,
-    9.0
+    155.5,
+    71.0,
+    8.4
    ],
    "fits_220_bed": true,
-   "volume_cm3": 112.2,
+   "volume_cm3": 74.7,
    "overhang_mm2_over_45deg": 0.0
   },
   {
    "part": "mmu_verse_right_dark.stl",
    "watertight": true,
    "size_mm": [
-    158.9,
-    53.1,
-    5.6
+    132.3,
+    44.2,
+    5.0
    ],
    "fits_220_bed": true,
-   "volume_cm3": 5.9,
+   "volume_cm3": 3.6,
    "overhang_mm2_over_45deg": 0.0
   },
   {
    "part": "shelf_left.stl",
    "watertight": true,
    "size_mm": [
-    200.0,
-    90.0,
-    12.0
+    170.0,
+    75.0,
+    10.0
    ],
    "fits_220_bed": true,
-   "volume_cm3": 215.7,
+   "volume_cm3": 127.2,
    "overhang_mm2_over_45deg": 92.6
   },
   {
    "part": "shelf_right.stl",
    "watertight": true,
    "size_mm": [
-    160.0,
-    90.0,
-    12.0
+    130.0,
+    75.0,
+    10.0
    ],
    "fits_220_bed": true,
-   "volume_cm3": 172.5,
+   "volume_cm3": 97.2,
    "overhang_mm2_over_45deg": 92.6
   },
   {
    "part": "knob.stl",
    "watertight": true,
    "size_mm": [
-    20.0,
-    20.0,
-    32.5
+    18.0,
+    18.0,
+    29.5
    ],
    "fits_220_bed": true,
-   "volume_cm3": 4.6,
+   "volume_cm3": 3.4,
    "overhang_mm2_over_45deg": 0.0
   }
  ]

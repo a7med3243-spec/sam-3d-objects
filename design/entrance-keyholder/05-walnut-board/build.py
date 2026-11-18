@@ -11,7 +11,7 @@ the height of the reed crests prints it dark.
 
 Two sizes, every part fitting a 220 x 220 mm bed:
   small  - 210 x 122 mm, each part in one piece
-  large  - 360 x 209 mm (close to the photo), board, shelf and white panel each in two
+  30cm   - 300 x 174 mm, board, shelf and white panel each in two
            halves. Each board half hangs on its own wall screw; the halves meet on four
            pins of 1.75 mm filament and glue, and the white panel and the shelf (cut at
            other places) cross the board seam and tie the halves together.
@@ -43,16 +43,16 @@ SIZES = {
         NECK_D=8.0, NECK_L=13.0, CAP_D=14.0, CAP_T=7.0,
         KEYHOLES=((-70.0, 102.0), (70.0, 102.0)),
         VERSE_W=180.0, VERSE_THICKEN=0.08, RELIEF=1.4, SPLIT=False),
-    "large": dict(
-        W=360.0, H=209.0, T=10.0, CORNER_R=16.0,
-        SHELF_T=12.0, SHELF_TOP=152.0, SHELF_D=90.0, SHELF_R=5.0,
-        SHELF_SCREWS_X=(-160.0, -100.0, -45.0, 45.0, 100.0, 160.0),
-        PANEL_X=170.0, PANEL_Y0=55.0, RECESS=1.2, PANEL_BASE=5.0, REED_H=4.0, REED_PITCH=6.0,
-        KNOB_Y=27.0, KNOB_X=(-137.5, -82.5, -27.5, 27.5, 82.5, 137.5),
-        NECK_D=11.0, NECK_L=18.0, CAP_D=20.0, CAP_T=9.0,
-        KEYHOLES=((-130.0, 178.0), (130.0, 178.0)),
-        VERSE_W=298.0, VERSE_THICKEN=0.15, RELIEF=1.6, SPLIT=True,
-        SEAM_DOWELS_Y=(18.0, 75.0, 120.0, 190.0),   # 1.75 mm filament pins across the board seam
+    "30cm": dict(
+        W=300.0, H=174.0, T=9.0, CORNER_R=14.0,
+        SHELF_T=10.0, SHELF_TOP=127.0, SHELF_D=75.0, SHELF_R=4.0,
+        SHELF_SCREWS_X=(-130.0, -85.0, -40.0, 45.0, 90.0, 130.0),
+        PANEL_X=142.0, PANEL_Y0=46.0, RECESS=1.2, PANEL_BASE=5.0, REED_H=3.4, REED_PITCH=5.5,
+        KNOB_Y=22.0, KNOB_X=(-115.0, -69.0, -23.0, 23.0, 69.0, 115.0),
+        NECK_D=10.0, NECK_L=16.0, CAP_D=18.0, CAP_T=8.0,
+        KEYHOLES=((-110.0, 148.0), (110.0, 148.0)),
+        VERSE_W=248.0, VERSE_THICKEN=0.12, RELIEF=1.6, SPLIT=True,
+        SEAM_DOWELS_Y=(15.0, 60.0, 100.0, 155.0),   # 1.75 mm filament pins across the board seam
         SHELF_SEAM_X=20.0),                          # shelf joint staggered from the board seam
 }
 

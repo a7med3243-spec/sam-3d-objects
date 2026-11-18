@@ -12,46 +12,76 @@
    560,
    620
   ],
-  "name": "05-walnut-board-large-hero",
-  "base": "/kh/05-walnut-board/large/assembly/",
-  "width": 1500,
-  "height": 1300,
+  "name": "05-walnut-board-small-front",
+  "base": "/kh/05-walnut-board/small/assembly/",
+  "width": 1400,
+  "height": 1000,
   "camera": [
-   260,
-   175,
-   900
+   0,
+   66,
+   640
   ],
   "target": [
    0,
-   105,
-   40
+   60,
+   0
+  ],
+  "fov": 24,
+  "props": []
+ },
+ {
+  "wall": "#d3c9bb",
+  "wallKind": "plaster",
+  "grain": "horizontal",
+  "exposure": 0.95,
+  "hemi": 0.32,
+  "envIntensity": 0.45,
+  "sun": 2.6,
+  "light": [
+   -320,
+   560,
+   620
+  ],
+  "name": "05-walnut-board-30cm-hero",
+  "base": "/kh/05-walnut-board/30cm/assembly/",
+  "width": 1500,
+  "height": 1300,
+  "camera": [
+   220,
+   148,
+   760
+  ],
+  "target": [
+   0,
+   88,
+   34
   ],
   "fov": 30,
   "props": [
    {
     "type": "plant",
-    "x": -110,
-    "y": 152,
-    "z": 45,
-    "r": 30,
-    "h": 46
+    "x": -92,
+    "y": 127,
+    "z": 40,
+    "r": 27,
+    "h": 40
    },
    {
     "type": "box",
     "material": "brass",
-    "x": 85,
-    "y": 154.5,
-    "z": 55,
-    "w": 110,
+    "x": 72,
+    "y": 129.5,
+    "z": 45,
+    "w": 96,
     "h": 5,
-    "d": 62,
+    "d": 52,
     "r": 8
    },
    {
     "type": "phone",
-    "x": 80,
-    "y": 161,
-    "z": 55,
+    "x": 68,
+    "y": 135,
+    "z": 45,
     "w": 72,
     "h": 148,
     "rot": [
@@ -62,30 +92,30 @@
    },
    {
     "type": "keys",
-    "x": -137.5,
-    "y": 27,
-    "z": 22,
+    "x": -115,
+    "y": 22,
+    "z": 20,
     "fob": "black",
     "tilt": 2,
-    "peg_r": 5.5
+    "peg_r": 5
    },
    {
     "type": "keys",
-    "x": -27.5,
-    "y": 27,
-    "z": 22,
+    "x": -23,
+    "y": 22,
+    "z": 20,
     "fob": "brown",
     "tilt": -3,
-    "peg_r": 5.5
+    "peg_r": 5
    },
    {
     "type": "keys",
-    "x": 82.5,
-    "y": 27,
-    "z": 21,
+    "x": 69,
+    "y": 22,
+    "z": 19,
     "fob": "brown",
     "tilt": 3,
-    "peg_r": 5.5
+    "peg_r": 5
    }
   ]
  },
@@ -102,18 +132,18 @@
    560,
    620
   ],
-  "name": "05-walnut-board-large-front",
-  "base": "/kh/05-walnut-board/large/assembly/",
+  "name": "05-walnut-board-30cm-front",
+  "base": "/kh/05-walnut-board/30cm/assembly/",
   "width": 1500,
   "height": 1000,
   "camera": [
    0,
-   110,
-   1040
+   92,
+   870
   ],
   "target": [
    0,
-   104,
+   87,
    0
   ],
   "fov": 24,
@@ -133,48 +163,18 @@
    520
   ],
   "name": "05-walnut-board-verse-detail",
-  "base": "/kh/05-walnut-board/large/assembly/",
+  "base": "/kh/05-walnut-board/30cm/assembly/",
   "width": 1600,
   "height": 800,
   "camera": [
-   40,
-   110,
-   430
+   35,
+   92,
+   360
   ],
   "target": [
    0,
-   97,
+   81,
    10
-  ],
-  "fov": 24,
-  "props": []
- },
- {
-  "wall": "#d3c9bb",
-  "wallKind": "plaster",
-  "grain": "horizontal",
-  "exposure": 0.95,
-  "hemi": 0.32,
-  "envIntensity": 0.45,
-  "sun": 2.6,
-  "light": [
-   -320,
-   560,
-   620
-  ],
-  "name": "05-walnut-board-small-front",
-  "base": "/kh/05-walnut-board/small/assembly/",
-  "width": 1400,
-  "height": 1000,
-  "camera": [
-   0,
-   66,
-   640
-  ],
-  "target": [
-   0,
-   60,
-   0
   ],
   "fov": 24,
   "props": []

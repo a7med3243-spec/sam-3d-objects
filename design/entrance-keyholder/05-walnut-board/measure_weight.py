@@ -2,7 +2,7 @@
 
 Settings (common for PLA, 0.4 mm nozzle): 0.2 mm layers, 3 perimeters, 5 top / 4 bottom
 layers, 15 % gyroid infill, PLA density 1.24 g/cm3, no supports, no brim.
-Usage: python3 measure_weight.py [small|large ...]   (needs prusa-slicer on PATH)
+Usage: python3 measure_weight.py [small|30cm ...]   (needs prusa-slicer on PATH)
 """
 import json
 import os
@@ -34,7 +34,7 @@ PARTS = {
     "small": {"board.stl": (1, "walnut"), "shelf.stl": (1, "walnut"),
               "panel_white_with_verse.stl": (1, "white+dark"), "mmu_verse_dark.stl": (0, "dark"),
               "knob.stl": (5, "brass")},
-    "large": {"board_left.stl": (1, "walnut"), "board_right.stl": (1, "walnut"),
+    "30cm": {"board_left.stl": (1, "walnut"), "board_right.stl": (1, "walnut"),
               "shelf_left.stl": (1, "walnut"), "shelf_right.stl": (1, "walnut"),
               "panel_left_white_with_verse.stl": (1, "white+dark"),
               "panel_right_white_with_verse.stl": (1, "white+dark"),
@@ -87,5 +87,5 @@ def measure(size):
 
 
 if __name__ == "__main__":
-    for s in sys.argv[1:] or ["small", "large"]:
+    for s in sys.argv[1:] or ["small", "30cm"]:
         print(json.dumps(measure(s), indent=1))

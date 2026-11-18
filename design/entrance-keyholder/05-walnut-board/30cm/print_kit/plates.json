@@ -5,10 +5,10 @@
    "plate": "1_board_left",
    "title": "Board, left half",
    "file": "plates/1_board_left.3mf",
-   "grams": 151.2,
-   "time": "14h 55m 13s",
-   "minutes": 895,
-   "margin_mm": 5.5,
+   "grams": 101.4,
+   "time": "10h 16m 2s",
+   "minutes": 616,
+   "margin_mm": 23.0,
    "colours": [
     "walnut"
    ]
@@ -17,10 +17,10 @@
    "plate": "2_board_right",
    "title": "Board, right half",
    "file": "plates/2_board_right.3mf",
-   "grams": 151.2,
-   "time": "14h 55m 44s",
-   "minutes": 896,
-   "margin_mm": 5.5,
+   "grams": 101.4,
+   "time": "10h 16m 16s",
+   "minutes": 616,
+   "margin_mm": 23.0,
    "colours": [
     "walnut"
    ]
@@ -29,10 +29,10 @@
    "plate": "3_shelf",
    "title": "Shelf, both halves",
    "file": "plates/3_shelf.3mf",
-   "grams": 151.8,
-   "time": "13h 55m 18s",
-   "minutes": 835,
-   "margin_mm": 10.0,
+   "grams": 97.9,
+   "time": "9h 16m 11s",
+   "minutes": 556,
+   "margin_mm": 25.0,
    "colours": [
     "walnut"
    ]
@@ -41,10 +41,10 @@
    "plate": "4_panel_with_verse",
    "title": "White panel with the verse, both halves",
    "file": "plates/4_panel_with_verse.3mf",
-   "grams": 156.7,
-   "time": "15h 46m 10s",
-   "minutes": 946,
-   "margin_mm": 16.8,
+   "grams": 105.0,
+   "time": "10h 47m 5s",
+   "minutes": 647,
+   "margin_mm": 32.2,
    "colours": [
     "dark",
     "white"
@@ -54,15 +54,15 @@
    "plate": "5_knobs",
    "title": "Knobs x6",
    "file": "plates/5_knobs.3mf",
-   "grams": 24.2,
-   "time": "3h 20m 49s",
-   "minutes": 201,
-   "margin_mm": 70.0,
+   "grams": 18.8,
+   "time": "2h 42m 29s",
+   "minutes": 162,
+   "margin_mm": 73.0,
    "colours": [
     "brass"
    ]
   }
  ],
- "total_grams": 635.1,
- "total_hours": 62.9
+ "total_grams": 424.5,
+ "total_hours": 43.3
 }

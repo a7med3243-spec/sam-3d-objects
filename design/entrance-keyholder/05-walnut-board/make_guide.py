@@ -1,8 +1,8 @@
 """
-Arabic print & assembly guide (PDF) and the single-file ZIP kit for the large walnut board.
+Arabic print & assembly guide (PDF) and the single-file ZIP kit for the 30 cm walnut board.
 
 Run after print_kit.py. Needs node + playwright (Chromium) for the PDF.
-Output: large/walnut_board_large_print_kit.zip  (plates, STLs, guide PDF, pictures)
+Output: 30cm/walnut_board_30cm_print_kit.zip  (plates, STLs, guide PDF, pictures)
 """
 
 import base64
@@ -15,9 +15,19 @@ import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-KIT = os.path.join(HERE, "large", "print_kit")
+KIT = os.path.join(HERE, "30cm", "print_kit")
 sys.path.insert(0, ROOT)
 from common import kh  # noqa: E402
+
+import importlib.util  # noqa: E402
+_spec = importlib.util.spec_from_file_location("walnut", os.path.join(HERE, "build.py"))
+_w = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_w)
+CFG = _w.SIZES["30cm"]
+CHANGE_Z = CFG["PANEL_BASE"] + CFG["REED_H"]                  # filament change height (mm)
+HANG_MM = CFG["KEYHOLES"][1][0] - CFG["KEYHOLES"][0][0]        # distance between wall screws
+N_SCREWS = len(CFG["SHELF_SCREWS_X"])
+N_PINS = len(CFG["SEAM_DOWELS_Y"]) + 2
 
 
 def b64(path):
@@ -34,7 +44,7 @@ PLATE_AR = {
     "2_board_right": ("اللوح — النصف الأيمن", "بني / خشبي", ""),
     "3_shelf": ("الرف — النصفان معاً", "بني / خشبي", ""),
     "4_panel_with_verse": ("اللوح الأبيض مع الآية — النصفان معاً", "أبيض + غامق",
-                           "بدون طابعة ألوان: اطبعه أبيض وغيّر إلى الخيط الغامق عند <b>9.0 مم</b>"),
+                           f"بدون طابعة ألوان: اطبعه أبيض وغيّر إلى الخيط الغامق عند <b>{CHANGE_Z:.1f} مم</b>"),
     "5_knobs": ("المقابض × 6", "نحاسي / ذهبي", ""),
 }
 
@@ -47,9 +57,9 @@ def html(data):
         rows += (f"<tr><td class='n'>{p['plate'][0]}</td><td><code>{p['file']}</code></td><td>{name}</td>"
                  f"<td>{colour}</td><td class='n'>{p['grams']:.0f} غ</td><td class='n'><span class='ltr'>{p['time']}</span></td>"
                  f"<td>{note}</td></tr>")
-    hero = img(os.path.join(ROOT, "renders", "05-walnut-board-large-hero.jpg"))
+    hero = img(os.path.join(ROOT, "renders", "05-walnut-board-30cm-hero.jpg"))
     verse = img(os.path.join(ROOT, "renders", "05-walnut-board-verse-detail.jpg"))
-    expl = img(os.path.join(ROOT, "renders", "05-walnut-board-large-exploded.jpg"))
+    expl = img(os.path.join(ROOT, "renders", "05-walnut-board-30cm-exploded.jpg"))
     plates = img(os.path.join(KIT, "plates_layout.png"), "image/png")
     return f"""<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <style>
@@ -80,8 +90,8 @@ ol li {{ margin-bottom: 1.5mm; }}
 .small {{ font-size: 9.5pt; color: #6b5d50; }}
 </style></head><body>
 
-<h1>حاملة المفاتيح الخشبية — المقاس الكبير</h1>
-<p class="sub">360 × 209 مم · دليل الطباعة قطعة قطعة والتركيب · كل قطعة تدخل سرير 220 × 220 مم</p>
+<h1>حاملة المفاتيح الخشبية — مقاس 30 سم</h1>
+<p class="sub">{CFG["W"]:.0f} × {CFG["H"]:.0f} مم · دليل الطباعة قطعة قطعة والتركيب · كل قطعة تدخل سرير 220 × 220 مم</p>
 <img class="hero" src="{hero}">
 
 <h2>الآية</h2>
@@ -97,7 +107,7 @@ ol li {{ margin-bottom: 1.5mm; }}
 <table><tr><th>#</th><th>الملف</th><th>المحتوى</th><th>اللون</th><th>الوزن</th><th>الوقت*</th><th>ملاحظة</th></tr>{rows}
 <tr><th></th><th colspan="3">المجموع</th><th class="n">{data['total_grams']:.0f} غ</th><th class="n">≈ {data['total_hours']:.0f} ساعة</th><th></th></tr></table>
 <p class="small">* الوزن والوقت من PrusaSlicer: طبقة 0.2 مم، 3 جدران، حشو 15% Gyroid، PLA. الوقت بسرعات الطابعات العادية؛
-الطابعات السريعة (مثل Bambu) تحتاج تقريباً ثلثه. الوزن على الجدار بعد التركيب ≈ <b>0.65 كغ</b>.</p>
+الطابعات السريعة (مثل Bambu) تحتاج تقريباً ثلثه. الوزن على الجدار بعد التركيب ≈ <b>{(data['total_grams'] + 10) / 1000:.2f} كغ</b> (مع البراغي).</p>
 
 <h2>إعدادات الطباعة</h2>
 <ul>
@@ -111,15 +121,15 @@ ol li {{ margin-bottom: 1.5mm; }}
 <h2 class="page">التركيب</h2>
 <img class="expl" src="{expl}">
 <div class="two"><div>
-<p><b>تحتاج:</b> 6 قطع من خيط الطباعة 1.75 مم بطول 20 مم · 6 براغي M3 × 16 · برغيين 4 مم مع فيشر للجدار
+<p><b>تحتاج:</b> {N_PINS} قطع من خيط الطباعة 1.75 مم بطول 20 مم · {N_SCREWS} براغي M3 × 16 · برغيين 4 مم مع فيشر للجدار
 (رأس البرغي حتى 9 مم) · غراء سيانو أو إيبوكسي · ورق صنفرة ناعم.</p>
 </div></div>
 <ol>
 <li><b>اللوح:</b> أدخل 4 قطع خيط في الفتحات على حافة النصفين، ضع الغراء على الحافتين، واضغطهما معاً على سطح مستوٍ حتى يجف.</li>
 <li><b>اللوح الأبيض والآية:</b> الصق النصفين في التجويف: «وَلَسَوۡفَ يُعۡطِيكَ» على اليمين و«رَبُّكَ فَتَرۡضَىٰٓ» على اليسار. خط الالتقاء يقع بين الكلمتين ولا يمر بأي حرف.</li>
-<li><b>الرف:</b> اجمع نصفيه بقطعتي خيط وغراء، ثم ضعه فوق اللوح الأبيض وثبّته بـ 6 براغي M3 × 16 من خلف اللوح.</li>
+<li><b>الرف:</b> اجمع نصفيه بقطعتي خيط وغراء، ثم ضعه فوق اللوح الأبيض وثبّته بـ {N_SCREWS} براغي M3 × 16 من خلف اللوح.</li>
 <li><b>المقابض:</b> ضع نقطة غراء في كل فتحة (قطرها 8.4 مم) واضغط المقبض حتى يلمس اللوح.</li>
-<li><b>التعليق:</b> برغيان في الجدار على نفس الارتفاع والمسافة بينهما <b>260 مم</b>. اترك 2.5 مم تحت رأس البرغي، علّق اللوح وأنزله 10 مم. شريط لاصق مزدوج صغير في الأسفل يمنع ارتفاعه عند سحب المفاتيح.</li>
+<li><b>التعليق:</b> برغيان في الجدار على نفس الارتفاع والمسافة بينهما <b>{HANG_MM:.0f} مم</b>. اترك 2.5 مم تحت رأس البرغي، علّق اللوح وأنزله 10 مم. شريط لاصق مزدوج صغير في الأسفل يمنع ارتفاعه عند سحب المفاتيح.</li>
 </ol>
 <div class="box">القطع الثلاث مقسومة في أماكن مختلفة (اللوح عند المنتصف، الرف 20 مم يمين المنتصف، اللوح الأبيض بين الكلمتين)،
 فكل قطعة تغطي خط التقاء الأخرى وتشدّها. يمكن تعبئة خط الالتقاء في اللوح والرف بمعجون ثم صنفرته.</div>
@@ -163,17 +173,17 @@ if __name__ == "__main__":
     data = json.load(open(os.path.join(KIT, "plates.json")))
     pdf = os.path.join(KIT, "guide-ar.pdf")
     make_pdf(html(data), pdf)
-    zpath = os.path.join(HERE, "large", "walnut_board_large_print_kit.zip")
+    zpath = os.path.join(HERE, "30cm", "walnut_board_30cm_print_kit.zip")
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
-        z.write(pdf, "walnut_board_large/guide-ar.pdf")
+        z.write(pdf, "walnut_board_30cm/guide-ar.pdf")
         for p in data["plates"]:
-            z.write(os.path.join(KIT, p["file"]), f"walnut_board_large/{p['file']}")
+            z.write(os.path.join(KIT, p["file"]), f"walnut_board_30cm/{p['file']}")
         for s in STLS:
-            z.write(os.path.join(HERE, "large", "stl", s), f"walnut_board_large/stl/{s}")
-        z.write(os.path.join(KIT, "plates_layout.png"), "walnut_board_large/plates_layout.png")
-        for r in ("05-walnut-board-large-hero.jpg", "05-walnut-board-large-exploded.jpg",
+            z.write(os.path.join(HERE, "30cm", "stl", s), f"walnut_board_30cm/stl/{s}")
+        z.write(os.path.join(KIT, "plates_layout.png"), "walnut_board_30cm/plates_layout.png")
+        for r in ("05-walnut-board-30cm-hero.jpg", "05-walnut-board-30cm-exploded.jpg",
                   "05-walnut-board-verse-detail.jpg"):
-            z.write(os.path.join(ROOT, "renders", r), f"walnut_board_large/pictures/{r}")
-        z.write(os.path.join(HERE, "large", "weight.json"), "walnut_board_large/weight.json")
+            z.write(os.path.join(ROOT, "renders", r), f"walnut_board_30cm/pictures/{r}")
+        z.write(os.path.join(HERE, "30cm", "weight.json"), "walnut_board_30cm/weight.json")
     print(zpath, os.path.getsize(zpath) // 1024, "KB")
     print(pdf, os.path.getsize(pdf) // 1024, "KB")

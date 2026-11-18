@@ -1,7 +1,7 @@
 """
-Print kit for the large walnut board (360 x 209 mm), printed piece by piece.
+Print kit for the 30 cm walnut board (300 x 174 mm), printed piece by piece.
 
-Builds large/print_kit/: five ready plates for a 220 x 220 mm bed (3MF, parts placed and
+Builds 30cm/print_kit/: five ready plates for a 220 x 220 mm bed (3MF, parts placed and
 assigned to filament slots), a plate layout figure, an exploded assembly for the render,
 and plates.json with the weight and time of each plate measured by PrusaSlicer.
 make_guide.py then writes the illustrated Arabic guide and the ZIP.
@@ -21,8 +21,8 @@ import numpy as np
 import trimesh
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-STL = os.path.join(HERE, "large", "stl")
-OUT = os.path.join(HERE, "large", "print_kit")
+STL = os.path.join(HERE, "30cm", "stl")
+OUT = os.path.join(HERE, "30cm", "print_kit")
 BED = 220.0
 GAP = 10.0
 
@@ -217,13 +217,13 @@ def build_kit():
 
 
 def exploded_assembly():
-    """Parts of the large board pulled apart, for an assembly picture."""
+    """Parts of the 30 cm board pulled apart, for an assembly picture."""
     import importlib.util
     spec = importlib.util.spec_from_file_location("walnut", os.path.join(HERE, "build.py"))
     w = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(w)
-    asm, _, meta = w.build("large")
-    cut_panel, cut_shelf, W = meta["panel_cut_x_mm"], meta["shelf_cut_x_mm"], w.SIZES["large"]["W"]
+    asm, _, meta = w.build("30cm")
+    cut_panel, cut_shelf, W = meta["panel_cut_x_mm"], meta["shelf_cut_x_mm"], w.SIZES["30cm"]["W"]
     out = os.path.join(OUT, "exploded")
     os.makedirs(out, exist_ok=True)
     pieces = []
