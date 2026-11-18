@@ -115,7 +115,7 @@ function boxUV(geo, scale = 1 / 260) {
     else if (ay >= ax) { u = p.getZ(i); v = p.getX(i); }
     else { u = p.getY(i); v = p.getZ(i); }
     // offset so a 210 mm part sits inside one texture tile (no seam at x = 0)
-    uv[2 * i] = u * scale + 0.5; uv[2 * i + 1] = v * scale + 0.41;
+    uv[2 * i] = u * scale + 0.5 + (cfg.uvShiftX || 0); uv[2 * i + 1] = v * scale + 0.41;
   }
   geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
 }
