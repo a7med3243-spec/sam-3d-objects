@@ -257,9 +257,10 @@ def keyhole_parts(k):
     return box(-11, 11, k - 15, k + 14, 0, bt), kb - kh
 ky_p = by0 + bh - rim - 13                 # distance from the portrait bottom edge
 kx_l = bx0 + bw - rim - 13                 # distance from the landscape bottom (left) edge
+boards = {False: board, True: board}          # False = portrait board, True = landscape board
 for k, land in ((ky_p, False), (kx_l, True)):
     patch, kbm = keyhole_parts(k)
-    board += place(patch, land); board += place(kbm, land)
+    boards[land] = boards[land] + place(patch, land) + place(kbm, land)
 
 # desk-stand sockets: same distance D from the resting edge in both orientations -> one leg fits both
 ALPHA, THETA = np.radians(15), np.radians(32)     # lean back 15 deg; leg 32 deg from the board
@@ -278,16 +279,13 @@ bb = sleeve.bounding_box()
 foot = box(bb[0], bb[3], bb[1], bb[4], -0.6, 0.01)
 boss = m3d.Manifold.batch_hull([sleeve, foot]) - sock - box(-20, 20, D - 60, D + 10, 0.0, 5)
 patch = box(bb[0] - 2, bb[3] + 2, bb[1] - 2, bb[4] + 2, 0, bt)
-socks = m3d.Manifold()
 for land in (False, True):
-    board += place(patch, land); board += place(boss, land); socks += place(sock, land)
-board -= socks
+    boards[land] = boards[land] + place(patch, land) + place(boss, land) - place(sock, land)
 up = np.array([0, np.cos(ALPHA), np.sin(ALPHA)])
 Lfoot = -(top0 @ up) / (dvec @ up)
 print('leg length', round(Lfoot, 1), 'foot behind pivot', round((top0 + Lfoot * dvec) @ np.array([0, -np.sin(ALPHA), np.cos(ALPHA)]) * -1, 1),
       'CG behind pivot portrait/landscape', round(OH / 2 * np.sin(ALPHA) + 7 * np.cos(ALPHA), 1), round(OW / 2 * np.sin(ALPHA) + 7 * np.cos(ALPHA), 1))
-board_t = T(board)
-print('board tris', len(board_t.faces), 'bounds', board_t.bounds.round(2).tolist())
+board_P, board_L = T(boards[False]), T(boards[True])
 
 # stand leg (printed flat): length Lfoot from the top end, rounded foot, chamfered sides
 Ltot = Lfoot
@@ -325,10 +323,10 @@ ck = corner_key()
 if P.get('SPLIT'):
   keys = [T(ck.translate([i * 32.0, 0, 0])) for i in range(4)]
   kk = trimesh.util.concatenate(keys); kk.apply_translation(-kk.bounds[0]); kk.export(OUT + '/frame_corner_keys_x4.stl')
-bt_print = board_t.copy(); bt_print.apply_transform(trimesh.transformations.reflection_matrix([0, 0, 0], [0, 0, 1]))
-bt_print.apply_translation((0, 0, -bt_print.bounds[0, 2]))
-board_t.export(OUT + '/_board_assembled.stl')
-bt_print.export(OUT + '/frame_back_board.stl')
+for nm, bt_ in (('PORTRAIT', board_P), ('LANDSCAPE', board_L)):
+    bt_.export(OUT + f'/_board_{nm}_assembled.stl')
+    pr = bt_.copy(); pr.apply_transform(trimesh.transformations.rotation_matrix(np.pi, [1, 0, 0]))   # flat front face down (rotation, keeps normals)
+    pr.apply_translation(-pr.bounds[0]); pr.export(OUT + f'/frame_back_board_{nm}.stl')
 leg_t.export(OUT + '/frame_stand_leg.stl')
 # assembled leg for previews
 lg = leg_solid(Ltot, LW, LT, top0)
@@ -356,7 +354,7 @@ T(asm).export(OUT + '/_buttons_assembled.stl')
 bl = [T(btn.translate([0, 0, BT + 1.2]).translate([i * 22.0, 0, 0])) for i in range(len(PIV))]
 bb_ = trimesh.util.concatenate(bl); bb_.apply_translation(-bb_.bounds[0]); bb_.export(OUT + '/frame_turn_buttons_x4.stl')
 print('rear zone', round(RZ, 2), 'button reach over board', round(VP + BL + BWID / 2 - RZ, 2))
-for n in ['frame_front_navy_ONE_PIECE', 'frame_back_board', 'frame_stand_leg', 'frame_turn_buttons_x4']:
+for n in ['frame_front_navy_ONE_PIECE', 'frame_back_board_PORTRAIT', 'frame_back_board_LANDSCAPE', 'frame_stand_leg', 'frame_turn_buttons_x4']:
     m = trimesh.load(OUT + f'/{n}.stl')
     print(n, 'vol cm3', round(abs(m.volume) / 1000, 1), 'size', (m.bounds[1] - m.bounds[0]).round(1).tolist(), 'wt', m.is_watertight)
 json.dump(dict(OW=OW, OH=OH, plaque_xy=[ox_p + P['CL'], oy_p + P['CL']], plaque_z=Z_REC), open(OUT + '/_layout.json', 'w'))
