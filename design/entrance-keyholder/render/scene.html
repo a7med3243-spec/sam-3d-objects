@@ -101,15 +101,20 @@ const MAT = {
 for (const [k, v] of Object.entries(cfg.colors || {})) { if (MAT[k]) MAT[k].color = new THREE.Color(v); }
 
 // Box-projected UVs (no UVs come with STL)
-function boxUV(geo, scale = 1 / 140) {
+function boxUV(geo, scale = 1 / 260) {
   const p = geo.attributes.position, n = geo.attributes.normal, uv = new Float32Array(p.count * 2);
   for (let i = 0; i < p.count; i++) {
     const ax = Math.abs(n.getX(i)), ay = Math.abs(n.getY(i)), az = Math.abs(n.getZ(i));
     let u, v;
-    if (az >= ax && az >= ay) { u = p.getY(i); v = p.getX(i); }
+    if (cfg.grain === 'horizontal') {          // grain lines run along X (long boards)
+      if (az >= ax && az >= ay) { u = p.getX(i); v = p.getY(i); }
+      else if (ay >= ax) { u = p.getX(i); v = p.getZ(i); }
+      else { u = p.getZ(i); v = p.getY(i); }
+    } else if (az >= ax && az >= ay) { u = p.getY(i); v = p.getX(i); }
     else if (ay >= ax) { u = p.getZ(i); v = p.getX(i); }
     else { u = p.getY(i); v = p.getZ(i); }
-    uv[2 * i] = u * scale; uv[2 * i + 1] = v * scale;
+    // offset so a 210 mm part sits inside one texture tile (no seam at x = 0)
+    uv[2 * i] = u * scale + 0.5; uv[2 * i + 1] = v * scale + 0.41;
   }
   geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
 }

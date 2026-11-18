@@ -318,6 +318,39 @@ def extrude_y(geom_xz, y0, y1):
     return out
 
 
+def heightfield_solid(x0, x1, y0, y1, step_x, step_y, height_fn):
+    """Watertight solid with a flat bottom on z = 0 and its top at z = height_fn(X, Y)
+    (vectorised, all heights > 0), over the rectangle [x0, x1] x [y0, y1]."""
+    xs = np.linspace(x0, x1, int(round((x1 - x0) / step_x)) + 1)
+    ys = np.linspace(y0, y1, int(round((y1 - y0) / step_y)) + 1)
+    X, Y = np.meshgrid(xs, ys)
+    Z = height_fn(X, Y)
+    ny, nx = X.shape
+    top = np.column_stack([X.ravel(), Y.ravel(), Z.ravel()])
+    bot = np.column_stack([X.ravel(), Y.ravel(), np.zeros(X.size)])
+    verts = np.vstack([top, bot])
+    n = X.size
+    idx = np.arange(n).reshape(ny, nx)
+    a, b = idx[:-1, :-1].ravel(), idx[:-1, 1:].ravel()
+    c, d = idx[1:, :-1].ravel(), idx[1:, 1:].ravel()
+    faces = [np.column_stack([a, b, d]), np.column_stack([a, d, c]),            # top (up)
+             np.column_stack([a + n, d + n, b + n]), np.column_stack([a + n, c + n, d + n])]
+
+    def wall(edge, flip):
+        e0, e1 = edge[:-1], edge[1:]
+        f = [np.column_stack([e0, e0 + n, e1 + n]), np.column_stack([e0, e1 + n, e1])]
+        return [ff[:, ::-1] for ff in f] if flip else f
+    faces += wall(idx[0, :], False)        # y = y0 edge
+    faces += wall(idx[-1, :], True)        # y = y1 edge
+    faces += wall(idx[:, 0], True)         # x = x0 edge
+    faces += wall(idx[:, -1], False)       # x = x1 edge
+    m = trimesh.Trimesh(verts, np.vstack(faces), process=True)
+    trimesh.repair.fix_normals(m)
+    if m.volume < 0:
+        m.invert()
+    return m
+
+
 def profile_x(profile_zy, x0, x1):
     """Prism along X from a closed 2D profile given as (z, y) points."""
     poly = Polygon(profile_zy).buffer(0)
