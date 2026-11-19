@@ -11,7 +11,10 @@ the height of the reed crests prints it dark.
 
 Two sizes:
   small  - 210 x 122 mm, each part in one piece
-  30cm   - 300 x 174 mm, each part in one piece, for a 330 x 320 mm bed (Bambu Lab A2L).
+  30cm   - 300 x 174 mm for a 330 x 320 mm bed (Bambu Lab A2L): board, shelf and knobs print
+           as ONE strong piece (brown); only the white panel with the verse prints on its own
+           and is glued in. Screws driven in from the back run through the printed layers of
+           the shelf and of each knob as reinforcement.
            The code can still split a size into halves for smaller beds (SPLIT=True).
 """
 
@@ -43,14 +46,19 @@ SIZES = {
         VERSE_W=180.0, VERSE_THICKEN=0.08, RELIEF=1.4, SPLIT=False),
     "30cm": dict(
         W=300.0, H=174.0, T=9.0, CORNER_R=14.0,
-        SHELF_T=10.0, SHELF_TOP=127.0, SHELF_D=75.0, SHELF_R=4.0,
-        SHELF_SCREWS_X=(-120.0, -40.0, 40.0, 120.0),
+        SHELF_T=14.0, SHELF_TOP=131.0, SHELF_D=75.0, SHELF_R=4.0,
+        SHELF_SCREWS_X=(),
         PANEL_X=142.0, PANEL_Y0=46.0, RECESS=1.2, PANEL_BASE=5.0, REED_H=3.4, REED_PITCH=5.5,
         KNOB_Y=22.0, KNOB_X=(-115.0, -69.0, -23.0, 23.0, 69.0, 115.0),
         NECK_D=10.0, NECK_L=16.0, CAP_D=18.0, CAP_T=8.0,
-        KEYHOLES=((-110.0, 148.0), (110.0, 148.0)),
+        KEYHOLES=((-110.0, 152.0), (110.0, 152.0)),
         VERSE_W=248.0, VERSE_THICKEN=0.12, RELIEF=1.6, SPLIT=False,
-        BED=(330.0, 320.0, 325.0)),                  # Bambu Lab A2L: every part in one piece
+        BED=(330.0, 320.0, 325.0),                   # Bambu Lab A2L: every part in one piece
+        MERGE=True,                                  # board + shelf + knobs print as one piece
+        LIP=3.0, COVE=6.0,                           # phone lip at the front, rounded root on top
+        REBAR_SHELF_X=(-110.0, -37.0, 37.0, 110.0),  # 4 x 60 mm wood screws through the layers
+        REBAR_SHELF_DEPTH=64.0, REBAR_SHELF_D=3.0, REBAR_SHELF_FROM_TOP=5.5,
+        REBAR_KNOB_DEPTH=30.0, REBAR_KNOB_D=2.6),    # M3 x 25 (or 3 x 25 wood) screw in each knob
 }
 
 
@@ -253,8 +261,127 @@ def build(size):
     return assembly, prints, meta
 
 
+
+# ----------------------------------------------------------------------------
+# Merged build: board + shelf + knobs in one strong piece, verse panel on its own
+# ----------------------------------------------------------------------------
+def merged_knob(c):
+    """Knob growing out of the board along +Z from z = 0, with a root cone and a cap that
+    widens at about 42 degrees, so it prints upright without supports."""
+    rn, rc, nl, ct = c["NECK_D"] / 2, c["CAP_D"] / 2, c["NECK_L"], c["CAP_T"]
+    flare = (rc - rn) * 1.12
+    z_cap = nl - 1.0
+    prof = [(0, -0.5), (rn + 3.0, -0.5), (rn + 3.0, 0.0), (rn, 3.0), (rn, z_cap), (rc, z_cap + flare),
+            (rc, nl + ct - 1.2), (rc - 1.2, nl + ct), (0, nl + ct)]
+    m = trimesh.creation.revolve(np.array(prof), sections=72)
+    if m.volume < 0:
+        m.invert()
+    return m
+
+
+def back_screw(x, y, depth, pilot_d, head_d):
+    """Pilot hole from the back face (z = 0) along +Z with a countersink for a flat head."""
+    sink = (head_d - pilot_d) / 2
+    return kh.union([kh.cyl_z(x, y, pilot_d / 2, -1.0, depth, 32),
+                     kh.cone_z(x, y, head_d / 2, -0.01, pilot_d / 2, sink, 32),
+                     kh.cyl_z(x, y, head_d / 2, -1.0, 0.0, 32)])
+
+
+def build_merged(size):
+    c = SIZES[size]
+    W, H, T, D = c["W"], c["H"], c["T"], c["SHELF_D"]
+    top, bot = c["SHELF_TOP"], c["SHELF_TOP"] - c["SHELF_T"]
+    lip, cove = c["LIP"], c["COVE"]
+    px, py0 = c["PANEL_X"], c["PANEL_Y0"]
+    py1 = bot - 0.3                                   # room to slide the panel in under the shelf
+    panel_z0 = T - c["RECESS"]
+    crest = c["PANEL_BASE"] + c["REED_H"]
+
+    # board
+    board = kh.extrude(kh.rounded_rect(-W / 2, 0, W / 2, H, c["CORNER_R"]), 0, T)
+
+    # shelf profile in (z, y): slab, 45-degree-backed phone lip at the front, cove at the root
+    from shapely.geometry import Point, Polygon
+    zf = T + D
+    prof = Polygon([(T - 0.5, bot), (zf, bot), (zf, top + lip), (zf - 4.0, top + lip),
+                    (zf - 4.0 - lip, top), (T - 0.5, top), (T - 0.5, top + cove)]).buffer(0)
+    root = box(T - 0.5, top - 0.01, T + cove, top + cove).difference(
+        Point(T + cove, top + cove).buffer(cove, quad_segs=24))
+    prof = prof.union(root).union(box(T - 0.5, bot, T + cove, top + 0.01))
+    prof = prof.buffer(-1.0, join_style="round").buffer(1.0, join_style="round")
+    prof = prof.union(box(T - 0.5, bot + 1.0, T + 1.0, top))   # keep the slab square where it meets the board
+    shelf = kh.profile_x(list(prof.exterior.coords), -W / 2, W / 2)
+
+    knob = merged_knob(c)
+    knobs = []
+    for x in c["KNOB_X"]:
+        m = knob.copy()
+        m.apply_translation([x, c["KNOB_Y"], T])
+        knobs.append(m)
+
+    main = kh.union([board, shelf] + knobs)
+    cut = [kh.extrude(box(-px - 0.2, py0 - 0.2, px + 0.2, py1 + 0.2), panel_z0, T + 0.5)]
+    cut += [kh.keyhole_cutter(x, y) for x, y in c["KEYHOLES"]]
+    ys = top - c["REBAR_SHELF_FROM_TOP"]
+    cut += [back_screw(x, ys, c["REBAR_SHELF_DEPTH"], c["REBAR_SHELF_D"], 8.2) for x in c["REBAR_SHELF_X"]]
+    cut += [back_screw(x, c["KNOB_Y"], c["REBAR_KNOB_DEPTH"], c["REBAR_KNOB_D"], 6.2) for x in c["KNOB_X"]]
+    main = kh.difference(main, cut)
+
+    # verse panel (white with the dark verse), printed on its own and glued in
+    panel = kh.heightfield_solid(-px, px, py0, py1, c["REED_PITCH"] / 11.0, 1.0, reed_fn(c))
+    panel = trimesh.boolean.intersection(
+        [panel, kh.extrude(kh.rounded_rect(-px, py0, px, py1, 1.5), -1, crest + 1)], engine="manifold")
+    verse2d, vinfo = verse_geometry(c, py0, py1)
+    letters = kh.extrude(verse2d, c["PANEL_BASE"] - 0.01, crest + c["RELIEF"])
+    panel_white = kh.difference(panel, [letters])
+    panel_full = kh.union([panel, letters])
+    for m in (panel_white, letters, panel_full):
+        m.apply_translation([0, 0, panel_z0])
+
+    assembly = {"main_brown": (main, "walnut"), "panel_white": (panel_white, "ivory"),
+                "verse_dark": (letters, "espresso")}
+    clashes = {}
+    for a, b in (("main_brown", "panel_white"), ("main_brown", "verse_dark")):
+        inter = trimesh.boolean.intersection([assembly[a][0], assembly[b][0]], engine="manifold")
+        with np.errstate(all="ignore"):
+            vol = float(inter.volume) if len(inter.faces) else 0.0
+        if vol > 1.0:
+            clashes[f"{a}/{b}"] = round(vol, 1)
+
+    prints = {}
+    mm = main.copy()
+    mm.apply_translation(-mm.bounds[0])
+    prints["main_brown_board_shelf_knobs.stl"] = mm
+    shift = -panel_full.bounds[0]
+    for name, m in (("panel_white_with_verse.stl", panel_full), ("mmu_panel_white.stl", panel_white),
+                    ("mmu_verse_dark.stl", letters)):
+        p2 = m.copy()
+        p2.apply_translation(shift)
+        prints[name] = p2
+
+    meta = {
+        "design": "05-walnut-board", "size": size, "merged": True,
+        "overall_mm": [round(float(v), 1) for v in main.extents],
+        "verse_text": kh.VERSE_MUSHAF,
+        "verse_codepoints": " ".join(f"U+{ord(ch):04X}" for ch in kh.VERSE_MUSHAF),
+        "verse_font": "Amiri Quran",
+        "verse_em_mm": round(vinfo["em_mm"], 1),
+        "verse_size_mm": [round(verse2d.bounds[2] - verse2d.bounds[0], 1),
+                          round(verse2d.bounds[3] - verse2d.bounds[1], 1)],
+        "verse_pieces_dots_and_marks": len(kh.polys(verse2d)),
+        "verse_smallest_gap_mm": round(min_gap(verse2d), 2),
+        "verse_strokes_under_0.8mm_pct": kh.thin_area_pct(verse2d),
+        "panel_colour_change_z_mm": crest,
+        "shelf_thickness_mm": c["SHELF_T"], "shelf_depth_mm": D, "phone_lip_mm": lip, "root_cove_mm": cove,
+        "reinforcing_screws": {"shelf": f"{len(c['REBAR_SHELF_X'])} x wood screw 4 x 60 (flat head)",
+                               "knobs": f"{len(c['KNOB_X'])} x M3 x 25 or 3 x 25 wood screw (flat head)"},
+        "assembly_clashes_mm3": clashes,
+    }
+    return assembly, prints, meta
+
+
 def write(size):
-    a, p, m = build(size)
+    a, p, m = (build_merged if SIZES[size].get("MERGE") else build)(size)
     out = os.path.join(HERE, size)
     rep = kh.write_outputs(out, a, p, m, SIZES[size].get("BED", (220.0, 220.0, 250.0)))
     return m, rep

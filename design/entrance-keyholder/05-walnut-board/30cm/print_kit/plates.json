@@ -7,12 +7,12 @@
  ],
  "plates": [
   {
-   "plate": "1_brown_board_and_shelf",
-   "title": "Brown: board + shelf",
-   "file": "plates/1_brown_board_and_shelf.3mf",
-   "grams": 292.7,
-   "time": "8h 10m 2s",
-   "minutes": 490,
+   "plate": "1_brown_main_board_shelf_knobs",
+   "title": "Brown: board + shelf + knobs (one piece)",
+   "file": "plates/1_brown_main_board_shelf_knobs.3mf",
+   "grams": 446.6,
+   "time": "16h 29m 51s",
+   "minutes": 990,
    "margin_mm": 15.0,
    "colours": [
     "walnut"
@@ -22,28 +22,16 @@
    "plate": "2_white_panel_dark_verse",
    "title": "White panel + dark verse",
    "file": "plates/2_white_panel_dark_verse.3mf",
-   "grams": 104.1,
-   "time": "3h 52m 58s",
-   "minutes": 233,
+   "grams": 119.6,
+   "time": "4h 29m 34s",
+   "minutes": 270,
    "margin_mm": 23.0,
    "colours": [
     "dark",
     "white"
    ]
-  },
-  {
-   "plate": "3_brass_knobs",
-   "title": "Brass: knobs x6",
-   "file": "plates/3_brass_knobs.3mf",
-   "grams": 18.8,
-   "time": "1h 29m 54s",
-   "minutes": 90,
-   "margin_mm": 128.0,
-   "colours": [
-    "brass"
-   ]
   }
  ],
- "total_grams": 415.6,
- "total_hours": 13.6
+ "total_grams": 566.2,
+ "total_hours": 21.0
 }

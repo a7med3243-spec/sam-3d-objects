@@ -1,11 +1,11 @@
 """
 Print kit for the 30 cm walnut board (300 x 174 mm) on a Bambu Lab A2L (330 x 320 mm bed).
 
-Nothing is cut: every part prints whole. Parts are grouped by colour so each plate runs
-on one filament (the white panel switches once, to the dark verse, at the reed crests):
-  1  brown  - board + shelf
-  2  white  - wavy panel with the verse in dark (one filament change)
-  3  brass  - six knobs
+Nothing is cut. Board, shelf and knobs are ONE strong piece; only the verse panel prints
+on its own. Each plate runs on one filament (the white panel switches once, to the dark
+verse, at the reed crests):
+  1  brown  - board + shelf + knobs in one piece (4 walls, 25 % infill)
+  2  white  - wavy panel with the verse in dark (one filament change), glued in
 Builds 30cm/print_kit/: the plates as 3MF (parts placed, filament slots set), a plate
 layout figure, an exploded assembly for the render, and plates.json with the weight and
 time of each plate measured by PrusaSlicer. make_guide.py then writes the Arabic guide
@@ -35,10 +35,10 @@ COLOUR = {"walnut": "#6B4A33", "white": "#F1EDE6", "dark": "#2A1D16", "brass": "
 
 # plate id, title, objects; each object is a list of (stl, colour) volumes
 PLATES = [
-    ("1_brown_board_and_shelf", "Brown: board + shelf", [[("board.stl", "walnut")], [("shelf.stl", "walnut")]]),
+    ("1_brown_main_board_shelf_knobs", "Brown: board + shelf + knobs (one piece)",
+     [[("main_brown_board_shelf_knobs.stl", "walnut")]]),
     ("2_white_panel_dark_verse", "White panel + dark verse",
      [[("mmu_panel_white.stl", "white"), ("mmu_verse_dark.stl", "dark")]]),
-    ("3_brass_knobs", "Brass: knobs x6", [[("knob.stl", "brass")]] * 6),
 ]
 
 
@@ -155,7 +155,7 @@ def slice_plate(path):
     with tempfile.TemporaryDirectory() as wd:
         cfgp = os.path.join(wd, "pla.ini")
         with open(cfgp, "w") as f:
-            f.write(mw.config_for("30cm")[0] + FAST)
+            f.write(mw.config_for("30cm")[0] + FAST)  # same strength settings as the weights
         out = os.path.join(wd, "p.gcode")
         subprocess.run(["prusa-slicer", "--export-gcode", "--load", cfgp, "--dont-arrange",
                         "--output", out, path], check=True, capture_output=True, timeout=3600)
@@ -248,19 +248,17 @@ def build_kit():
 
 
 def exploded_assembly():
-    """Parts of the 30 cm board pulled apart, for an assembly picture."""
+    """Main piece and the verse panel pulled apart, for an assembly picture."""
     import importlib.util
     spec = importlib.util.spec_from_file_location("walnut", os.path.join(HERE, "build.py"))
     w = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(w)
-    asm, _, _ = w.build("30cm")
+    asm, _, _ = w.build_merged("30cm")
     out = os.path.join(OUT, "exploded")
     os.makedirs(out, exist_ok=True)
-    pieces = [("board", asm["board"][0], "walnut", (0, 0, 0)),
-              ("panel", asm["panel_white"][0], "ivory", (0, 0, 60)),
-              ("verse", asm["verse_dark"][0], "espresso", (0, 0, 60)),
-              ("shelf", asm["shelf"][0], "walnut", (0, 28, 130))]
-    pieces += [(k, asm[k][0], "brass", (0, 0, 38)) for k in asm if k.startswith("knob")]
+    pieces = [("main", asm["main_brown"][0], "walnut", (0, 0, 0)),
+              ("panel", asm["panel_white"][0], "ivory", (0, -78, 120)),
+              ("verse", asm["verse_dark"][0], "espresso", (0, -78, 120))]
     manifest = []
     for name, m, mat, d in pieces:
         m = m.copy()

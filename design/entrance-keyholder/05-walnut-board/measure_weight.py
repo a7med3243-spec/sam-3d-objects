@@ -34,13 +34,13 @@ PARTS = {
     "small": {"board.stl": (1, "walnut"), "shelf.stl": (1, "walnut"),
               "panel_white_with_verse.stl": (1, "white+dark"), "mmu_verse_dark.stl": (0, "dark"),
               "knob.stl": (5, "brass")},
-    "30cm": {"board.stl": (1, "walnut"), "shelf.stl": (1, "walnut"),
-             "panel_white_with_verse.stl": (1, "white+dark"), "mmu_verse_dark.stl": (0, "dark"),
-             "knob.stl": (6, "brass")},
+    "30cm": {"main_brown_board_shelf_knobs.stl": (1, "walnut"),
+             "panel_white_with_verse.stl": (1, "white+dark"), "mmu_verse_dark.stl": (0, "dark")},
 }
 
 
 BEDS = {"30cm": (330, 320, 325)}   # Bambu Lab A2L; other sizes use the 220 mm bed above
+STRONG = {"30cm"}                  # sliced with 4 walls and 25 % infill
 
 
 def config_for(size):
@@ -49,6 +49,10 @@ def config_for(size):
     x, y, z = BEDS[size]
     cfg = CONFIG.replace("bed_shape = 0x0,220x0,220x220,0x220", f"bed_shape = 0x0,{x}x0,{x}x{y},0x{y}")
     cfg = cfg.replace("max_print_height = 250", f"max_print_height = {z}")
+    if size in STRONG:
+        # load-bearing piece: more walls and infill (shelf and knobs carry weight)
+        cfg = (cfg.replace("perimeters = 3", "perimeters = 4").replace("fill_density = 15%", "fill_density = 25%")
+               .replace("bottom_solid_layers = 4", "bottom_solid_layers = 5"))
     return cfg, f"{x / 2:g},{y / 2:g}"
 
 
