@@ -5,27 +5,27 @@
   {
    "part": "main_brown_board_shelf_knobs.stl",
    "count": 1,
-   "grams_each": 446.63,
-   "time_each": "1d 17h 56m 55s"
+   "grams_each": 338.63,
+   "time_each": "1d 4h 40m 16s"
   },
   {
    "part": "panel_white_with_verse.stl",
    "count": 1,
-   "grams_each": 119.59,
-   "time_each": "12h 17m 26s"
+   "grams_each": 78.88,
+   "time_each": "8h 22m 2s"
   },
   {
    "part": "mmu_verse_dark.stl",
    "count": 0,
-   "grams_each": 8.04,
-   "time_each": "1h 21m 6s"
+   "grams_each": 8.42,
+   "time_each": "1h 22m 5s"
   }
  ],
- "total_grams": 566.2,
- "total_print_hours": 54.2,
+ "total_grams": 417.5,
+ "total_print_hours": 37.0,
  "by_colour_grams": {
-  "walnut": 446.6,
-  "white+dark": 119.6,
-  "dark (part of white+dark)": 8.0
+  "walnut": 338.6,
+  "white+dark": 78.9,
+  "dark (part of white+dark)": 8.4
  }
 }

@@ -40,7 +40,8 @@ PARTS = {
 
 
 BEDS = {"30cm": (330, 320, 325)}   # Bambu Lab A2L; other sizes use the 220 mm bed above
-STRONG = {"30cm"}                  # sliced with 4 walls and 25 % infill
+PROFILE = {"main_brown_board_shelf_knobs.stl": "strong", "panel_white_with_verse.stl": "light",
+           "mmu_verse_dark.stl": "light"}   # per-part slicer profile (30 cm)
 
 
 def config_for(size):
@@ -49,16 +50,25 @@ def config_for(size):
     x, y, z = BEDS[size]
     cfg = CONFIG.replace("bed_shape = 0x0,220x0,220x220,0x220", f"bed_shape = 0x0,{x}x0,{x}x{y},0x{y}")
     cfg = cfg.replace("max_print_height = 250", f"max_print_height = {z}")
-    if size in STRONG:
-        # load-bearing piece: more walls and infill (shelf and knobs carry weight)
-        cfg = (cfg.replace("perimeters = 3", "perimeters = 4").replace("fill_density = 15%", "fill_density = 25%")
-               .replace("bottom_solid_layers = 4", "bottom_solid_layers = 5"))
     return cfg, f"{x / 2:g},{y / 2:g}"
+
+
+def apply_profile(cfg, profile):
+    """strong: load-bearing piece, walls do the work (4 walls, 15 % gyroid).
+    light: decorative panel (2 walls, 10 % infill)."""
+    if profile == "strong":
+        cfg = cfg.replace("perimeters = 3", "perimeters = 4").replace("top_solid_layers = 5", "top_solid_layers = 4")
+    elif profile == "light":
+        cfg = (cfg.replace("perimeters = 3", "perimeters = 2").replace("fill_density = 15%", "fill_density = 10%")
+               .replace("top_solid_layers = 5", "top_solid_layers = 4").replace("bottom_solid_layers = 4", "bottom_solid_layers = 3"))
+    return cfg
 
 
 def slice_part(stl, workdir, size="small"):
     ini = os.path.join(workdir, "pla.ini")
     cfg, centre = config_for(size)
+    if size in BEDS:
+        cfg = apply_profile(cfg, PROFILE.get(os.path.basename(stl), "normal"))
     with open(ini, "w") as f:
         f.write(cfg)
     out = os.path.join(workdir, os.path.basename(stl) + ".gcode")

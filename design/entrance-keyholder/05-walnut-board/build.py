@@ -13,8 +13,8 @@ Two sizes:
   small  - 210 x 122 mm, each part in one piece
   30cm   - 300 x 174 mm for a 330 x 320 mm bed (Bambu Lab A2L): board, shelf and knobs print
            as ONE strong piece (brown); only the white panel with the verse prints on its own
-           and is glued in. Screws driven in from the back run through the printed layers of
-           the shelf and of each knob as reinforcement.
+           and is glued in. No screws in the piece: a rounded shelf root and thick, flared knob
+           necks carry the load. Only two wall screws hang it (hidden keyholes).
            The code can still split a size into halves for smaller beds (SPLIT=True).
 """
 
@@ -45,20 +45,17 @@ SIZES = {
         KEYHOLES=((-70.0, 102.0), (70.0, 102.0)),
         VERSE_W=180.0, VERSE_THICKEN=0.08, RELIEF=1.4, SPLIT=False),
     "30cm": dict(
-        W=300.0, H=174.0, T=9.0, CORNER_R=14.0,
-        SHELF_T=14.0, SHELF_TOP=131.0, SHELF_D=75.0, SHELF_R=4.0,
+        W=300.0, H=174.0, T=7.0, CORNER_R=14.0,
+        SHELF_T=11.0, SHELF_TOP=128.0, SHELF_D=85.0, SHELF_R=4.0,
         SHELF_SCREWS_X=(),
-        PANEL_X=142.0, PANEL_Y0=46.0, RECESS=1.2, PANEL_BASE=5.0, REED_H=3.4, REED_PITCH=5.5,
+        PANEL_X=142.0, PANEL_Y0=46.0, RECESS=1.2, PANEL_BASE=4.0, REED_H=3.4, REED_PITCH=5.5,
         KNOB_Y=22.0, KNOB_X=(-115.0, -69.0, -23.0, 23.0, 69.0, 115.0),
-        NECK_D=10.0, NECK_L=16.0, CAP_D=18.0, CAP_T=8.0,
-        KEYHOLES=((-110.0, 152.0), (110.0, 152.0)),
+        NECK_D=12.0, NECK_L=16.0, CAP_D=20.0, CAP_T=8.0, KNOB_ROOT=4.0,
+        KEYHOLES=((-110.0, 150.0), (110.0, 150.0)),
         VERSE_W=248.0, VERSE_THICKEN=0.12, RELIEF=1.6, SPLIT=False,
         BED=(330.0, 320.0, 325.0),                   # Bambu Lab A2L: every part in one piece
         MERGE=True,                                  # board + shelf + knobs print as one piece
-        LIP=3.0, COVE=6.0,                           # phone lip at the front, rounded root on top
-        REBAR_SHELF_X=(-110.0, -37.0, 37.0, 110.0),  # 4 x 60 mm wood screws through the layers
-        REBAR_SHELF_DEPTH=64.0, REBAR_SHELF_D=3.0, REBAR_SHELF_FROM_TOP=5.5,
-        REBAR_KNOB_DEPTH=30.0, REBAR_KNOB_D=2.6),    # M3 x 25 (or 3 x 25 wood) screw in each knob
+        LIP=3.0, COVE=8.0),                          # phone lip at the front, rounded root on top
 }
 
 
@@ -271,7 +268,8 @@ def merged_knob(c):
     rn, rc, nl, ct = c["NECK_D"] / 2, c["CAP_D"] / 2, c["NECK_L"], c["CAP_T"]
     flare = (rc - rn) * 1.12
     z_cap = nl - 1.0
-    prof = [(0, -0.5), (rn + 3.0, -0.5), (rn + 3.0, 0.0), (rn, 3.0), (rn, z_cap), (rc, z_cap + flare),
+    root = c.get("KNOB_ROOT", 3.0)
+    prof = [(0, -0.5), (rn + root, -0.5), (rn + root, 0.0), (rn, root), (rn, z_cap), (rc, z_cap + flare),
             (rc, nl + ct - 1.2), (rc - 1.2, nl + ct), (0, nl + ct)]
     m = trimesh.creation.revolve(np.array(prof), sections=72)
     if m.volume < 0:
@@ -303,13 +301,13 @@ def build_merged(size):
     # shelf profile in (z, y): slab, 45-degree-backed phone lip at the front, cove at the root
     from shapely.geometry import Point, Polygon
     zf = T + D
-    prof = Polygon([(T - 0.5, bot), (zf, bot), (zf, top + lip), (zf - 4.0, top + lip),
-                    (zf - 4.0 - lip, top), (T - 0.5, top), (T - 0.5, top + cove)]).buffer(0)
+    prof = Polygon([(T - 0.5, bot), (zf, bot), (zf, top + lip), (zf - 2.5, top + lip),
+                    (zf - 2.5 - lip, top), (T - 0.5, top), (T - 0.5, top + cove)]).buffer(0)
     root = box(T - 0.5, top - 0.01, T + cove, top + cove).difference(
         Point(T + cove, top + cove).buffer(cove, quad_segs=24))
-    prof = prof.union(root).union(box(T - 0.5, bot, T + cove, top + 0.01))
-    prof = prof.buffer(-1.0, join_style="round").buffer(1.0, join_style="round")
-    prof = prof.union(box(T - 0.5, bot + 1.0, T + 1.0, top))   # keep the slab square where it meets the board
+    prof = prof.buffer(-1.0, join_style="round").buffer(1.0, join_style="round")   # soften outer edges
+    # the root fillet goes on after the rounding, so its thin tip at the board face stays whole
+    prof = prof.union(root).union(box(T - 0.5, bot + 1.0, T + cove, top + 0.01))
     shelf = kh.profile_x(list(prof.exterior.coords), -W / 2, W / 2)
 
     knob = merged_knob(c)
@@ -322,9 +320,10 @@ def build_merged(size):
     main = kh.union([board, shelf] + knobs)
     cut = [kh.extrude(box(-px - 0.2, py0 - 0.2, px + 0.2, py1 + 0.2), panel_z0, T + 0.5)]
     cut += [kh.keyhole_cutter(x, y) for x, y in c["KEYHOLES"]]
-    ys = top - c["REBAR_SHELF_FROM_TOP"]
-    cut += [back_screw(x, ys, c["REBAR_SHELF_DEPTH"], c["REBAR_SHELF_D"], 8.2) for x in c["REBAR_SHELF_X"]]
-    cut += [back_screw(x, c["KNOB_Y"], c["REBAR_KNOB_DEPTH"], c["REBAR_KNOB_D"], 6.2) for x in c["KNOB_X"]]
+    if c.get("REBAR_SHELF_X"):        # optional steel screws through the layers (off by default)
+        ys = top - c["REBAR_SHELF_FROM_TOP"]
+        cut += [back_screw(x, ys, c["REBAR_SHELF_DEPTH"], c["REBAR_SHELF_D"], 8.2) for x in c["REBAR_SHELF_X"]]
+        cut += [back_screw(x, c["KNOB_Y"], c["REBAR_KNOB_DEPTH"], c["REBAR_KNOB_D"], 6.2) for x in c["KNOB_X"]]
     main = kh.difference(main, cut)
 
     # verse panel (white with the dark verse), printed on its own and glued in
@@ -373,8 +372,9 @@ def build_merged(size):
         "verse_strokes_under_0.8mm_pct": kh.thin_area_pct(verse2d),
         "panel_colour_change_z_mm": crest,
         "shelf_thickness_mm": c["SHELF_T"], "shelf_depth_mm": D, "phone_lip_mm": lip, "root_cove_mm": cove,
-        "reinforcing_screws": {"shelf": f"{len(c['REBAR_SHELF_X'])} x wood screw 4 x 60 (flat head)",
-                               "knobs": f"{len(c['KNOB_X'])} x M3 x 25 or 3 x 25 wood screw (flat head)"},
+        "reinforcing_screws": "none (strength comes from the shape: root cove, thick knob necks)",
+        "phone_flat_depth_mm": round(D - cove - lip - 2.5, 1),
+        "board_thickness_mm": T, "knob_neck_mm": c["NECK_D"],
         "assembly_clashes_mm3": clashes,
     }
     return assembly, prints, meta

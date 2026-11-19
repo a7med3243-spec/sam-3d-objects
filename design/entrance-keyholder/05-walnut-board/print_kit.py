@@ -4,8 +4,8 @@ Print kit for the 30 cm walnut board (300 x 174 mm) on a Bambu Lab A2L (330 x 32
 Nothing is cut. Board, shelf and knobs are ONE strong piece; only the verse panel prints
 on its own. Each plate runs on one filament (the white panel switches once, to the dark
 verse, at the reed crests):
-  1  brown  - board + shelf + knobs in one piece (4 walls, 25 % infill)
-  2  white  - wavy panel with the verse in dark (one filament change), glued in
+  1  brown  - board + shelf + knobs in one piece (4 walls, 15 % gyroid)
+  2  white  - wavy panel with the verse in dark (one filament change), glued in (2 walls, 10 %)
 Builds 30cm/print_kit/: the plates as 3MF (parts placed, filament slots set), a plate
 layout figure, an exploded assembly for the render, and plates.json with the weight and
 time of each plate measured by PrusaSlicer. make_guide.py then writes the Arabic guide
@@ -40,6 +40,9 @@ PLATES = [
     ("2_white_panel_dark_verse", "White panel + dark verse",
      [[("mmu_panel_white.stl", "white"), ("mmu_verse_dark.stl", "dark")]]),
 ]
+
+
+PROFILE_OF = {"1_brown_main_board_shelf_knobs": "strong", "2_white_panel_dark_verse": "light"}
 
 
 def load(name):
@@ -149,13 +152,13 @@ machine_max_feedrate_y = 500
 """
 
 
-def slice_plate(path):
+def slice_plate(path, profile="normal"):
     sys.path.insert(0, HERE)
     import measure_weight as mw
     with tempfile.TemporaryDirectory() as wd:
         cfgp = os.path.join(wd, "pla.ini")
         with open(cfgp, "w") as f:
-            f.write(mw.config_for("30cm")[0] + FAST)  # same strength settings as the weights
+            f.write(mw.apply_profile(mw.config_for("30cm")[0], profile) + FAST)  # same profiles as the weights
         out = os.path.join(wd, "p.gcode")
         subprocess.run(["prusa-slicer", "--export-gcode", "--load", cfgp, "--dont-arrange",
                         "--output", out, path], check=True, capture_output=True, timeout=3600)
@@ -231,7 +234,7 @@ def build_kit():
         assert lo[0] >= 0 and lo[1] >= 0 and hi[0] <= BED_X and hi[1] <= BED_Y and hi[2] <= BED_Z, (pid, lo, hi)
         path = os.path.join(OUT, "plates", pid + ".3mf")
         write_plate_3mf(path, [(n, [(m, vn, e) for m, vn, e, _ in vv]) for n, vv in placed])
-        g, t, mins = slice_plate(path)
+        g, t, mins = slice_plate(path, PROFILE_OF.get(pid, "normal"))
         info = {"plate": pid, "title": title, "file": f"plates/{pid}.3mf", "grams": round(g, 1),
                 "time": t, "minutes": round(mins), "margin_mm": round(float(min(lo[0], lo[1], BED_X - hi[0], BED_Y - hi[1])), 1),
                 "colours": sorted({c for _, vv in placed for *_, c in vv})}

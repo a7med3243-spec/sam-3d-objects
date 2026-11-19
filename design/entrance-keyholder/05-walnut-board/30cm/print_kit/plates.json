@@ -10,9 +10,9 @@
    "plate": "1_brown_main_board_shelf_knobs",
    "title": "Brown: board + shelf + knobs (one piece)",
    "file": "plates/1_brown_main_board_shelf_knobs.3mf",
-   "grams": 446.6,
-   "time": "16h 29m 51s",
-   "minutes": 990,
+   "grams": 338.7,
+   "time": "8h 56m 14s",
+   "minutes": 536,
    "margin_mm": 15.0,
    "colours": [
     "walnut"
@@ -22,9 +22,9 @@
    "plate": "2_white_panel_dark_verse",
    "title": "White panel + dark verse",
    "file": "plates/2_white_panel_dark_verse.3mf",
-   "grams": 119.6,
-   "time": "4h 29m 34s",
-   "minutes": 270,
+   "grams": 79.0,
+   "time": "3h 2m 8s",
+   "minutes": 182,
    "margin_mm": 23.0,
    "colours": [
     "dark",
@@ -32,6 +32,6 @@
    ]
   }
  ],
- "total_grams": 566.2,
- "total_hours": 21.0
+ "total_grams": 417.7,
+ "total_hours": 12.0
 }
