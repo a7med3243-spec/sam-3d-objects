@@ -22,131 +22,68 @@
   "assembly_clashes_mm3": {},
   "counts": {
    "knob.stl": 6
-  },
-  "panel_cut_x_mm": -13.5,
-  "panel_cut_clearance_mm": 5.36,
-  "shelf_cut_x_mm": 20.0
+  }
  },
  "parts": [
   {
-   "part": "board_left.stl",
+   "part": "board.stl",
    "watertight": true,
    "size_mm": [
-    150.0,
+    300.0,
     174.0,
     9.0
    ],
-   "fits_220_bed": true,
-   "volume_cm3": 219.9,
-   "overhang_mm2_over_45deg": 230.9
+   "fits_330x320_bed": true,
+   "volume_cm3": 440.2,
+   "overhang_mm2_over_45deg": 336.5
   },
   {
-   "part": "board_right.stl",
+   "part": "panel_white_with_verse.stl",
    "watertight": true,
    "size_mm": [
-    150.0,
-    174.0,
-    9.0
-   ],
-   "fits_220_bed": true,
-   "volume_cm3": 219.9,
-   "overhang_mm2_over_45deg": 230.9
-  },
-  {
-   "part": "panel_left_white_with_verse.stl",
-   "watertight": true,
-   "size_mm": [
-    128.5,
+    284.0,
     71.0,
     10.0
    ],
-   "fits_220_bed": true,
-   "volume_cm3": 64.7,
+   "fits_330x320_bed": true,
+   "volume_cm3": 143.0,
    "overhang_mm2_over_45deg": 0.0
   },
   {
-   "part": "mmu_panel_left_white.stl",
+   "part": "mmu_panel_white.stl",
    "watertight": true,
    "size_mm": [
-    128.5,
+    284.0,
     71.0,
     8.4
    ],
-   "fits_220_bed": true,
-   "volume_cm3": 61.7,
+   "fits_330x320_bed": true,
+   "volume_cm3": 136.4,
    "overhang_mm2_over_45deg": 0.0
   },
   {
-   "part": "mmu_verse_left_dark.stl",
+   "part": "mmu_verse_dark.stl",
    "watertight": true,
    "size_mm": [
-    104.8,
-    43.6,
+    248.2,
+    47.8,
     5.0
    ],
-   "fits_220_bed": true,
-   "volume_cm3": 3.0,
+   "fits_330x320_bed": true,
+   "volume_cm3": 6.6,
    "overhang_mm2_over_45deg": 0.0
   },
   {
-   "part": "panel_right_white_with_verse.stl",
+   "part": "shelf.stl",
    "watertight": true,
    "size_mm": [
-    155.5,
-    71.0,
-    10.0
-   ],
-   "fits_220_bed": true,
-   "volume_cm3": 78.3,
-   "overhang_mm2_over_45deg": 0.0
-  },
-  {
-   "part": "mmu_panel_right_white.stl",
-   "watertight": true,
-   "size_mm": [
-    155.5,
-    71.0,
-    8.4
-   ],
-   "fits_220_bed": true,
-   "volume_cm3": 74.7,
-   "overhang_mm2_over_45deg": 0.0
-  },
-  {
-   "part": "mmu_verse_right_dark.stl",
-   "watertight": true,
-   "size_mm": [
-    132.3,
-    44.2,
-    5.0
-   ],
-   "fits_220_bed": true,
-   "volume_cm3": 3.6,
-   "overhang_mm2_over_45deg": 0.0
-  },
-  {
-   "part": "shelf_left.stl",
-   "watertight": true,
-   "size_mm": [
-    170.0,
+    300.0,
     75.0,
     10.0
    ],
-   "fits_220_bed": true,
-   "volume_cm3": 127.2,
-   "overhang_mm2_over_45deg": 92.6
-  },
-  {
-   "part": "shelf_right.stl",
-   "watertight": true,
-   "size_mm": [
-    130.0,
-    75.0,
-    10.0
-   ],
-   "fits_220_bed": true,
-   "volume_cm3": 97.2,
-   "overhang_mm2_over_45deg": 92.6
+   "fits_330x320_bed": true,
+   "volume_cm3": 224.7,
+   "overhang_mm2_over_45deg": 81.6
   },
   {
    "part": "knob.stl",
@@ -156,7 +93,7 @@
     18.0,
     29.5
    ],
-   "fits_220_bed": true,
+   "fits_330x320_bed": true,
    "volume_cm3": 3.4,
    "overhang_mm2_over_45deg": 0.0
   }

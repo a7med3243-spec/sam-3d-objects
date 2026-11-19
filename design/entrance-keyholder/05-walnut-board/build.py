@@ -9,12 +9,10 @@ The verse ﴿وَلَسَوۡفَ يُعۡطِيكَ رَبُّكَ فَتَرۡ
 part of the white panel, so every dot and mark stays attached; one filament change at
 the height of the reed crests prints it dark.
 
-Two sizes, every part fitting a 220 x 220 mm bed:
+Two sizes:
   small  - 210 x 122 mm, each part in one piece
-  30cm   - 300 x 174 mm, board, shelf and white panel each in two
-           halves. Each board half hangs on its own wall screw; the halves meet on four
-           pins of 1.75 mm filament and glue, and the white panel and the shelf (cut at
-           other places) cross the board seam and tie the halves together.
+  30cm   - 300 x 174 mm, each part in one piece, for a 330 x 320 mm bed (Bambu Lab A2L).
+           The code can still split a size into halves for smaller beds (SPLIT=True).
 """
 
 import json
@@ -46,14 +44,13 @@ SIZES = {
     "30cm": dict(
         W=300.0, H=174.0, T=9.0, CORNER_R=14.0,
         SHELF_T=10.0, SHELF_TOP=127.0, SHELF_D=75.0, SHELF_R=4.0,
-        SHELF_SCREWS_X=(-130.0, -85.0, -40.0, 45.0, 90.0, 130.0),
+        SHELF_SCREWS_X=(-120.0, -40.0, 40.0, 120.0),
         PANEL_X=142.0, PANEL_Y0=46.0, RECESS=1.2, PANEL_BASE=5.0, REED_H=3.4, REED_PITCH=5.5,
         KNOB_Y=22.0, KNOB_X=(-115.0, -69.0, -23.0, 23.0, 69.0, 115.0),
         NECK_D=10.0, NECK_L=16.0, CAP_D=18.0, CAP_T=8.0,
         KEYHOLES=((-110.0, 148.0), (110.0, 148.0)),
-        VERSE_W=248.0, VERSE_THICKEN=0.12, RELIEF=1.6, SPLIT=True,
-        SEAM_DOWELS_Y=(15.0, 60.0, 100.0, 155.0),   # 1.75 mm filament pins across the board seam
-        SHELF_SEAM_X=20.0),                          # shelf joint staggered from the board seam
+        VERSE_W=248.0, VERSE_THICKEN=0.12, RELIEF=1.6, SPLIT=False,
+        BED=(330.0, 320.0, 325.0)),                  # Bambu Lab A2L: every part in one piece
 }
 
 
@@ -259,7 +256,7 @@ def build(size):
 def write(size):
     a, p, m = build(size)
     out = os.path.join(HERE, size)
-    rep = kh.write_outputs(out, a, p, m)
+    rep = kh.write_outputs(out, a, p, m, SIZES[size].get("BED", (220.0, 220.0, 250.0)))
     return m, rep
 
 

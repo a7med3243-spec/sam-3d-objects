@@ -34,21 +34,31 @@ PARTS = {
     "small": {"board.stl": (1, "walnut"), "shelf.stl": (1, "walnut"),
               "panel_white_with_verse.stl": (1, "white+dark"), "mmu_verse_dark.stl": (0, "dark"),
               "knob.stl": (5, "brass")},
-    "30cm": {"board_left.stl": (1, "walnut"), "board_right.stl": (1, "walnut"),
-              "shelf_left.stl": (1, "walnut"), "shelf_right.stl": (1, "walnut"),
-              "panel_left_white_with_verse.stl": (1, "white+dark"),
-              "panel_right_white_with_verse.stl": (1, "white+dark"),
-              "mmu_verse_left_dark.stl": (0, "dark"), "mmu_verse_right_dark.stl": (0, "dark"),
-              "knob.stl": (6, "brass")},
+    "30cm": {"board.stl": (1, "walnut"), "shelf.stl": (1, "walnut"),
+             "panel_white_with_verse.stl": (1, "white+dark"), "mmu_verse_dark.stl": (0, "dark"),
+             "knob.stl": (6, "brass")},
 }
 
 
-def slice_part(stl, workdir):
+BEDS = {"30cm": (330, 320, 325)}   # Bambu Lab A2L; other sizes use the 220 mm bed above
+
+
+def config_for(size):
+    if size not in BEDS:
+        return CONFIG, "110,110"
+    x, y, z = BEDS[size]
+    cfg = CONFIG.replace("bed_shape = 0x0,220x0,220x220,0x220", f"bed_shape = 0x0,{x}x0,{x}x{y},0x{y}")
+    cfg = cfg.replace("max_print_height = 250", f"max_print_height = {z}")
+    return cfg, f"{x / 2:g},{y / 2:g}"
+
+
+def slice_part(stl, workdir, size="small"):
     ini = os.path.join(workdir, "pla.ini")
+    cfg, centre = config_for(size)
     with open(ini, "w") as f:
-        f.write(CONFIG)
+        f.write(cfg)
     out = os.path.join(workdir, os.path.basename(stl) + ".gcode")
-    subprocess.run(["prusa-slicer", "--export-gcode", "--load", ini, "--center", "110,110",
+    subprocess.run(["prusa-slicer", "--export-gcode", "--load", ini, "--center", centre,
                     "--output", out, stl], check=True, capture_output=True, timeout=1800)
     txt = open(out, errors="ignore").read()
     grams = float(re.search(r"; total filament used \[g\] = ([\d.]+)", txt).group(1))
@@ -69,7 +79,7 @@ def measure(size):
     rows, total_g, total_min, by_colour = [], 0.0, 0.0, {}
     with tempfile.TemporaryDirectory() as wd:
         for name, (n, colour) in PARTS[size].items():
-            g, t = slice_part(os.path.join(stl_dir, name), wd)
+            g, t = slice_part(os.path.join(stl_dir, name), wd, size)
             rows.append({"part": name, "count": n, "grams_each": g, "time_each": t})
             if n:
                 total_g += g * n

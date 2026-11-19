@@ -1,10 +1,15 @@
 """
-Print kit for the 30 cm walnut board (300 x 174 mm), printed piece by piece.
+Print kit for the 30 cm walnut board (300 x 174 mm) on a Bambu Lab A2L (330 x 320 mm bed).
 
-Builds 30cm/print_kit/: five ready plates for a 220 x 220 mm bed (3MF, parts placed and
-assigned to filament slots), a plate layout figure, an exploded assembly for the render,
-and plates.json with the weight and time of each plate measured by PrusaSlicer.
-make_guide.py then writes the illustrated Arabic guide and the ZIP.
+Nothing is cut: every part prints whole. Parts are grouped by colour so each plate runs
+on one filament (the white panel switches once, to the dark verse, at the reed crests):
+  1  brown  - board + shelf
+  2  white  - wavy panel with the verse in dark (one filament change)
+  3  brass  - six knobs
+Builds 30cm/print_kit/: the plates as 3MF (parts placed, filament slots set), a plate
+layout figure, an exploded assembly for the render, and plates.json with the weight and
+time of each plate measured by PrusaSlicer. make_guide.py then writes the Arabic guide
+and the ZIP.
 """
 
 import json
@@ -23,20 +28,17 @@ import trimesh
 HERE = os.path.dirname(os.path.abspath(__file__))
 STL = os.path.join(HERE, "30cm", "stl")
 OUT = os.path.join(HERE, "30cm", "print_kit")
-BED = 220.0
+BED_X, BED_Y, BED_Z = 330.0, 320.0, 325.0     # Bambu Lab A2L
 GAP = 10.0
 
 COLOUR = {"walnut": "#6B4A33", "white": "#F1EDE6", "dark": "#2A1D16", "brass": "#C8A25A"}
 
 # plate id, title, objects; each object is a list of (stl, colour) volumes
 PLATES = [
-    ("1_board_left", "Board, left half", [[("board_left.stl", "walnut")]]),
-    ("2_board_right", "Board, right half", [[("board_right.stl", "walnut")]]),
-    ("3_shelf", "Shelf, both halves", [[("shelf_left.stl", "walnut")], [("shelf_right.stl", "walnut")]]),
-    ("4_panel_with_verse", "White panel with the verse, both halves",
-     [[("mmu_panel_left_white.stl", "white"), ("mmu_verse_left_dark.stl", "dark")],
-      [("mmu_panel_right_white.stl", "white"), ("mmu_verse_right_dark.stl", "dark")]]),
-    ("5_knobs", "Knobs x6", [[("knob.stl", "brass")]] * 6),
+    ("1_brown_board_and_shelf", "Brown: board + shelf", [[("board.stl", "walnut")], [("shelf.stl", "walnut")]]),
+    ("2_white_panel_dark_verse", "White panel + dark verse",
+     [[("mmu_panel_white.stl", "white"), ("mmu_verse_dark.stl", "dark")]]),
+    ("3_brass_knobs", "Brass: knobs x6", [[("knob.stl", "brass")]] * 6),
 ]
 
 
@@ -52,17 +54,17 @@ def layout(objects):
     n = len(objects)
     if n <= 2:                                   # stacked along Y, centred
         total = sum(s[1] for s in sizes) + GAP * (n - 1)
-        y = (BED - total) / 2
+        y = (BED_Y - total) / 2
         offs = []
         for s, mn in zip(sizes, mins):
-            offs.append(np.array([(BED - s[0]) / 2, y]) - mn)
+            offs.append(np.array([(BED_X - s[0]) / 2, y]) - mn)
             y += s[1] + GAP
         return offs
     cols = 3                                     # small parts on a grid
     rows = math.ceil(n / cols)
     pitch = max(max(s) for s in sizes) + GAP
-    x0 = (BED - (cols - 1) * pitch) / 2
-    y0 = (BED - (rows - 1) * pitch) / 2
+    x0 = (BED_X - (cols - 1) * pitch) / 2
+    y0 = (BED_Y - (rows - 1) * pitch) / 2
     offs = []
     for i, (s, mn) in enumerate(zip(sizes, mins)):
         cx, cy = x0 + (i % cols) * pitch, y0 + (i // cols) * pitch
@@ -118,14 +120,42 @@ def write_plate_3mf(path, objects):
         z.writestr("Metadata/Slic3r_PE_model.config", config)
 
 
+# Speeds and accelerations close to Bambu Lab's A-series PLA profile, so the time estimate
+# is in the A2L's range (they change the time only, not the weight).
+FAST = """
+external_perimeter_speed = 200
+perimeter_speed = 300
+infill_speed = 270
+solid_infill_speed = 250
+top_solid_infill_speed = 200
+gap_fill_speed = 250
+travel_speed = 500
+first_layer_speed = 50
+bridge_speed = 50
+max_volumetric_speed = 21
+default_acceleration = 10000
+perimeter_acceleration = 5000
+external_perimeter_acceleration = 5000
+infill_acceleration = 10000
+travel_acceleration = 10000
+first_layer_acceleration = 500
+machine_limits_usage = time_estimate_only
+machine_max_acceleration_extruding = 12000
+machine_max_acceleration_travel = 12000
+machine_max_acceleration_x = 12000
+machine_max_acceleration_y = 12000
+machine_max_feedrate_x = 500
+machine_max_feedrate_y = 500
+"""
+
+
 def slice_plate(path):
-    ini = os.path.join(HERE, "..", "05-walnut-board", "measure_weight.py")
     sys.path.insert(0, HERE)
     import measure_weight as mw
     with tempfile.TemporaryDirectory() as wd:
         cfgp = os.path.join(wd, "pla.ini")
         with open(cfgp, "w") as f:
-            f.write(mw.CONFIG)
+            f.write(mw.config_for("30cm")[0] + FAST)
         out = os.path.join(wd, "p.gcode")
         subprocess.run(["prusa-slicer", "--export-gcode", "--load", cfgp, "--dont-arrange",
                         "--output", out, path], check=True, capture_output=True, timeout=3600)
@@ -136,7 +166,7 @@ def slice_plate(path):
 
 
 def plate_figure(plates, path):
-    """Top view of every plate on a 220 mm bed, parts filled in their filament colour."""
+    """Top view of every plate on the bed, parts filled in their filament colour."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -154,9 +184,9 @@ def plate_figure(plates, path):
             return None
         polys = shapely.polygons(np.concatenate([tri, tri[:, :1]], axis=1))
         return shapely.union_all(shapely.buffer(polys, 0.02)).buffer(-0.02)
-    fig, axs = plt.subplots(1, len(plates), figsize=(4.2 * len(plates), 4.7), dpi=130)
+    fig, axs = plt.subplots(1, len(plates), figsize=(5.2 * len(plates), 5.2), dpi=130)
     for ax, (pid, title, objs, info) in zip(axs, plates):
-        ax.add_patch(Rectangle((0, 0), BED, BED, fc="#f3f1ec", ec="#999", lw=1))
+        ax.add_patch(Rectangle((0, 0), BED_X, BED_Y, fc="#f3f1ec", ec="#999", lw=1))
         for _, vols in objs:
             for m, _, ext, colour in vols:
                 shape = projected(m, normal=[0, 0, 1], ignore_sign=True)
@@ -168,8 +198,8 @@ def plate_figure(plates, path):
                     for hole in p.interiors:
                         hx, hy = hole.xy
                         ax.fill(hx, hy, fc="#f3f1ec" if colour != "dark" else COLOUR["white"], ec="none")
-        ax.set_xlim(-5, BED + 5)
-        ax.set_ylim(-5, BED + 5)
+        ax.set_xlim(-5, BED_X + 5)
+        ax.set_ylim(-5, BED_Y + 5)
         ax.set_aspect("equal")
         ax.set_xticks([])
         ax.set_yticks([])
@@ -198,12 +228,12 @@ def build_kit():
             placed.append((f"{pid}_{k + 1}", vv))
         allb = np.array([[m.bounds for m, *_ in vv] for _, vv in placed]).reshape(-1, 2, 3)
         lo, hi = allb[:, 0].min(axis=0), allb[:, 1].max(axis=0)
-        assert lo[0] >= 0 and lo[1] >= 0 and hi[0] <= BED and hi[1] <= BED, (pid, lo, hi)
+        assert lo[0] >= 0 and lo[1] >= 0 and hi[0] <= BED_X and hi[1] <= BED_Y and hi[2] <= BED_Z, (pid, lo, hi)
         path = os.path.join(OUT, "plates", pid + ".3mf")
         write_plate_3mf(path, [(n, [(m, vn, e) for m, vn, e, _ in vv]) for n, vv in placed])
         g, t, mins = slice_plate(path)
         info = {"plate": pid, "title": title, "file": f"plates/{pid}.3mf", "grams": round(g, 1),
-                "time": t, "minutes": round(mins), "margin_mm": round(float(min(lo[0], lo[1], BED - hi[0], BED - hi[1])), 1),
+                "time": t, "minutes": round(mins), "margin_mm": round(float(min(lo[0], lo[1], BED_X - hi[0], BED_Y - hi[1])), 1),
                 "colours": sorted({c for _, vv in placed for *_, c in vv})}
         summary.append(info)
         fig_rows.append((pid, title, placed, info))
@@ -212,7 +242,8 @@ def build_kit():
     total = {"total_grams": round(sum(p["grams"] for p in summary), 1),
              "total_hours": round(sum(p["minutes"] for p in summary) / 60, 1)}
     with open(os.path.join(OUT, "plates.json"), "w") as f:
-        json.dump({"bed_mm": BED, "plates": summary, **total}, f, indent=1)
+        json.dump({"printer": "Bambu Lab A2L", "bed_mm": [BED_X, BED_Y, BED_Z], "plates": summary, **total},
+                  f, indent=1)
     print(total)
 
 
@@ -222,22 +253,14 @@ def exploded_assembly():
     spec = importlib.util.spec_from_file_location("walnut", os.path.join(HERE, "build.py"))
     w = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(w)
-    asm, _, meta = w.build("30cm")
-    cut_panel, cut_shelf, W = meta["panel_cut_x_mm"], meta["shelf_cut_x_mm"], w.SIZES["30cm"]["W"]
+    asm, _, _ = w.build("30cm")
     out = os.path.join(OUT, "exploded")
     os.makedirs(out, exist_ok=True)
-    pieces = []
-    for side, s in (("left", -1), ("right", 1)):
-        a, b = (-W, 0) if s < 0 else (0, W)
-        pieces.append((f"board_{side}", w.clip_x(asm["board"][0], a, b), "walnut", (s * 14, 0, 0)))
-        a, b = (-W, cut_panel) if s < 0 else (cut_panel, W)
-        pieces.append((f"panel_{side}", w.clip_x(asm["panel_white"][0], a, b), "ivory", (s * 14, 0, 70)))
-        pieces.append((f"verse_{side}", w.clip_x(asm["verse_dark"][0], a, b), "espresso", (s * 14, 0, 70)))
-        a, b = (-W, cut_shelf) if s < 0 else (cut_shelf, W)
-        pieces.append((f"shelf_{side}", w.clip_x(asm["shelf"][0], a, b), "walnut", (s * 14, 30, 150)))
-    for k in [k for k in asm if k.startswith("knob")]:
-        x = asm[k][0].bounds.mean(axis=0)[0]
-        pieces.append((k, asm[k][0].copy(), "brass", (14 * np.sign(x), 0, 45)))
+    pieces = [("board", asm["board"][0], "walnut", (0, 0, 0)),
+              ("panel", asm["panel_white"][0], "ivory", (0, 0, 60)),
+              ("verse", asm["verse_dark"][0], "espresso", (0, 0, 60)),
+              ("shelf", asm["shelf"][0], "walnut", (0, 28, 130))]
+    pieces += [(k, asm[k][0], "brass", (0, 0, 38)) for k in asm if k.startswith("knob")]
     manifest = []
     for name, m, mat, d in pieces:
         m = m.copy()

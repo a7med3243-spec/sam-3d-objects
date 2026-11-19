@@ -1,68 +1,49 @@
 {
- "bed_mm": 220.0,
+ "printer": "Bambu Lab A2L",
+ "bed_mm": [
+  330.0,
+  320.0,
+  325.0
+ ],
  "plates": [
   {
-   "plate": "1_board_left",
-   "title": "Board, left half",
-   "file": "plates/1_board_left.3mf",
-   "grams": 101.4,
-   "time": "10h 16m 2s",
-   "minutes": 616,
+   "plate": "1_brown_board_and_shelf",
+   "title": "Brown: board + shelf",
+   "file": "plates/1_brown_board_and_shelf.3mf",
+   "grams": 292.7,
+   "time": "8h 10m 2s",
+   "minutes": 490,
+   "margin_mm": 15.0,
+   "colours": [
+    "walnut"
+   ]
+  },
+  {
+   "plate": "2_white_panel_dark_verse",
+   "title": "White panel + dark verse",
+   "file": "plates/2_white_panel_dark_verse.3mf",
+   "grams": 104.1,
+   "time": "3h 52m 58s",
+   "minutes": 233,
    "margin_mm": 23.0,
-   "colours": [
-    "walnut"
-   ]
-  },
-  {
-   "plate": "2_board_right",
-   "title": "Board, right half",
-   "file": "plates/2_board_right.3mf",
-   "grams": 101.4,
-   "time": "10h 16m 16s",
-   "minutes": 616,
-   "margin_mm": 23.0,
-   "colours": [
-    "walnut"
-   ]
-  },
-  {
-   "plate": "3_shelf",
-   "title": "Shelf, both halves",
-   "file": "plates/3_shelf.3mf",
-   "grams": 97.9,
-   "time": "9h 16m 11s",
-   "minutes": 556,
-   "margin_mm": 25.0,
-   "colours": [
-    "walnut"
-   ]
-  },
-  {
-   "plate": "4_panel_with_verse",
-   "title": "White panel with the verse, both halves",
-   "file": "plates/4_panel_with_verse.3mf",
-   "grams": 105.0,
-   "time": "10h 47m 5s",
-   "minutes": 647,
-   "margin_mm": 32.2,
    "colours": [
     "dark",
     "white"
    ]
   },
   {
-   "plate": "5_knobs",
-   "title": "Knobs x6",
-   "file": "plates/5_knobs.3mf",
+   "plate": "3_brass_knobs",
+   "title": "Brass: knobs x6",
+   "file": "plates/3_brass_knobs.3mf",
    "grams": 18.8,
-   "time": "2h 42m 29s",
-   "minutes": 162,
-   "margin_mm": 73.0,
+   "time": "1h 29m 54s",
+   "minutes": 90,
+   "margin_mm": 128.0,
    "colours": [
     "brass"
    ]
   }
  ],
- "total_grams": 424.5,
- "total_hours": 43.3
+ "total_grams": 415.6,
+ "total_hours": 13.6
 }

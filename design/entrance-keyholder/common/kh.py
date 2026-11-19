@@ -471,12 +471,14 @@ def overhang_report(mesh, max_angle=45.0, ignore_below=0.3):
 
 def part_report(name, mesh, bed=(220, 220, 250)):
     ext = mesh.extents
-    fits = sorted(ext[:2]) <= sorted(bed[:2]) and ext[2] <= bed[2]
+    fits = (ext[0] <= bed[0] and ext[1] <= bed[1]) or (ext[0] <= bed[1] and ext[1] <= bed[0])
+    fits = fits and ext[2] <= bed[2]
+    key = "fits_220_bed" if tuple(bed[:2]) == (220, 220) else f"fits_{bed[0]:.0f}x{bed[1]:.0f}_bed"
     return {
         "part": name,
         "watertight": bool(mesh.is_watertight),
         "size_mm": [round(float(v), 1) for v in ext],
-        "fits_220_bed": bool(fits),
+        key: bool(fits),
         "volume_cm3": round(float(mesh.volume) / 1000.0, 1),
         "overhang_mm2_over_45deg": round(overhang_report(mesh), 1),
     }
@@ -496,14 +498,14 @@ def export(mesh, path):
     mesh.export(path)
 
 
-def write_outputs(here, assembly, prints, meta):
+def write_outputs(here, assembly, prints, meta, bed=(220, 220, 250)):
     """Write print-ready STLs (stl/), the assembled parts for renders (assembly/) and
     report.json with the checks."""
     import json
     rep = []
     for name, mesh in prints.items():
         export(mesh, os.path.join(here, "stl", name))
-        rep.append(part_report(name, mesh))
+        rep.append(part_report(name, mesh, bed))
     manifest = []
     for name, (mesh, mat) in assembly.items():
         export(mesh, os.path.join(here, "assembly", name + ".stl"))

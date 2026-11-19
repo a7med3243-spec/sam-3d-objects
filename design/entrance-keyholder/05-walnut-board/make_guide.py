@@ -1,5 +1,6 @@
 """
-Arabic print & assembly guide (PDF) and the single-file ZIP kit for the 30 cm walnut board.
+Arabic print & assembly guide (PDF) and the single-file ZIP kit for the 30 cm walnut board
+(Bambu Lab A2L: whole parts, one print file per colour).
 
 Run after print_kit.py. Needs node + playwright (Chromium) for the PDF.
 Output: 30cm/walnut_board_30cm_print_kit.zip  (plates, STLs, guide PDF, pictures)
@@ -27,7 +28,6 @@ CFG = _w.SIZES["30cm"]
 CHANGE_Z = CFG["PANEL_BASE"] + CFG["REED_H"]                  # filament change height (mm)
 HANG_MM = CFG["KEYHOLES"][1][0] - CFG["KEYHOLES"][0][0]        # distance between wall screws
 N_SCREWS = len(CFG["SHELF_SCREWS_X"])
-N_PINS = len(CFG["SEAM_DOWELS_Y"]) + 2
 
 
 def b64(path):
@@ -40,12 +40,10 @@ def img(path, mime="image/jpeg"):
 
 
 PLATE_AR = {
-    "1_board_left": ("اللوح — النصف الأيسر", "بني / خشبي", ""),
-    "2_board_right": ("اللوح — النصف الأيمن", "بني / خشبي", ""),
-    "3_shelf": ("الرف — النصفان معاً", "بني / خشبي", ""),
-    "4_panel_with_verse": ("اللوح الأبيض مع الآية — النصفان معاً", "أبيض + غامق",
-                           f"بدون طابعة ألوان: اطبعه أبيض وغيّر إلى الخيط الغامق عند <b>{CHANGE_Z:.1f} مم</b>"),
-    "5_knobs": ("المقابض × 6", "نحاسي / ذهبي", ""),
+    "1_brown_board_and_shelf": ("اللوح + الرف (كاملان)", "بني / خشبي", "خيط واحد للطبعة كلها"),
+    "2_white_panel_dark_verse": ("اللوح الأبيض مع الآية (كامل)", "أبيض ثم غامق",
+                                 f"تبديل واحد فقط إلى الغامق عند <b>{CHANGE_Z:.1f} مم</b>"),
+    "3_brass_knobs": ("المقابض × 6", "نحاسي / ذهبي", "خيط واحد للطبعة كلها"),
 }
 
 
@@ -76,6 +74,7 @@ img {{ width: 100%; border-radius: 6px; display: block; }}
 .hero {{ height: 92mm; object-fit: cover; }}
 .detail {{ height: 52mm; object-fit: cover; }}
 .expl {{ height: 95mm; object-fit: cover; }}
+.plates {{ height: 56mm; object-fit: contain; }}
 .verse {{ font-family: Quran; font-size: 25pt; text-align: center; color: #2a1d16; margin: 2mm 0 1mm; line-height: 2.2; }}
 .box {{ background: #f6f2ea; border-right: 4px solid #c8a25a; padding: 3mm 4mm; border-radius: 4px; margin: 3mm 0; }}
 table {{ width: 100%; border-collapse: collapse; font-size: 10pt; margin: 2mm 0; }}
@@ -91,7 +90,7 @@ ol li {{ margin-bottom: 1.5mm; }}
 </style></head><body>
 
 <h1>حاملة المفاتيح الخشبية — مقاس 30 سم</h1>
-<p class="sub">{CFG["W"]:.0f} × {CFG["H"]:.0f} مم · دليل الطباعة قطعة قطعة والتركيب · كل قطعة تدخل سرير 220 × 220 مم</p>
+<p class="sub">{CFG["W"]:.0f} × {CFG["H"]:.0f} مم · لطابعة Bambu Lab A2L (سرير 330 × 320 مم) · كل قطعة كاملة بدون تقطيع · ملف لكل لون</p>
 <img class="hero" src="{hero}">
 
 <h2>الآية</h2>
@@ -102,12 +101,15 @@ ol li {{ margin-bottom: 1.5mm; }}
 يُستحسن مطابقة القطعة المطبوعة بالمصحف قبل التعليق.</div>
 <img class="detail" src="{verse}" style="margin-top:2mm">
 
-<h2 class="page">ألواح الطباعة (5 طبعات)</h2>
-<img src="{plates}">
+<h2 class="page">ملفات الطباعة — ملف لكل لون (3 طبعات)</h2>
+<img class="plates" src="{plates}">
 <table><tr><th>#</th><th>الملف</th><th>المحتوى</th><th>اللون</th><th>الوزن</th><th>الوقت*</th><th>ملاحظة</th></tr>{rows}
 <tr><th></th><th colspan="3">المجموع</th><th class="n">{data['total_grams']:.0f} غ</th><th class="n">≈ {data['total_hours']:.0f} ساعة</th><th></th></tr></table>
-<p class="small">* الوزن والوقت من PrusaSlicer: طبقة 0.2 مم، 3 جدران، حشو 15% Gyroid، PLA. الوقت بسرعات الطابعات العادية؛
-الطابعات السريعة (مثل Bambu) تحتاج تقريباً ثلثه. الوزن على الجدار بعد التركيب ≈ <b>{(data['total_grams'] + 10) / 1000:.2f} كغ</b> (مع البراغي).</p>
+<p class="small">* الوزن من PrusaSlicer: طبقة 0.2 مم، 3 جدران، حشو 15% Gyroid، PLA. الوقت تقدير بسرعات قريبة من إعدادات Bambu
+(قد يختلف قليلاً في Bambu Studio). الوزن على الجدار بعد التركيب ≈ <b>{(data['total_grams'] + 10) / 1000:.2f} كغ</b> (مع البراغي).</p>
+<div class="box"><b>لماذا ملف لكل لون؟</b> كل طبعة تشتغل بخيط واحد، فلا يوجد تنظيف ولا هدر بين الألوان.
+التبديل الوحيد في الطبعة 2: التموّجات البيضاء تنتهي عند {CHANGE_Z:.1f} مم وكل ما فوقها هو الآية، فيصير تبديل واحد فقط
+إلى الغامق (بدل تبديل في كل طبقة لو طُبعت القطعة كلها بأربعة ألوان مرة واحدة).</div>
 
 <h2>إعدادات الطباعة</h2>
 <ul>
@@ -115,24 +117,26 @@ ol li {{ margin-bottom: 1.5mm; }}
 <li>3 جدران، 5 طبقات علوية و4 سفلية، حشو 15%. <b>بدون دعامات</b> لكل القطع.</li>
 <li>كل قطعة محفوظة في وضعيتها الصحيحة: اللوح والرف واللوح الأبيض مستلقية، والمقابض واقفة على وجهها المسطّح.</li>
 <li>لو تستخدم خيطاً خشبياً (Wood PLA) للّوح والرف: فتحة 0.6 مم أفضل لتجنّب الانسداد. اللوح الأبيض يبقى بفتحة 0.4 مم.</li>
-<li>في ملفات 3MF الأجزاء مربوطة بخانات الخيوط (اللوح الأبيض: خانة 1 أبيض، خانة 2 الآية الغامقة). وملفات STL المنفصلة موجودة أيضاً في مجلد <code>stl</code>.</li>
+<li><b>الطبعة 2 في Bambu Studio:</b> مع AMS lite اجعل الجزء الأبيض على خانة الأبيض والآية على خانة الغامق.
+بدون AMS: في المعاينة (<span class='ltr'>Preview</span>) اذهب إلى الطبقة عند {CHANGE_Z:.1f} مم واضغط «+» في شريط الطبقات واختر <span class='ltr'>Change filament</span> ثم الخيط الغامق.</li>
+
 </ul>
 
 <h2 class="page">التركيب</h2>
 <img class="expl" src="{expl}">
 <div class="two"><div>
-<p><b>تحتاج:</b> {N_PINS} قطع من خيط الطباعة 1.75 مم بطول 20 مم · {N_SCREWS} براغي M3 × 16 · برغيين 4 مم مع فيشر للجدار
+<p><b>تحتاج:</b> {N_SCREWS} براغي M3 × 16 · برغيين 4 مم مع فيشر للجدار
 (رأس البرغي حتى 9 مم) · غراء سيانو أو إيبوكسي · ورق صنفرة ناعم.</p>
 </div></div>
 <ol>
-<li><b>اللوح:</b> أدخل 4 قطع خيط في الفتحات على حافة النصفين، ضع الغراء على الحافتين، واضغطهما معاً على سطح مستوٍ حتى يجف.</li>
-<li><b>اللوح الأبيض والآية:</b> الصق النصفين في التجويف: «وَلَسَوۡفَ يُعۡطِيكَ» على اليمين و«رَبُّكَ فَتَرۡضَىٰٓ» على اليسار. خط الالتقاء يقع بين الكلمتين ولا يمر بأي حرف.</li>
-<li><b>الرف:</b> اجمع نصفيه بقطعتي خيط وغراء، ثم ضعه فوق اللوح الأبيض وثبّته بـ {N_SCREWS} براغي M3 × 16 من خلف اللوح.</li>
+<li><b>اللوح الأبيض والآية:</b> ضع الغراء في التجويف واضغط اللوح الأبيض فيه حتى يستوي.</li>
+<li><b>الرف:</b> ضعه فوق اللوح الأبيض وثبّته بـ {N_SCREWS} براغي M3 × 16 من خلف اللوح.</li>
 <li><b>المقابض:</b> ضع نقطة غراء في كل فتحة (قطرها 8.4 مم) واضغط المقبض حتى يلمس اللوح.</li>
 <li><b>التعليق:</b> برغيان في الجدار على نفس الارتفاع والمسافة بينهما <b>{HANG_MM:.0f} مم</b>. اترك 2.5 مم تحت رأس البرغي، علّق اللوح وأنزله 10 مم. شريط لاصق مزدوج صغير في الأسفل يمنع ارتفاعه عند سحب المفاتيح.</li>
 </ol>
-<div class="box">القطع الثلاث مقسومة في أماكن مختلفة (اللوح عند المنتصف، الرف 20 مم يمين المنتصف، اللوح الأبيض بين الكلمتين)،
-فكل قطعة تغطي خط التقاء الأخرى وتشدّها. يمكن تعبئة خط الالتقاء في اللوح والرف بمعجون ثم صنفرته.</div>
+<div class="box">كل قطعة مطبوعة كاملة بدون أي خط قطع، والتركيب كله: لصق اللوح الأبيض، و{N_SCREWS} براغي للرف، ولصق المقابض.</div>
+<div class="box">ملفات 3MF جرّبتها في PrusaSlicer. لو ما ظهرت الأجزاء بألوانها في Bambu Studio، استخدم ملفات <code>stl</code>:
+<code>board.stl</code> + <code>shelf.stl</code> معاً، و<code>panel_white_with_verse.stl</code> مع تغيير الخيط عند {CHANGE_Z:.1f} مم، و<code>knob.stl</code> × 6.</div>
 <p class="small">المقاسات والأوزان من ملفات التصميم والسلايسر؛ التحمّل (الرف 2 كغ، المقبض 1 كغ) محسوب نظرياً ولم يُختبر على قطعة مطبوعة.</p>
 </body></html>"""
 
@@ -163,10 +167,8 @@ def make_pdf(html_text, out_pdf):
         subprocess.run(["node", js, src, out_pdf], check=True, timeout=300)
 
 
-STLS = ["board_left.stl", "board_right.stl", "shelf_left.stl", "shelf_right.stl",
-        "panel_left_white_with_verse.stl", "panel_right_white_with_verse.stl",
-        "mmu_panel_left_white.stl", "mmu_verse_left_dark.stl",
-        "mmu_panel_right_white.stl", "mmu_verse_right_dark.stl", "knob.stl"]
+STLS = ["board.stl", "shelf.stl", "panel_white_with_verse.stl",
+        "mmu_panel_white.stl", "mmu_verse_dark.stl", "knob.stl"]
 
 
 if __name__ == "__main__":
