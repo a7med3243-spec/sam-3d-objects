@@ -1,0 +1,112 @@
+{
+ "parts": {
+  "1 - Black (lid and loop)": {
+   "watertight": true,
+   "winding_ok": true,
+   "zero_area_tris": 0,
+   "volume_mm3": 3419.2,
+   "triangles": 10926,
+   "grams_PLA_100pct": 4.24,
+   "z_range": [
+    28.0,
+    43.597
+   ],
+   "manifold_ok": true
+  },
+  "2 - Beige (cup)": {
+   "watertight": true,
+   "winding_ok": true,
+   "zero_area_tris": 0,
+   "volume_mm3": 7999.8,
+   "triangles": 20890,
+   "grams_PLA_100pct": 9.92,
+   "z_range": [
+    2.667,
+    28.0
+   ],
+   "manifold_ok": true
+  },
+  "3 - Dark brown (logo and text)": {
+   "watertight": true,
+   "winding_ok": true,
+   "zero_area_tris": 0,
+   "volume_mm3": 193.2,
+   "triangles": 18400,
+   "grams_PLA_100pct": 0.24,
+   "z_range": [
+    5.914,
+    23.766
+   ],
+   "manifold_ok": true
+  },
+  "4 - White (rolled bottom ring)": {
+   "watertight": true,
+   "winding_ok": true,
+   "zero_area_tris": 0,
+   "volume_mm3": 562.1,
+   "triangles": 2480,
+   "grams_PLA_100pct": 0.7,
+   "z_range": [
+    0.0,
+    2.667
+   ],
+   "manifold_ok": true
+  }
+ },
+ "overlap_volumes_mm3": {
+  "1 - Black (l x 2 - Beige (c": -0.0,
+  "1 - Black (l x 3 - Dark bro": 0.0,
+  "1 - Black (l x 4 - White (r": 0.0,
+  "2 - Beige (c x 3 - Dark bro": 0.0256,
+  "2 - Beige (c x 4 - White (r": 0.0,
+  "3 - Dark bro x 4 - White (r": 0.0
+ },
+ "assembled": {
+  "bodies": 709,
+  "genus": -706,
+  "volume_mm3": 12174.3,
+  "size_mm": [
+   25.78,
+   25.78,
+   43.6
+  ]
+ },
+ "filament_changes_per_plate": 144,
+ "max_overhang_area_beyond_45deg_mm2": 3.7772,
+ "max_overhang_at": [
+  41.22,
+  [
+   -1.7,
+   -0.56,
+   1.7,
+   0.56
+  ]
+ ],
+ "overhangs_over_0p3mm2": [
+  [
+   41.22,
+   3.78,
+   [
+    -1.7,
+    -0.6,
+    1.7,
+    0.6
+   ]
+  ]
+ ],
+ "layer_colours": [
+  "z -0.0-2.7 mm: White",
+  "z 2.6-5.9 mm: Beige",
+  "z 5.8-8.4 mm: Beige+Dark",
+  "z 8.4-9.4 mm: Beige",
+  "z 9.3-23.8 mm: Beige+Dark",
+  "z 23.7-28.0 mm: Beige",
+  "z 27.9-43.6 mm: Black"
+ ],
+ "slice_check": {
+  "z_upto": 34.9,
+  "max_overlap_mm2": 0.01253,
+  "max_internal_gap_mm2": 0.00674,
+  "max_islands_per_layer": 1
+ }
+}

@@ -1,0 +1,140 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Serving set render</title>
+<style>html,body{margin:0;overflow:hidden}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"./package/build/three.module.js"}}</script>
+</head><body>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from './package/examples/jsm/loaders/STLLoader.js';
+import { RoomEnvironment } from './package/examples/jsm/environments/RoomEnvironment.js';
+const q = new URLSearchParams(location.search);
+const view = q.get('view') || 'set';
+const W = +q.get('w') || 1200, H = +q.get('h') || 900;
+const D = '../dserve/render/';
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio); renderer.setSize(W, H);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+const mat = (c, r = 0.6) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: 0, envMapIntensity: 0.55 });
+const COL = { black: mat(0x1d1d1d, 0.5), beige: mat(0xd3c2a4), brown: mat(0x4b3324), white: mat(0xf1eee8) };
+const loader = new STLLoader();
+const load = f => new Promise(res => loader.load(D + f, g => { g.computeVertexNormals(); res(g); }));
+async function item(prefix, tags) {
+  const g = new THREE.Group();
+  for (const [t, c] of tags) { const m = new THREE.Mesh(await load(`${prefix}_${t}.stl`), COL[c]); m.castShadow = m.receiveShadow = true; g.add(m); }
+  g.rotation.x = -Math.PI / 2; return g;            // STL Z-up -> world Y-up
+}
+const T3 = [['1_black', 'black'], ['2_beige', 'beige'], ['3_brown', 'brown']];
+const coaster = () => item('25cafe_coaster', T3);
+const tray = () => item('25cafe_serving_tray', T3);
+const cup = async () => { const g = await item('cup', [...T3, ['4_white', 'white']]); const s = new THREE.Group(); s.add(g); s.scale.setScalar(3.6); return s; };
+// wooden table
+const tex = (() => { const c = document.createElement('canvas'); c.width = c.height = 1024; const x = c.getContext('2d');
+  x.fillStyle = '#b48a5e'; x.fillRect(0, 0, 1024, 1024);
+  for (let i = 0; i < 260; i++) { x.strokeStyle = `rgba(${90 + Math.random() * 40},${60 + Math.random() * 25},${30 + Math.random() * 20},${0.10 + Math.random() * 0.12})`;
+    x.lineWidth = 1 + Math.random() * 3; x.beginPath(); const y = Math.random() * 1024; x.moveTo(0, y);
+    for (let k = 0; k <= 1024; k += 64) x.lineTo(k, y + Math.sin(k / 140 + i) * 6 + Math.random() * 2); x.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(2, 2); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+const plateMode = view.startsWith('plate') || view === 'classic_plate';
+scene.background = new THREE.Color(plateMode ? 0xe9e6e1 : 0xe8e1d6);
+if (!plateMode) {
+  const table = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.75 }));
+  table.rotation.x = -Math.PI / 2; table.receiveShadow = true; scene.add(table);
+}
+const key = new THREE.DirectionalLight(0xfff6ea, 2.4); key.castShadow = true; key.shadow.mapSize.set(4096, 4096);
+key.shadow.bias = -0.0002; key.shadow.normalBias = 0.02;
+Object.assign(key.shadow.camera, { left: -260, right: 260, top: 260, bottom: -260, near: 1, far: 1500 });
+scene.add(key, key.target, new THREE.HemisphereLight(0xffffff, 0xcdb89c, 0.5));
+const fill = new THREE.DirectionalLight(0xffffff, 0.5); fill.position.set(300, 200, 300); scene.add(fill);
+let camera = new THREE.PerspectiveCamera(30, W / H, 1, 5000);
+if (view === 'set') {
+  const t = await tray(); scene.add(t);
+  const c1 = await cup(); c1.position.set(-45, 5.2 - 2.4, 0); c1.rotation.y = Math.PI * 0.62; scene.add(c1);
+  const co = await coaster(); co.position.set(175, 0, 40); scene.add(co);
+  const c2 = await cup(); c2.position.set(175, 4.0, 40); c2.rotation.y = Math.PI * 0.55; scene.add(c2);
+  const co2 = await coaster(); co2.position.set(140, 0, -110); scene.add(co2);
+  key.position.set(-250, 420, 260); camera.position.set(-40, 330, 470); camera.lookAt(40, 30, -10);
+} else if (view === 'tray4' || view === 'tray4_top' || view === 'tray4_empty') {
+  const t = await item('25cafe_tray_4cups', T3); scene.add(t);
+  if (view !== 'tray4_empty' && view !== 'tray4_top') {
+    const spots = [[-76, 56], [76, 56], [-76, -56], [76, -56]];
+    for (const [i, [x, y]] of spots.entries()) { const c = await cup(); c.position.set(x, 5.2 - 2.4, -y); c.rotation.y = Math.PI * (0.45 + 0.08 * i); scene.add(c); }
+    const cm = new THREE.MeshStandardMaterial({ color: 0x8a5a2e, roughness: 0.9 }), cm2 = new THREE.MeshStandardMaterial({ color: 0xe9d9b8, roughness: 0.9 });
+    for (const [x, z, m] of [[-22, 8, cm], [20, -6, cm2], [2, 16, cm]]) { const k = new THREE.Mesh(new THREE.CylinderGeometry(17, 17, 7, 64), m); k.position.set(x, 3.6 + 3.5, z); k.castShadow = k.receiveShadow = true; scene.add(k); }
+  }
+  if (view === 'tray4_top') { key.position.set(-160, 600, 220); camera = new THREE.PerspectiveCamera(24, W / H, 1, 5000); camera.position.set(0, 760, 0.01); camera.lookAt(0, 0, 0); }
+  else if (view === 'tray4_empty') { key.position.set(-250, 420, 260); camera.position.set(-60, 330, 420); camera.lookAt(0, 0, 0); }
+  else { key.position.set(-260, 460, 300); camera.position.set(-40, 420, 520); camera.lookAt(0, 40, 0); }
+} else if (view === 'coaster_top') {
+  const co = await coaster(); scene.add(co);
+  key.position.set(-120, 400, 160); camera = new THREE.PerspectiveCamera(16, W / H, 1, 5000); camera.position.set(0, 400, 0.01); camera.lookAt(0, 0, 0);
+} else if (view === 'tray_top') {
+  const t = await tray(); scene.add(t);
+  key.position.set(-160, 500, 220); camera = new THREE.PerspectiveCamera(22, W / H, 1, 5000); camera.position.set(0, 620, 0.01); camera.lookAt(0, 0, 0);
+} else if (view === 'tray_cup') {
+  const t = await tray(); scene.add(t);
+  const c1 = await cup(); c1.position.set(-45, 5.2 - 2.4, 0); c1.rotation.y = Math.PI * 0.62; scene.add(c1);
+  key.position.set(-260, 380, 240); camera.position.set(130, 220, 330); camera.lookAt(-10, 30, 0);
+} else if (view === 'coaster_cup') {
+  const co = await coaster(); scene.add(co);
+  const c2 = await cup(); c2.position.set(0, 4.0, 0); c2.rotation.y = Math.PI * 0.55; scene.add(c2);
+  key.position.set(-200, 300, 200); camera.position.set(-120, 150, 230); camera.lookAt(0, 40, 0);
+} else if (view.startsWith('classic')) {
+  const CC = { cream: mat(0xece2cc, 0.55), dark: mat(0x3b281d, 0.45) };
+  const g = new THREE.Group();
+  for (const [t, c] of [['1_beige', 'cream'], ['2_brown', 'dark']]) { const m = new THREE.Mesh(await load(`${q.get('name') || '25cafe_classic_tray'}_${t}.stl`), CC[c]); m.castShadow = m.receiveShadow = true; g.add(m); }
+  g.rotation.x = -Math.PI / 2;
+  if (view === 'classic_plate') {
+    scene.background = new THREE.Color(0xe9e6e1);
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(330, 2, 320), new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.85 }));
+    plate.position.y = -1; plate.receiveShadow = true; scene.add(plate);
+    if (q.get('name')) {      // lite tray + 2 coasters (coaster black part printed in dark brown) + prime tower
+      g.position.set(0, 0, -62); scene.add(g);
+      for (const x of [-110, 0]) { const co = await coaster(); co.traverse(o => { if (o.isMesh && o.material === COL.black) o.material = CC.dark; if (o.isMesh && o.material === COL.beige) o.material = CC.cream; });
+        co.position.set(x, 0, 105); scene.add(co); }
+      const tw = new THREE.Mesh(new THREE.BoxGeometry(35, 32, 35), mat(0x8a7a66)); tw.position.set(115, 16, 110); tw.castShadow = true; scene.add(tw);
+    } else {
+    g.position.set(0, 0, -45); scene.add(g);
+    const tw = new THREE.Mesh(new THREE.BoxGeometry(35, 42, 35), mat(0x8a7a66)); tw.position.set(120, 21, 115); tw.castShadow = true; scene.add(tw);
+    }
+    key.position.set(-160, 420, 260); camera.position.set(-40, 430, 430); camera.lookAt(0, 0, 0);
+  } else {
+    scene.add(g);
+    if (view === 'classic_cups') {
+      const spots = q.get('name') ? [[-80, 47], [-80, -47], [15, 47], [15, -47]] : [[-72, 48], [-72, -48], [10, 48], [10, -48]];
+      for (const [i, [x, y]] of spots.entries()) { const c = await cup(); c.position.set(x, 3.6, -y); c.rotation.y = Math.PI * (0.45 + 0.07 * i); scene.add(c); }
+      const cm = new THREE.MeshStandardMaterial({ color: 0x8a5a2e, roughness: 0.9 }), cm2 = new THREE.MeshStandardMaterial({ color: 0xe9d9b8, roughness: 0.9 });
+      for (const [x, z, m] of (q.get('name') ? [[78, 22, cm], [84, -22, cm2], [92, 2, cm]] : [[95, 20, cm], [100, -25, cm2], [70, 0, cm]])) { const k = new THREE.Mesh(new THREE.CylinderGeometry(17, 17, 7, 64), m); k.position.set(x, 3.6 + 3.5, z); k.castShadow = true; scene.add(k); }
+      key.position.set(-260, 460, 300); camera.position.set(-60, 380, 470); camera.lookAt(10, 30, 0);
+    } else if (view === 'classic_top') {
+      key.position.set(-160, 600, 220); camera = new THREE.PerspectiveCamera(22, W / H, 1, 5000); camera.position.set(0, 700, 0.01); camera.lookAt(0, 0, 0);
+    } else {   // like the reference photo: low 3/4 view
+      key.position.set(-260, 380, 320); camera.position.set(-150, 200, 380); camera.lookAt(10, 15, 0);
+    }
+  }
+} else if (view === 'plate_tray4') {
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(330, 2, 320), new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.85 }));
+  plate.position.y = -1; plate.receiveShadow = true; scene.add(plate);
+  const t = await item('25cafe_tray_4cups', T3); t.position.set(0, 0, -36); scene.add(t);
+  const tw = new THREE.Mesh(new THREE.BoxGeometry(35, 16, 35), mat(0x8a7a66)); tw.position.set(120, 8, 128); tw.castShadow = true; scene.add(tw);
+  key.position.set(-160, 420, 260); camera.position.set(-40, 430, 430); camera.lookAt(0, 0, 0);
+} else if (view === 'plate_coaster' || view === 'plate_tray') {
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(330, 2, 320), new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.85 }));
+  plate.position.y = -1; plate.receiveShadow = true; scene.add(plate);
+  if (view === 'plate_coaster') {
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { if (i === 2 && j === 2) continue;
+      const co = await coaster(); co.position.set(-106 + i * 106 - 15, 0, -106 + j * 106 + 5); scene.add(co); }
+    const tw = new THREE.Mesh(new THREE.BoxGeometry(35, 5, 35), mat(0x8a7a66)); tw.position.set(110, 2.5, 110); scene.add(tw);
+  } else {
+    for (let j = 0; j < 2; j++) { const t = await tray(); t.position.set(-20, 0, -72 + j * 140); scene.add(t); }
+    const tw = new THREE.Mesh(new THREE.BoxGeometry(30, 8.2, 30), mat(0x8a7a66)); tw.position.set(140, 4.1, 0); scene.add(tw);
+  }
+  key.position.set(-160, 420, 260); camera.position.set(-40, 430, 430); camera.lookAt(0, 0, 0);
+}
+renderer.render(scene, camera);
+document.body.dataset.done = '1';
+</script></body></html>

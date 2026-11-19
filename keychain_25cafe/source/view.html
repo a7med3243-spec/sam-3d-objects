@@ -1,0 +1,97 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Keychain render</title>
+<style>html,body{margin:0;background:#efe9e0;overflow:hidden}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"./package/build/three.module.js"}}</script>
+</head><body>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from './package/examples/jsm/loaders/STLLoader.js';
+import { RoomEnvironment } from './package/examples/jsm/environments/RoomEnvironment.js';
+
+const q = new URLSearchParams(location.search);
+const view = q.get('view') || 'hero';
+const base = q.get('base') || '../dist9/25cafe_cup_keychain';
+const W = +q.get('w') || 1000, H = +q.get('h') || 1000;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio); renderer.setSize(W, H);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(view === 'plate' ? 0xe9e6e1 : 0xefe9e0);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const mat = (c, r = 0.62) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: 0.0, envMapIntensity: 0.55 });
+const COLORS = { '1_black': mat(0x1d1d1d, 0.55), '2_beige': mat(0xd3c2a4), '3_brown': mat(0x4b3324) };
+const loader = new STLLoader();
+const load = (tag) => new Promise(res => loader.load(`${base}_${tag}.stl`, g => { g.computeVertexNormals(); res(g); }));
+const geos = {};
+for (const t of Object.keys(COLORS)) geos[t] = await load(t);
+function keychain() {
+  const g = new THREE.Group();
+  for (const t of Object.keys(COLORS)) {
+    const m = new THREE.Mesh(geos[t], COLORS[t]); m.castShadow = true; m.receiveShadow = true; g.add(m);
+  }
+  return g;
+}
+const key = new THREE.DirectionalLight(0xffffff, 2.2); key.castShadow = true;
+key.shadow.mapSize.set(4096, 4096); key.shadow.bias = -0.0002; key.shadow.radius = 4;
+scene.add(key); scene.add(new THREE.HemisphereLight(0xffffff, 0xd8cfc2, 0.5));
+const fill = new THREE.DirectionalLight(0xfff4e6, 0.6); scene.add(fill);
+
+let camera;
+const HOLE = new THREE.Vector3(0, 42.6, 1.6);
+if (view === 'plate') {
+  const plateW = 330, plateD = 320;
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(plateW, 2, plateD), new THREE.MeshStandardMaterial({ color: 0x3a3a3c, roughness: 0.85 }));
+  plate.position.y = -1; plate.receiveShadow = true; scene.add(plate);
+  const cols = 9, rows = 6, px = 32.6, pz = 51.6, kw = 28.64, kh = 47.6;
+  const mx = (plateW - ((cols - 1) * px + kw)) / 2, mz = (plateD - ((rows - 1) * pz + kh)) / 2;
+  const skip = ['4-7', '4-8', '5-7', '5-8'];   // corner kept free for the prime tower
+  let n = 0;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    if (skip.includes(`${r}-${c}`)) continue;
+    const g = keychain(); g.rotation.x = -Math.PI / 2;
+    g.position.set(-plateW / 2 + mx + kw / 2 + c * px, 0, -plateD / 2 + mz + kh + r * pz); scene.add(g); n++;
+  }
+  const tower = new THREE.Mesh(new THREE.BoxGeometry(35, 4.8, 35), mat(0x8a7a66));
+  tower.position.set(-plateW / 2 + mx + 7.5 * px + kw / 2, 2.4, -plateD / 2 + mz + 4.5 * pz + kh / 2 + 25);
+  tower.castShadow = true; scene.add(tower);
+  document.title = 'count=' + n;
+  key.position.set(-150, 400, 200); key.target.position.set(0, 0, 0);
+  Object.assign(key.shadow.camera, { left: -220, right: 220, top: 220, bottom: -220, near: 10, far: 900 });
+  camera = new THREE.PerspectiveCamera(30, W / H, 1, 3000);
+  camera.position.set(0, 560, 420); camera.lookAt(0, 0, 10);
+} else {
+  const g = keychain(); scene.add(g);
+  const backdrop = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.ShadowMaterial({ opacity: 0.18 }));
+  backdrop.position.z = -6; backdrop.receiveShadow = true; scene.add(backdrop);
+  if (view === 'hero') {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(11, 0.85, 32, 160),
+      new THREE.MeshStandardMaterial({ color: 0xd8d8dc, metalness: 1.0, roughness: 0.22 }));
+    ring.rotation.y = Math.PI / 2; ring.position.set(HOLE.x, HOLE.y + 11 - 2.25 + 0.85, HOLE.z);
+    ring.castShadow = true; g.add(ring);
+  }
+  const target = new THREE.Vector3(0, view === 'hero' ? 27 : 23.8, 2.4);
+  const cfg = {
+    hero:  { pos: [-48, 30, 118], fov: 30, light: [-60, 90, 120] },
+    front: { pos: [0, 23.8, 190], fov: 17, light: [-50, 80, 120] },
+    side:  { pos: [-118, 52, 46], fov: 22, light: [-120, 60, 60] },
+    back:  { pos: [42, 30, -150], fov: 22, light: [60, 80, -120] },
+    macro: { pos: [-30, 4, 52], fov: 26, light: [-90, 70, 40], target: [0, 17, 4.2] },
+  }[view];
+  if (view === 'back') backdrop.position.z = 12, backdrop.rotation.y = Math.PI;
+  camera = new THREE.PerspectiveCamera(cfg.fov, W / H, 1, 2000);
+  camera.position.set(...cfg.pos);
+  key.position.set(...cfg.light); key.target.position.copy(target);
+  Object.assign(key.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, near: 1, far: 500 });
+  fill.position.set(-cfg.light[0], cfg.light[1] * 0.3, cfg.light[2]);
+  camera.lookAt(...(cfg.target || target.toArray()));
+}
+scene.add(key.target);
+renderer.render(scene, camera);
+document.body.dataset.done = '1';
+</script></body></html>

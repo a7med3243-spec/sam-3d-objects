@@ -1,0 +1,73 @@
+{
+ "parts": {
+  "1 - Black (base and rim)": {
+   "watertight": true,
+   "winding_ok": true,
+   "zero_area_tris": 0,
+   "volume_mm3": 21538.6,
+   "triangles": 9212,
+   "grams_PLA_100pct": 26.71,
+   "z_range": [
+    0.0,
+    5.0
+   ],
+   "manifold_ok": true
+  },
+  "2 - Beige (top surface)": {
+   "watertight": true,
+   "winding_ok": true,
+   "zero_area_tris": 0,
+   "volume_mm3": 10194.1,
+   "triangles": 15238,
+   "grams_PLA_100pct": 12.64,
+   "z_range": [
+    2.4,
+    4.0
+   ],
+   "manifold_ok": true
+  },
+  "3 - Dark brown (logo and text)": {
+   "watertight": true,
+   "winding_ok": true,
+   "zero_area_tris": 0,
+   "volume_mm3": 674.0,
+   "triangles": 13512,
+   "grams_PLA_100pct": 0.84,
+   "z_range": [
+    3.4,
+    4.0
+   ],
+   "manifold_ok": true
+  }
+ },
+ "overlap_volumes_mm3": {
+  "1 - Black (b x 2 - Beige (t": 0.0,
+  "1 - Black (b x 3 - Dark bro": 0.0,
+  "2 - Beige (t x 3 - Dark bro": 0.0
+ },
+ "assembled": {
+  "bodies": 1,
+  "genus": 0,
+  "volume_mm3": 32406.8,
+  "size_mm": [
+   100.0,
+   100.0,
+   5.0
+  ]
+ },
+ "filament_changes_per_plate": 12,
+ "max_overhang_area_beyond_45deg_mm2": 0.0,
+ "overhangs_over_0p3mm2": [],
+ "layer_colours": [
+  "z 0.0-2.4 mm: Black",
+  "z 2.4-3.4 mm: Black+Beige",
+  "z 3.4-4.0 mm: Black+Beige+Dark",
+  "z 4.0-5.0 mm: Black"
+ ],
+ "slice_check": {
+  "z_upto": 3.95,
+  "max_overlap_mm2": 3e-05,
+  "max_internal_gap_mm2": 7e-05,
+  "max_islands_per_layer": 1
+ }
+}
