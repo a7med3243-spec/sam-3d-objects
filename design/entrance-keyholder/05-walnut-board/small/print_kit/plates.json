@@ -1,0 +1,37 @@
+{
+ "printer": "Bambu Lab A2L",
+ "bed_mm": [
+  330.0,
+  320.0,
+  325.0
+ ],
+ "plates": [
+  {
+   "plate": "1_brown_main_board_shelf_knobs",
+   "title": "Brown: board + shelf + knobs (one piece)",
+   "file": "plates/1_brown_main_board_shelf_knobs.3mf",
+   "grams": 204.4,
+   "time": "5h 27m 21s",
+   "minutes": 327,
+   "margin_mm": 60.0,
+   "colours": [
+    "walnut"
+   ]
+  },
+  {
+   "plate": "2_white_panel_dark_verse",
+   "title": "White panel + dark verse",
+   "file": "plates/2_white_panel_dark_verse.3mf",
+   "grams": 37.7,
+   "time": "1h 38m 37s",
+   "minutes": 99,
+   "margin_mm": 65.0,
+   "colours": [
+    "dark",
+    "white"
+   ]
+  }
+ ],
+ "total_grams": 242.1,
+ "total_hours": 7.1
+}

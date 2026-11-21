@@ -28,5 +28,35 @@
    700
   ],
   "props": []
+ },
+ {
+  "name": "05-walnut-board-small-exploded",
+  "base": "/kh/05-walnut-board/small/print_kit/exploded/",
+  "width": 1600,
+  "height": 1200,
+  "wall": "#d3c9bb",
+  "wallKind": "plaster",
+  "grain": "horizontal",
+  "exposure": 0.95,
+  "hemi": 0.34,
+  "envIntensity": 0.48,
+  "sun": 2.5,
+  "camera": [
+   238,
+   133,
+   490
+  ],
+  "target": [
+   0,
+   42,
+   42
+  ],
+  "fov": 32,
+  "light": [
+   -300,
+   600,
+   700
+  ],
+  "props": []
  }
 ]

@@ -1,9 +1,10 @@
 """
-Arabic print & assembly guide (PDF) and the single-file ZIP kit for the 30 cm walnut board
+Arabic print & assembly guide (PDF) and the single-file ZIP kit for the walnut board, either size
 (Bambu Lab A2L: board + shelf + knobs in one strong piece, verse panel on its own).
 
 Run after print_kit.py. Needs node + playwright (Chromium) for the PDF.
-Output: 30cm/walnut_board_30cm_print_kit.zip  (plates, STLs, guide PDF, pictures)
+Usage:  python3 make_guide.py [30cm|small]
+Output: <size>/walnut_board_<size>_print_kit.zip  (plates, STLs, guide PDF, pictures)
 """
 
 import base64
@@ -16,7 +17,12 @@ import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-KIT = os.path.join(HERE, "30cm", "print_kit")
+SIZE = sys.argv[1] if len(sys.argv) > 1 else "30cm"      # "30cm" or "small"
+KIT = os.path.join(HERE, SIZE, "print_kit")
+LABEL = {"30cm": "مقاس 30 سم", "small": "المقاس الصغير (21 سم)"}[SIZE]
+HERO = f"05-walnut-board-{SIZE}-hero.jpg"
+EXPLODED = f"05-walnut-board-{SIZE}-exploded.jpg"
+DETAIL = {"30cm": "05-walnut-board-verse-detail.jpg", "small": "05-walnut-board-small-verse-detail.jpg"}[SIZE]
 sys.path.insert(0, ROOT)
 from common import kh  # noqa: E402
 
@@ -24,10 +30,17 @@ import importlib.util  # noqa: E402
 _spec = importlib.util.spec_from_file_location("walnut", os.path.join(HERE, "build.py"))
 _w = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_w)
-CFG = _w.SIZES["30cm"]
+CFG = _w.SIZES[SIZE]
 CHANGE_Z = CFG["PANEL_BASE"] + CFG["REED_H"]                  # filament change height (mm)
 HANG_MM = CFG["KEYHOLES"][1][0] - CFG["KEYHOLES"][0][0]        # distance between wall screws
 N_SCREWS = len(CFG["SHELF_SCREWS_X"])
+PHONE_W = CFG["SHELF_D"] - CFG["COVE"] - CFG["LIP"] - 2.5          # flat depth behind the lip
+_g = 9.81
+# bending stress at the shelf root (MPa): 5 kg at mid-depth over the full width; 10 kg pressed on the
+# front edge over ~150 mm of width; 2 kg hanging near the end of a knob neck (solid round section)
+S_SHELF = 6 * (5 * _g * CFG["SHELF_D"] / 2) / (CFG["W"] * CFG["SHELF_T"] ** 2)
+S_EDGE = 1.2 * 6 * (10 * _g * (CFG["SHELF_D"] - 3)) / (min(150.0, CFG["W"]) * CFG["SHELF_T"] ** 2)
+S_KNOB = 1.2 * (2 * _g * (CFG["NECK_L"] - 1)) / (3.14159 * CFG["NECK_D"] ** 3 / 32)
 
 
 def b64(path):
@@ -55,9 +68,9 @@ def html(data):
         rows += (f"<tr><td class='n'>{p['plate'][0]}</td><td><code>{p['file']}</code></td><td>{name}</td>"
                  f"<td>{colour}</td><td class='n'>{p['grams']:.0f} غ</td><td class='n'><span class='ltr'>{p['time']}</span></td>"
                  f"<td>{note}</td></tr>")
-    hero = img(os.path.join(ROOT, "renders", "05-walnut-board-30cm-hero.jpg"))
-    verse = img(os.path.join(ROOT, "renders", "05-walnut-board-verse-detail.jpg"))
-    expl = img(os.path.join(ROOT, "renders", "05-walnut-board-30cm-exploded.jpg"))
+    hero = img(os.path.join(ROOT, "renders", HERO))
+    verse = img(os.path.join(ROOT, "renders", DETAIL))
+    expl = img(os.path.join(ROOT, "renders", EXPLODED))
     plates = img(os.path.join(KIT, "plates_layout.png"), "image/png")
     section = img(os.path.join(KIT, "section.png"), "image/png")
     return f"""<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
@@ -90,7 +103,7 @@ ol li {{ margin-bottom: 1.5mm; }}
 .small {{ font-size: 9.5pt; color: #6b5d50; }}
 </style></head><body>
 
-<h1>حاملة المفاتيح الخشبية — مقاس 30 سم</h1>
+<h1>حاملة المفاتيح الخشبية — {LABEL}</h1>
 <p class="sub">{CFG["W"]:.0f} × {CFG["H"]:.0f} مم · لطابعة Bambu Lab A2L (سرير 330 × 320 مم) · كل قطعة كاملة بدون تقطيع · ملف لكل لون</p>
 <img class="hero" src="{hero}">
 
@@ -124,11 +137,11 @@ ol li {{ margin-bottom: 1.5mm; }}
 <h2 class="page">القوة والتحمّل</h2>
 <img src="{section}" style="height:62mm;object-fit:contain">
 <ul>
-<li><b>بدون براغي:</b> القوة من الشكل نفسه. الرف سماكته 11 مم وعمقه 85 مم، وجذره مدوّر بنصف قطر 8 مم فوقه حتى لا يتركّز الضغط في زاوية حادة،
-وحافته الأمامية 3 مم تمسك الجوال (تتسع لجوال عرضه حتى 71 مم وهو مسطّح).</li>
-<li><b>المقابض:</b> رقبة سماكتها 12 مم وقاعدة مخروطية عريضة مطبوعة مع اللوح، ورأس 20 مم يمسك حلقة المفاتيح.</li>
-<li><b>الحساب النظري:</b> 5 كغ على الرف ≈ 0.3 ميجاباسكال عند الجذر · ضغط 10 كغ على الحافة الأمامية ≈ 3 ميجاباسكال ·
-2 كغ على مقبض ≈ 2 ميجاباسكال — وقوة التصاق طبقات PLA الجيدة 15–25 ميجاباسكال، أي أمان 5 مرات تقريباً أو أكثر.</li>
+<li><b>بدون براغي:</b> القوة من الشكل نفسه. الرف سماكته {CFG["SHELF_T"]:.0f} مم وعمقه {CFG["SHELF_D"]:.0f} مم، وجذره مدوّر بنصف قطر {CFG["COVE"]:.0f} مم فوقه حتى لا يتركّز الضغط في زاوية حادة،
+وحافته الأمامية {CFG["LIP"]:.0f} مم تمسك الجوال (تتسع لجوال عرضه حتى {PHONE_W:.0f} مم وهو مسطّح).</li>
+<li><b>المقابض:</b> رقبة سماكتها {CFG["NECK_D"]:.0f} مم وقاعدة مخروطية عريضة مطبوعة مع اللوح، ورأس {CFG["CAP_D"]:.0f} مم يمسك حلقة المفاتيح.</li>
+<li><b>الحساب النظري:</b> 5 كغ على الرف ≈ {S_SHELF:.1f} ميجاباسكال عند الجذر · ضغط 10 كغ على الحافة الأمامية ≈ {S_EDGE:.0f} ميجاباسكال ·
+2 كغ على مقبض ≈ {S_KNOB:.0f} ميجاباسكال — وقوة التصاق طبقات PLA الجيدة 15–25 ميجاباسكال، أي أمان 4–5 مرات أو أكثر.</li>
 <li><b>الاستخدام المقترح:</b> الرف حتى 5 كغ (جوال، محفظة، نبتة صغيرة)، وكل مقبض حتى 2 كغ (مفاتيح وحقيبة صغيرة).
 للتعليق استخدم فيشر مناسبة للجدار لا تقل عن 10 كغ لكل برغي.</li>
 </ul>
@@ -180,18 +193,18 @@ if __name__ == "__main__":
     data = json.load(open(os.path.join(KIT, "plates.json")))
     pdf = os.path.join(KIT, "guide-ar.pdf")
     make_pdf(html(data), pdf)
-    zpath = os.path.join(HERE, "30cm", "walnut_board_30cm_print_kit.zip")
+    zpath = os.path.join(HERE, SIZE, f"walnut_board_{SIZE}_print_kit.zip")
+    top = f"walnut_board_{SIZE}"
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
-        z.write(pdf, "walnut_board_30cm/guide-ar.pdf")
+        z.write(pdf, f"{top}/guide-ar.pdf")
         for p in data["plates"]:
-            z.write(os.path.join(KIT, p["file"]), f"walnut_board_30cm/{p['file']}")
+            z.write(os.path.join(KIT, p["file"]), f"{top}/{p['file']}")
         for s in STLS:
-            z.write(os.path.join(HERE, "30cm", "stl", s), f"walnut_board_30cm/stl/{s}")
-        z.write(os.path.join(KIT, "plates_layout.png"), "walnut_board_30cm/plates_layout.png")
-        z.write(os.path.join(KIT, "section.png"), "walnut_board_30cm/pictures/section.png")
-        for r in ("05-walnut-board-30cm-hero.jpg", "05-walnut-board-30cm-exploded.jpg",
-                  "05-walnut-board-verse-detail.jpg"):
-            z.write(os.path.join(ROOT, "renders", r), f"walnut_board_30cm/pictures/{r}")
-        z.write(os.path.join(HERE, "30cm", "weight.json"), "walnut_board_30cm/weight.json")
+            z.write(os.path.join(HERE, SIZE, "stl", s), f"{top}/stl/{s}")
+        z.write(os.path.join(KIT, "plates_layout.png"), f"{top}/plates_layout.png")
+        z.write(os.path.join(KIT, "section.png"), f"{top}/pictures/section.png")
+        for r in (HERO, EXPLODED, DETAIL):
+            z.write(os.path.join(ROOT, "renders", r), f"{top}/pictures/{r}")
+        z.write(os.path.join(HERE, SIZE, "weight.json"), f"{top}/weight.json")
     print(zpath, os.path.getsize(zpath) // 1024, "KB")
     print(pdf, os.path.getsize(pdf) // 1024, "KB")

@@ -1,12 +1,12 @@
 """
-Print kit for the 30 cm walnut board (300 x 174 mm) on a Bambu Lab A2L (330 x 320 mm bed).
+Print kit for the walnut board (30 cm or small) on a Bambu Lab A2L (330 x 320 mm bed).
 
 Nothing is cut. Board, shelf and knobs are ONE strong piece; only the verse panel prints
 on its own. Each plate runs on one filament (the white panel switches once, to the dark
 verse, at the reed crests):
   1  brown  - board + shelf + knobs in one piece (4 walls, 15 % gyroid)
   2  white  - wavy panel with the verse in dark (one filament change), glued in (2 walls, 10 %)
-Builds 30cm/print_kit/: the plates as 3MF (parts placed, filament slots set), a plate
+Builds <size>/print_kit/ (python3 print_kit.py [30cm|small]): the plates as 3MF (parts placed, filament slots set), a plate
 layout figure, an exploded assembly for the render, and plates.json with the weight and
 time of each plate measured by PrusaSlicer. make_guide.py then writes the Arabic guide
 and the ZIP.
@@ -26,8 +26,9 @@ import numpy as np
 import trimesh
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-STL = os.path.join(HERE, "30cm", "stl")
-OUT = os.path.join(HERE, "30cm", "print_kit")
+SIZE = sys.argv[1] if len(sys.argv) > 1 else "30cm"      # "30cm" or "small"
+STL = os.path.join(HERE, SIZE, "stl")
+OUT = os.path.join(HERE, SIZE, "print_kit")
 BED_X, BED_Y, BED_Z = 330.0, 320.0, 325.0     # Bambu Lab A2L
 GAP = 10.0
 
@@ -158,7 +159,7 @@ def slice_plate(path, profile="normal"):
     with tempfile.TemporaryDirectory() as wd:
         cfgp = os.path.join(wd, "pla.ini")
         with open(cfgp, "w") as f:
-            f.write(mw.apply_profile(mw.config_for("30cm")[0], profile) + FAST)  # same profiles as the weights
+            f.write(mw.apply_profile(mw.config_for(SIZE)[0], profile) + FAST)  # same profiles as the weights
         out = os.path.join(wd, "p.gcode")
         subprocess.run(["prusa-slicer", "--export-gcode", "--load", cfgp, "--dont-arrange",
                         "--output", out, path], check=True, capture_output=True, timeout=3600)
@@ -250,18 +251,27 @@ def build_kit():
     print(total)
 
 
+def w_sizes():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("walnut_sizes", os.path.join(HERE, "build.py"))
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m.SIZES
+
+
 def exploded_assembly():
     """Main piece and the verse panel pulled apart, for an assembly picture."""
+    c = w_sizes()[SIZE]
     import importlib.util
     spec = importlib.util.spec_from_file_location("walnut", os.path.join(HERE, "build.py"))
     w = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(w)
-    asm, _, _ = w.build_merged("30cm")
+    asm, _, _ = w.build_merged(SIZE)
     out = os.path.join(OUT, "exploded")
     os.makedirs(out, exist_ok=True)
     pieces = [("main", asm["main_brown"][0], "walnut", (0, 0, 0)),
-              ("panel", asm["panel_white"][0], "ivory", (0, -78, 120)),
-              ("verse", asm["verse_dark"][0], "espresso", (0, -78, 120))]
+              ("panel", asm["panel_white"][0], "ivory", (0, -0.45 * c["H"], 0.4 * c["W"])),
+              ("verse", asm["verse_dark"][0], "espresso", (0, -0.45 * c["H"], 0.4 * c["W"]))]
     manifest = []
     for name, m, mat, d in pieces:
         m = m.copy()

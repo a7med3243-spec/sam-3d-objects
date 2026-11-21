@@ -31,15 +31,14 @@ gcode_flavor = marlin2
 """
 # part -> (how many to print, colour)
 PARTS = {
-    "small": {"board.stl": (1, "walnut"), "shelf.stl": (1, "walnut"),
-              "panel_white_with_verse.stl": (1, "white+dark"), "mmu_verse_dark.stl": (0, "dark"),
-              "knob.stl": (5, "brass")},
+    "small": {"main_brown_board_shelf_knobs.stl": (1, "walnut"),
+              "panel_white_with_verse.stl": (1, "white+dark"), "mmu_verse_dark.stl": (0, "dark")},
     "30cm": {"main_brown_board_shelf_knobs.stl": (1, "walnut"),
              "panel_white_with_verse.stl": (1, "white+dark"), "mmu_verse_dark.stl": (0, "dark")},
 }
 
 
-BEDS = {"30cm": (330, 320, 325)}   # Bambu Lab A2L; other sizes use the 220 mm bed above
+BEDS = {"30cm": (330, 320, 325), "small": (330, 320, 325)}   # Bambu Lab A2L
 PROFILE = {"main_brown_board_shelf_knobs.stl": "strong", "panel_white_with_verse.stl": "light",
            "mmu_verse_dark.stl": "light"}   # per-part slicer profile (30 cm)
 
@@ -101,7 +100,10 @@ def measure(size):
                 by_colour[colour] = by_colour.get(colour, 0.0) + g * n
     dark = sum(r["grams_each"] for r in rows if r["part"].startswith("mmu_verse"))
     by_colour["dark (part of white+dark)"] = dark
-    res = {"size": size, "settings": "0.2 mm layers, 3 walls, 15% gyroid, PLA 1.24 g/cm3",
+    settings = ("0.2 mm layers, PLA 1.24 g/cm3, gyroid; main piece 4 walls 15%, verse panel 2 walls 10%; "
+                "times at PrusaSlicer default speeds (see print_kit/plates.json for Bambu-like times)"
+                if size in BEDS else "0.2 mm layers, 3 walls, 15% gyroid, PLA 1.24 g/cm3")
+    res = {"size": size, "settings": settings,
            "parts": rows, "total_grams": round(total_g, 1),
            "total_print_hours": round(total_min / 60, 1),
            "by_colour_grams": {k: round(v, 1) for k, v in by_colour.items()}}

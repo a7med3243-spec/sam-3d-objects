@@ -12,13 +12,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location("walnut", os.path.join(HERE, "build.py"))
 w = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(w)
-c = w.SIZES["30cm"]
-asm, _, _ = w.build_merged("30cm")
+import sys
+SIZE = sys.argv[1] if len(sys.argv) > 1 else "30cm"
+c = w.SIZES[SIZE]
+asm, _, _ = w.build_merged(SIZE)
 main, panel = asm["main_brown"][0], asm["panel_white"][0]
 
 fig, axs = plt.subplots(1, 2, figsize=(11, 5.2), dpi=140, gridspec_kw={"width_ratios": [1.6, 1]})
-for ax, x, title, view in ((axs[0], -37.0, "Shelf section", (95, 160)),
-                           (axs[1], c["KNOB_X"][2], "Knob section", (5, 40))):
+ys0 = c["SHELF_TOP"] - c["SHELF_T"] - 22
+for ax, x, title, view in ((axs[0], -37.0, "Shelf section", (ys0, ys0 + 65)),
+                           (axs[1], c["KNOB_X"][2], "Knob section", (c["KNOB_Y"] - 17, c["KNOB_Y"] + 18))):
     for mesh, col in ((main, "#6B4A33"), (panel, "#bdb6aa")):
         segs = mesh_plane(mesh, plane_normal=[1, 0, 0], plane_origin=[x, 0, 0])
         for s in segs:
@@ -41,6 +44,6 @@ for ax, x, title, view in ((axs[0], -37.0, "Shelf section", (95, 160)),
     ax.set_title(title, fontsize=11)
     ax.set_xlabel("mm from the wall")
 fig.tight_layout()
-out = os.path.join(HERE, "30cm", "print_kit", "section.png")
+out = os.path.join(HERE, SIZE, "print_kit", "section.png")
 fig.savefig(out, facecolor="white", bbox_inches="tight")
 print(out)

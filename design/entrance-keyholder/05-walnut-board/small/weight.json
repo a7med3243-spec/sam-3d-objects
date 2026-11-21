@@ -1,44 +1,31 @@
 {
  "size": "small",
- "settings": "0.2 mm layers, 3 walls, 15% gyroid, PLA 1.24 g/cm3",
+ "settings": "0.2 mm layers, PLA 1.24 g/cm3, gyroid; main piece 4 walls 15%, verse panel 2 walls 10%; times at PrusaSlicer default speeds (see print_kit/plates.json for Bambu-like times)",
  "parts": [
   {
-   "part": "board.stl",
+   "part": "main_brown_board_shelf_knobs.stl",
    "count": 1,
-   "grams_each": 94.76,
-   "time_each": "9h 51m 19s"
-  },
-  {
-   "part": "shelf.stl",
-   "count": 1,
-   "grams_each": 45.02,
-   "time_each": "4h 25m 35s"
+   "grams_each": 204.41,
+   "time_each": "16h 54m 40s"
   },
   {
    "part": "panel_white_with_verse.stl",
    "count": 1,
-   "grams_each": 47.87,
-   "time_each": "5h 11m 1s"
+   "grams_each": 37.63,
+   "time_each": "4h 8m 47s"
   },
   {
    "part": "mmu_verse_dark.stl",
    "count": 0,
-   "grams_each": 3.66,
-   "time_each": "42m 9s"
-  },
-  {
-   "part": "knob.stl",
-   "count": 5,
-   "grams_each": 1.96,
-   "time_each": "19m 16s"
+   "grams_each": 3.73,
+   "time_each": "42m 39s"
   }
  ],
- "total_grams": 197.5,
+ "total_grams": 242.0,
  "total_print_hours": 21.1,
  "by_colour_grams": {
-  "walnut": 139.8,
-  "white+dark": 47.9,
-  "brass": 9.8,
+  "walnut": 204.4,
+  "white+dark": 37.6,
   "dark (part of white+dark)": 3.7
  }
 }

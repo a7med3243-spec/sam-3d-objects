@@ -10,7 +10,8 @@ part of the white panel, so every dot and mark stays attached; one filament chan
 the height of the reed crests prints it dark.
 
 Two sizes:
-  small  - 210 x 122 mm, each part in one piece
+  small  - 210 x 122 mm, same layout as 30cm: board + shelf + knobs in one strong piece,
+           verse panel on its own (fits any 220 mm bed)
   30cm   - 300 x 174 mm for a 330 x 320 mm bed (Bambu Lab A2L): board, shelf and knobs print
            as ONE strong piece (brown); only the white panel with the verse prints on its own
            and is glued in. No screws in the piece: a rounded shelf root and thick, flared knob
@@ -36,14 +37,17 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 SIZES = {
     "small": dict(
-        W=210.0, H=122.0, T=8.0, CORNER_R=10.0,
-        SHELF_T=8.0, SHELF_TOP=89.0, SHELF_D=55.0, SHELF_R=3.0,
-        SHELF_SCREWS_X=(-80.0, 0.0, 80.0),
-        PANEL_X=100.0, PANEL_Y0=32.0, RECESS=1.0, PANEL_BASE=4.0, REED_H=3.0, REED_PITCH=4.5,
+        W=210.0, H=122.0, T=7.0, CORNER_R=10.0,
+        SHELF_T=10.0, SHELF_TOP=89.0, SHELF_D=85.0, SHELF_R=3.0,
+        SHELF_SCREWS_X=(),
+        PANEL_X=100.0, PANEL_Y0=32.0, RECESS=1.2, PANEL_BASE=4.0, REED_H=3.0, REED_PITCH=4.5,
         KNOB_Y=16.0, KNOB_X=(-76.0, -38.0, 0.0, 38.0, 76.0),
-        NECK_D=8.0, NECK_L=13.0, CAP_D=14.0, CAP_T=7.0,
-        KEYHOLES=((-70.0, 102.0), (70.0, 102.0)),
-        VERSE_W=180.0, VERSE_THICKEN=0.08, RELIEF=1.4, SPLIT=False),
+        NECK_D=12.0, NECK_L=14.0, CAP_D=18.0, CAP_T=7.0, KNOB_ROOT=3.5,
+        KEYHOLES=((-70.0, 106.0), (70.0, 106.0)),
+        VERSE_W=180.0, VERSE_THICKEN=0.08, RELIEF=1.4, SPLIT=False,
+        BED=(330.0, 320.0, 325.0),                   # fits any 220 mm bed too
+        MERGE=True,                                  # board + shelf + knobs print as one piece
+        LIP=3.0, COVE=6.0),
     "30cm": dict(
         W=300.0, H=174.0, T=7.0, CORNER_R=14.0,
         SHELF_T=11.0, SHELF_TOP=128.0, SHELF_D=85.0, SHELF_R=4.0,
