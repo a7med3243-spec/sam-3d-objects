@@ -48,6 +48,7 @@ TOP_CHAMFER = 0.8       # base top-edge chamfer
 FOOT_CHAMFER = 0.4      # base bottom-edge chamfer (elephant-foot relief)
 
 ARC_SEGMENTS = 200      # segments over the 180 deg top arc
+PAIR_GAP = 8.0          # gap between the two parts in the pair file
 
 R = WIDTH / 2.0                 # arch outer radius
 H_LEG = HEIGHT - R              # height of the straight legs (arc centre z)
@@ -199,28 +200,26 @@ def write_stl(path, v, f, name="book_divider"):
         fh.write(data.tobytes())
 
 
-def write_3mf(path, v, f, name="Arch Book Divider"):
-    verts = "\n".join(f'<vertex x="{x:.4f}" y="{y:.4f}" z="{z:.4f}"/>' for x, y, z in v)
-    tris = "\n".join(f'<triangle v1="{a}" v2="{b}" v3="{c}"/>' for a, b, c in f)
+def write_3mf(path, objects, title="Arch Book Divider"):
+    """objects: list of (name, vertices, faces); geometry is written in place."""
+    res, items = [], []
+    for i, (name, v, f) in enumerate(objects, start=1):
+        verts = "\n".join(f'<vertex x="{x:.4f}" y="{y:.4f}" z="{z:.4f}"/>' for x, y, z in v)
+        tris = "\n".join(f'<triangle v1="{a}" v2="{b}" v3="{c}"/>' for a, b, c in f)
+        res.append(f'<object id="{i}" type="model" name="{name}">\n<mesh>\n<vertices>\n'
+                   f'{verts}\n</vertices>\n<triangles>\n{tris}\n</triangles>\n</mesh>\n</object>')
+        items.append(f'<item objectid="{i}" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>')
+    nl = "\n"
     model = f"""<?xml version="1.0" encoding="UTF-8"?>
 <model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
-<metadata name="Title">{name}</metadata>
+<metadata name="Title">{title}</metadata>
 <metadata name="Designer">Parametric generator (book_divider.py)</metadata>
 <metadata name="Description">Filament-optimized arch book divider. Print upright, no supports.</metadata>
 <resources>
-<object id="1" type="model" name="{name}">
-<mesh>
-<vertices>
-{verts}
-</vertices>
-<triangles>
-{tris}
-</triangles>
-</mesh>
-</object>
+{nl.join(res)}
 </resources>
 <build>
-<item objectid="1" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>
+{nl.join(items)}
 </build>
 </model>
 """
@@ -241,23 +240,41 @@ def write_3mf(path, v, f, name="Arch Book Divider"):
         z.writestr("3D/3dmodel.model", model)
 
 
-def export(part, out_dir, stem="book_divider"):
+def centred(part):
+    """Mesh with the footprint centred on the origin and the base on z = 0."""
     v, f = mesh_arrays(part)
-    lo, hi = v.min(0), v.max(0)     # footprint centred on the origin, base on z = 0
-    v -= [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2]]
-    write_stl(os.path.join(out_dir, stem + ".stl"), v, f)
-    write_3mf(os.path.join(out_dir, stem + ".3mf"), v, f)
-    return v, f
+    lo, hi = v.min(0), v.max(0)
+    return v - [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2]], f
+
+
+def pair_layout(v, f, gap=PAIR_GAP):
+    """Two copies for one print: each turned 90 deg (arch along Y, base pointing
+    +X) and placed side by side along X -> 218 x 135 mm footprint."""
+    rot = np.column_stack([v[:, 1], -v[:, 0], v[:, 2]])     # -90 deg about Z
+    dx = (rot[:, 0].max() - rot[:, 0].min() + gap) / 2
+    return [rot + [-dx, 0, 0], rot + [dx, 0, 0]], f
 
 
 if __name__ == "__main__":
     out_dir = os.path.dirname(os.path.abspath(__file__))
     rc, pitch, _ = rib_geometry()
     part = build()
-    v, f = export(part, out_dir)
+    v, f = centred(part)
+    write_stl(os.path.join(out_dir, "book_divider.stl"), v, f)
+    write_3mf(os.path.join(out_dir, "book_divider.3mf"), [("Book Divider", v, f)])
+
+    (va, vb), _ = pair_layout(v, f)
+    write_3mf(os.path.join(out_dir, "book_divider_x2.3mf"),
+              [("Book Divider A", va, f), ("Book Divider B", vb, f)],
+              title="Arch Book Divider - pair")
+    write_stl(os.path.join(out_dir, "book_divider_x2.stl"),
+              np.vstack([va, vb]), np.vstack([f, f + len(va)]))
+
     size = v.max(0) - v.min(0)
+    both = np.vstack([va, vb])
+    psize = both.max(0) - both.min(0)
     print(f"rib crest radius {rc:.2f} mm, pitch {pitch:.2f} mm")
     print(f"triangles {len(f)}, genus {part.genus()}, status {part.status()}")
     print(f"size  X {size[0]:.2f}  Y {size[1]:.2f}  Z {size[2]:.2f} mm")
-    print(f"solid volume {part.volume() / 1000:.1f} cm3")
-    print("written book_divider.stl / book_divider.3mf")
+    print(f"pair footprint  X {psize[0]:.1f}  Y {psize[1]:.1f} mm")
+    print("written book_divider(.stl/.3mf) and book_divider_x2(.stl/.3mf)")
