@@ -211,7 +211,7 @@ def variant_S():
         name="S", title="Cloud frame 324 x 234 - sliding back",
         R=10.0, zc=6.5, rim=0.0, nx=17, ny=12, split=False, lip=2.0,
         closure="slide", leg_w=28.0, toes_x=(-8.94, 8.94), foot_wall=2.0, y_h=85.0,
-        keyhole_x=98.36, keyhole_y=100.5, keyhole_travel=6.0, keyhole_head_r=4.0,
+        keyhole_x=152.7, keyhole_y=86.3, keyhole_travel=3.2, keyhole_head_r=3.7,
     )
     c.derive()
     c.leg_rect_bottom = -c.d["B"] + 2.3
@@ -574,6 +574,22 @@ def slot_region(c):
                   box(-300, 300, d["y_sh"], 300, -1, zt)])
 
 
+def keyhole_solids(c, skin=2.0, depth=4.0, slot_r=1.9, grow=0.0):
+    """Key-hole opening (through the back skin) and the head cavity behind it, both sides."""
+    ops, cavs = [], []
+    for sx in (-1, 1):
+        x = sx * c.keyhole_x
+        y0, y1 = c.keyhole_y, c.keyhole_y + c.keyhole_travel
+        hr = c.keyhole_head_r
+        head = CS.circle(hr, 48).translate((x, y0))
+        sl = CS.hull(CS.batch_boolean([CS.circle(slot_r, 32).translate((x, y0)), CS.circle(slot_r, 32).translate((x, y1))], ADD))
+        ops.append(prism(CS.batch_boolean([head, sl], ADD), -1, skin + 0.01))
+        cav = CS.hull(CS.batch_boolean([CS.circle(hr + 0.1 + grow, 48).translate((x, y0)),
+                                        CS.circle(hr + 0.1 + grow, 48).translate((x, y1))], ADD))
+        cavs.append(prism(cav, skin - grow * 0.5, skin + depth + grow))
+    return union(ops), union(cavs)
+
+
 def build_frame_slide(c, body):
     d = c.d
     zr = d["z_rim"]
@@ -598,6 +614,10 @@ def build_frame_slide(c, body):
     slot = CS.batch_boolean([leg_outline(c, -ph / 2 + 2)] + sweep, ADD).offset(c.slot_clear, m3.JoinType.Round, 2.0, 64)
     cuts.append(prism(slot, -1, c.slot_depth))
     cuts.append(M.sphere(4.5, 48).translate((c.leg_w / 2 + 2.3, -ph / 2 - 2.3, -1.8)))
+    # key-hole hangers in the FRAME side borders: the frame hangs on the screws,
+    # the back panel rests inside it (gravity keeps it closed)
+    kop, kcav = keyhole_solids(c)
+    cuts += [kop, kcav]
     frame = body - union(cuts)
     _, _, ridge = detent_geom(c)
     return union([frame, both_sides(ridge)])
@@ -636,18 +656,6 @@ def build_panel_slide(c, e, body):
     cuts.append(cyl_x(-w - rs, -w, c.y_h, d["z_a"], 0.0, rs, 48))
     dcut, bump, _ = detent_geom(c)
     cuts.append(both_sides(dcut))
-    # key-hole wall hangers (frame hangs on the panel shoulders)
-    for sx in (-1, 1):
-        x = sx * c.keyhole_x
-        y0, y1 = c.keyhole_y, c.keyhole_y + c.keyhole_travel
-        hr = c.keyhole_head_r
-        skin = 2.0
-        head = CS.circle(hr, 48).translate((x, y0))
-        sl = CS.hull(CS.batch_boolean([CS.circle(2.2, 32).translate((x, y0)), CS.circle(2.2, 32).translate((x, y1))], ADD))
-        cuts.append(prism(CS.batch_boolean([head, sl], ADD), -1, skin + 0.01))
-        cav = CS.hull(CS.batch_boolean([CS.circle(hr + 0.1, 48).translate((x, y0)),
-                                        CS.circle(hr + 0.1, 48).translate((x, y1))], ADD))
-        cuts.append(prism(cav, skin, skin + 3.6))
     # thumb dimples: push here to slide the panel up
     for sx in (-1, 1):
         cuts.append(M.sphere(7.0, 64).translate((sx * c.thumb_x, d["B"], -4.3)))
@@ -656,18 +664,35 @@ def build_panel_slide(c, e, body):
 
 
 def build_comb(c, frame):
-    """Break-away comb that holds up the slot roof in the top border while printing."""
+    """Break-away comb that holds up the slot roof in the top border while printing.
+    Separate body: a 0.6 mm base strip on the bed + 1 mm ribs every 8 mm that stop
+    0.2 mm below the roof. Built from plain boxes so the mesh stays clean."""
     d = c.d
     zr = c.T + c.track_clear
-    roof = frame.slice(zr + 0.1)
-    reg = CS.batch_boolean([rect_cs(-d["pocket_w"] / 2, d["pocket_w"] / 2, d["pocket_h"] / 2, 300),
-                            rect_cs(-300, 300, d["y_sh"], 300)], ADD)
-    area = (roof ^ reg).offset(-0.45, m3.JoinType.Miter, 2.0)
-    stripes = CS.batch_boolean([rect_cs(x - 0.5, x + 0.5, -300, 300)
-                                for x in np.arange(-170, 171, c.comb_pitch)], ADD)
-    base = prism(area, 0, 0.6)
-    ribs = prism(area ^ stripes, 0.59, zr - 0.2)
-    return union([base, ribs])
+    rr = math.sqrt(c.R ** 2 - (zr - c.zc) ** 2)          # bubble radius at roof height
+    xs_top = sorted({round(x, 6) for (x, y) in bubble_centers(c) if abs(y - d["B"]) < 1e-6})
+
+    def ytop(x0, x1):
+        ys = []
+        for x in np.linspace(x0, x1, 9):
+            t = d["B"] if abs(x) <= d["A"] else -1e9
+            for xc in xs_top:
+                if abs(x - xc) < rr:
+                    t = max(t, d["B"] + math.sqrt(rr ** 2 - (x - xc) ** 2))
+            ys.append(t)
+        return min(ys) - 0.6
+    y0 = d["y_sh"] + 0.8
+    ribs = []
+    xs = []
+    for x in np.arange(-160.0, 160.01, c.comb_pitch):
+        x0, x1 = x - 0.5, x + 0.5
+        ye = ytop(x0, x1)
+        if ye - y0 > 3:
+            ribs.append(box(x0, x1, y0, ye, 0.3, zr - 0.2))
+            xs.append(x)
+    by = d["pocket_h"] / 2 + 0.6
+    base = box(min(xs) - 0.5, max(xs) + 0.5, by, by + 3.0, 0, 0.6)
+    return union(ribs + [base])
 
 
 # --------------------------------------------------------------------------- export
@@ -679,6 +704,7 @@ def to_trimesh(m):
 
 
 def save_stl(m, path):
+    m = m.simplify(0.002)  # drop sliver triangles left by booleans (shape change < 0.002 mm)
     tm = to_trimesh(m)
     tm.export(path)
     return tm
@@ -825,6 +851,15 @@ def build(c, outdir):
             bv = (bumps.translate((0, dy, 0)) ^ frame).volume()
             slide.append((dy, round(pv, 3), round(lv, 3), round(bv, 3)))
         rep["slide_check_dy_panel_leg_bump_mm3"] = slide
+        # key-hole cavity grown by 1 mm must still sit inside solid frame material
+        # (excluding the back opening and the side groove): proves >= 1 mm walls
+        _, kc1 = keyhole_solids(c, grow=1.0)
+        g = both_sides(prism_y(tongue_profile_pts(c, d["panel_w"] / 2, grow=c.panel_clear, tip_extra=c.groove_tip_gap),
+                               -d["pocket_h"] / 2, 300))
+        kop, kcav = keyhole_solids(c)
+        solid_needed = kc1 - kop - kcav
+        rep["keyhole_wall_breakout_mm3"] = (solid_needed - frame).volume()
+        rep["keyhole_to_groove_gap_mm"] = kcav.min_gap(g, 3.0)
         rep["min_gap_panel_frame_mm"] = body_only.min_gap(frame, 2.0)
 
     with open(os.path.join(outdir, "report.json"), "w") as fh:
@@ -842,7 +877,7 @@ if __name__ == "__main__":
         keys = ("variant", "stand", "leg_sweep_overlap_mm3", "leg_frame_overlap_mm3", "panel_frame_overlap_mm3",
                 "ring_frame_overlap_mm3", "min_gap_panel_leg_mm", "min_gap_ring_frame_mm", "filament_total_g",
                 "comb_frame_overlap_mm3", "min_gap_comb_frame_mm", "slide_check_dy_panel_leg_bump_mm3",
-                "min_gap_panel_frame_mm")
+                "min_gap_panel_frame_mm", "keyhole_wall_breakout_mm3", "keyhole_to_groove_gap_mm")
         print(json.dumps({kk: r.get(kk) for kk in keys}, default=str))
         for p, inf in r["print_parts"].items():
             print(f"  {p:24s} size={tuple(round(s,1) for s in inf['size'])} bodies={inf['bodies']} "
