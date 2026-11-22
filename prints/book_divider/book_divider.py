@@ -4,10 +4,10 @@ Filament-optimized arch book divider / bookend - parametric generator.
 Outputs a watertight, print-ready mesh as STL and 3MF (units: mm).
 
 Design:
-  * Arch plate 135 x 155 mm with 7 concentric "rainbow" ribs, 3 mm deep.
-  * The arch is a CLOSED solid with a flat back for the books to lean on; it is
-    modelled solid on purpose so the slicer fills it with light sparse infill
-    (the cheapest way to make a closed shape).
+  * Arch plate 135 x 155 mm with 7 concentric "rainbow" ribs, 3 mm deep, on
+    BOTH faces (front and back look the same; books rest on the rib crests).
+  * The arch is a CLOSED solid, modelled solid on purpose so the slicer fills
+    it with light sparse infill (the cheapest way to make a closed shape).
   * Only the BASE is hollowed: a skeleton frame with a large lightening window
     and chamfered edges.
   * All rib flanks are limited to <= 48 deg from vertical, so the ribs print
@@ -25,19 +25,18 @@ import struct
 import zipfile
 
 import numpy as np
-from manifold3d import CrossSection, JoinType, Manifold
+from manifold3d import CrossSection, Manifold
 
 # --------------------------------------------------------------------------
 # Parameters (mm)
 # --------------------------------------------------------------------------
 WIDTH = 135.0           # arch width
 HEIGHT = 155.0          # arch height
-PLATE_DEPTH = 20.0      # arch thickness front-to-back (incl. ribs)
+PLATE_DEPTH = 20.0      # arch thickness crest-to-crest (ribs on both faces)
 RIB_DEPTH = 3.0         # groove depth of the rainbow ribs
 N_RIBS = 7              # ribs per side (outermost forms the rounded edge)
 FLANK_ANGLE = 48.0      # max rib flank angle from the plate (= overhang angle)
 GROOVE_RADIUS = 1.0     # radius at the bottom of each groove
-BACK_ROUND = 1.5        # rounding of the arch's back edges
 
 BASE_DEPTH = 105.0      # total depth incl. plate
 BASE_THICK = 4.5
@@ -104,14 +103,12 @@ def front_profile():
 
 
 def plate_section():
-    """Full (mirrored) closed plate section, rho in [-R, R], back edges rounded."""
+    """Full (mirrored) plate section, rho in [-R, R], ribs on BOTH faces."""
     half = front_profile()
     left = [(-x, y) for x, y in reversed(half) if x > 1e-9]
-    poly = left + half + [(R, PLATE_DEPTH), (-R, PLATE_DEPTH)]
-    sec = CrossSection([poly])
-    sec = sec.offset(-BACK_ROUND, JoinType.Round, circular_segments=64) \
-             .offset(BACK_ROUND, JoinType.Round, circular_segments=64)
-    return sec.simplify(0.01)
+    front = left + half                                  # rho: -R -> R
+    back = [(x, PLATE_DEPTH - y) for x, y in reversed(front)]   # rho: R -> -R
+    return CrossSection([front + back]).simplify(0.005)
 
 
 def right_half(sec):
