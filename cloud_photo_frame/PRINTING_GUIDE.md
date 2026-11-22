@@ -1,16 +1,21 @@
 # Cloud Photo Frame – print & assembly guide
 
-Final approved design (v2): outer **324 × 234 × 16.5 mm**, 58 cloud bubbles (Ø20 mm),
+Final approved design (v2, lightweight): outer **324 × 234 × 16.5 mm**, 58 cloud bubbles (Ø20 mm),
 photo **290 × 200 mm** (no glass), sliding back panel with a fold-out stand.
+Finished weight ≈ **235 g** + photo.
 
 ## Files (`print_files/`)
 
 | Plate | File | Size (mm) | Filament* |
 |---|---|---|---|
-| 1 | `cloud_frame_1_front_frame.stl` / `.3mf` | 324 × 234 × 16.5 | ≈ 115 g |
-| 2 | `cloud_frame_2_back_panel_with_stand.stl` / `.3mf` | 324 × 230 × 8 | ≈ 215 g |
+| 1 | `cloud_frame_1_front_frame.stl` / `.3mf` | 324 × 234 × 16.5 | ≈ 100 g (85 g frame + 15 g break-away helpers) |
+| 2 | `cloud_frame_2_back_panel_with_stand.stl` / `.3mf` | 324 × 230 × 8 | ≈ 150 g |
 
-\*Rough estimate (12 % infill); Bambu Studio will show the exact value. Total ≈ 330 g PLA.
+\*Layer-by-layer estimate with the settings below; Bambu Studio will show the exact value.
+Total ≈ 250 g PLA to print, ≈ 235 g finished.
+
+The back panel is hollowed out on the photo side (closed 0.8 mm back skin + 1 mm ribs about 30 mm
+apart). From the outside it looks the same as a solid panel.
 
 STL and 3MF contain the same geometry. Use either.
 
@@ -21,7 +26,9 @@ STL and 3MF contain the same geometry. Use either.
 - **Orientation:** keep the files as they are, with the flat back face down. Don't flip them.
   Keep the **long side along X (left–right)**. 324 mm only fits along the 330 mm axis.
 - **Layer height:** 0.16 mm (0.12 mm for extra-smooth bubbles).
-- **Walls:** 3. **Top/bottom:** 5 / 4 layers. **Infill:** 12 % gyroid.
+- **Walls:** 2. **Top/bottom:** 5 / 4 layers.
+- **Infill:** front frame **8 % gyroid**, back panel **10 % gyroid**. Use per-object settings,
+  or 8–10 % for both. More infill only adds weight, because the ribs are already solid.
 - **Supports: OFF.** The front frame already contains its own break-away helpers (see below).
 - **Brim:** none (there is no room on the bed for plate 1 anyway).
 - Leave *elephant-foot compensation* at the default (0.15 mm).
@@ -39,7 +46,8 @@ a few times until it moves freely. It stops by itself at the stand angle.
 ## Using the frame
 
 1. **Photo:** 290 × 200 mm, normal photo paper (up to ~0.4 mm). The window shows
-   284 × 194 mm, so 3 mm of each edge hides under the lip.
+   284 × 194 mm, so 3 mm of each edge hides under the lip. The panel behind the photo is a rib grid,
+   so if your photo paper is very thin or curled, put a sheet of thin card behind it.
 2. **Close:** lay the frame face-down on a soft cloth and place the photo face-down in the
    opening. Slide the back panel in **from the top edge** along the side rails and push until it **clicks**.
 3. **Open:** frame face-down, push up at the two **thumb dimples** near the top until the
@@ -71,6 +79,8 @@ hangs directly on the screws, and the back panel just rests inside it: gravity k
   112 mm behind it (stable).
 - Key-holes have ≥ 1 mm of plastic around them everywhere, and ≥ 1 mm to the side rail.
 - Print-in-place gaps: hinge 0.35 mm, sliding parts ≥ 0.15 mm, break-away helpers 0.2 mm.
+- Light-weighting: the rib grid stays clear of the rails, click detents, stand channel and
+  hinge. All of the checks above were re-run on the lightweight panel.
 
 These were checked on the 3D model only. The parts to watch on a first print are the hinge
 (it should move freely after a few swings) and the click (if it is too stiff, sand the two

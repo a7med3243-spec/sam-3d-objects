@@ -151,6 +151,15 @@ class Cfg:
     ridge: float = 0.65           # detent ridge height in the frame groove (0.35 mm click)
     comb_pitch: float = 8.0       # break-away comb under the top-border slot roof
     thumb_x: float = 62.6
+    # light-weighting of the sliding back panel: closed back skin + open rib grid
+    lighten: bool = True
+    skin: float = 0.8             # back skin thickness (the visible back face)
+    rib: float = 1.0              # rib thickness
+    rib_pitch: float = 32.0       # target rib spacing
+    rim_w: float = 6.0            # solid band along the panel edges (rails, detents)
+    band_w: float = 19.0          # solid band each side of the stand channel (|x| < band_w)
+    infill_frame: float = 0.08    # suggested slicer infill (used for the weight estimate)
+    infill_panel: float = 0.10
     # derived (filled in by derive())
     d: dict = field(default_factory=dict)
 
@@ -411,7 +420,7 @@ def build_lip_support(c):
     air gap = one layer). Remove after printing."""
     d = c.d
     ww, wh = d["win_w"] / 2, d["win_h"] / 2
-    t, o = 1.2, 0.25
+    t, o = 0.85, 0.25            # 2 extrusion lines, closed loop (stable on the bed)
     zt = d["z_lip0"] - 0.2
     outer = CS.square((2 * (ww + o + t), 2 * (wh + o + t)), True)
     inner = CS.square((2 * (ww + o), 2 * (wh + o)), True)
@@ -659,8 +668,32 @@ def build_panel_slide(c, e, body):
     # thumb dimples: push here to slide the panel up
     for sx in (-1, 1):
         cuts.append(M.sphere(7.0, 64).translate((sx * c.thumb_x, d["B"], -4.3)))
+    if c.lighten:
+        cuts.append(rib_cells(c))
     panel = panel - union(cuts)
     return union([panel, both_sides(bump)])
+
+
+def rib_cells(c):
+    """Open pockets on the photo side of the panel, leaving a rib grid, a closed back
+    skin, a solid rim (rails/detents) and a solid band around the stand channel."""
+    d = c.d
+    hw, hh = d["panel_w"] / 2, d["panel_h"] / 2
+    x0, x1 = c.band_w, hw - c.rim_w
+    y0, y1 = -hh + c.rim_w, hh - c.rim_w
+    nx = max(1, round((x1 - x0 + c.rib) / c.rib_pitch))
+    ny = max(1, round((y1 - y0 + c.rib) / c.rib_pitch))
+    cw = (x1 - x0 - (nx - 1) * c.rib) / nx
+    ch = (y1 - y0 - (ny - 1) * c.rib) / ny
+    cells = []
+    for i in range(nx):
+        for j in range(ny):
+            cx0 = x0 + i * (cw + c.rib)
+            cy0 = y0 + j * (ch + c.rib)
+            r = rect_cs(cx0 + 2, cx0 + cw - 2, cy0 + 2, cy0 + ch - 2).offset(2.0, m3.JoinType.Round, 2.0, 24)
+            cells.append(r)
+            cells.append(r.mirror((1, 0)))
+    return prism(CS.batch_boolean(cells, ADD), c.skin, c.T + 1)
 
 
 def build_comb(c, frame):
@@ -736,6 +769,30 @@ def filament_estimate(m, infill=0.12, shell=0.85):
     return 1.24e-3 * (sh + infill * (V - sh))
 
 
+def slicer_estimate(m, infill=0.10, layer=0.2, wall=0.84, top=5, bottom=4):
+    """Layer-by-layer filament estimate (grams of PLA) that mimics a slicer:
+    2 perimeters, solid top/bottom skins, sparse infill elsewhere."""
+    bb = m.bounding_box()
+    zs = np.arange(bb[2] + layer / 2, bb[5], layer)
+    sl = [m.slice(z) for z in zs]
+    inner = [s.offset(-wall, m3.JoinType.Miter, 2.0) for s in sl]
+    vol = 0.0
+    n = len(zs)
+    for i in range(n):
+        A = sl[i].area()
+        I = inner[i]
+        walls = A - I.area()
+        # region of this layer's interior that is covered (above and below) by enough layers
+        cov = I
+        for k in range(1, top + 1):
+            cov = cov ^ (inner[i + k] if i + k < n else CS())
+        for k in range(1, bottom + 1):
+            cov = cov ^ (inner[i - k] if i - k >= 0 else CS())
+        solid = I.area() - cov.area()
+        vol += (walls + solid + infill * cov.area()) * layer
+    return 1.24e-3 * vol
+
+
 def overhang_report(m, limit_deg=50.0):
     """Area of down-facing surfaces steeper than limit (from vertical), excluding the bed."""
     tm = to_trimesh(m)
@@ -802,7 +859,8 @@ def build(c, outdir):
         info[k] = {"volume_cm3": m.volume() / 1000, "bbox": bb,
                    "size": (bb[3] - bb[0], bb[4] - bb[1], bb[5] - bb[2]),
                    "bodies": len(m.decompose()), "status": str(m.status()),
-                   "filament_g": filament_estimate(m), "overhang_mm2_gt50deg": overhang_report(m),
+                   "filament_g": slicer_estimate(m, c.infill_frame if "frame" in k else c.infill_panel),
+                   "overhang_mm2_gt50deg": overhang_report(m),
                    "fits_A2L": (bb[3] - bb[0]) <= 330 and (bb[4] - bb[1]) <= 320 and (bb[5] - bb[2]) <= 325}
         save_stl(m, os.path.join(outdir, f"{k}.stl"))
     rep["print_parts"] = info
