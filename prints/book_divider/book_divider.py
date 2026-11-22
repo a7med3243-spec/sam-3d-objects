@@ -3,18 +3,16 @@ Filament-optimized arch book divider / bookend - parametric generator.
 
 Outputs a watertight, print-ready mesh as STL and 3MF (units: mm).
 
-Design (matches the reference sheet):
-  * Arch plate 135 x 155 mm, 20 mm deep, 7 concentric "rainbow" ribs, 3 mm deep.
-  * The rib face is a CORRUGATED SHELL (constant wall thickness) so the ribs are
-    hollow from behind -> much lighter than solid ribs, and stiffer than a flat wall.
-  * Open back cavity with a 2 mm rim (the "tray" the books lean against).
-  * Near the top the cavity gets a flat ceiling carried by five small 45 deg
-    corbel fins, so it bridges in short spans and the part prints upright
-    with NO supports.
-  * Skeleton base: 105 mm total depth (85 mm protrusion), 4.5 mm thick, with a
-    large lightening window and chamfered edges.
+Design:
+  * Arch plate 135 x 155 mm with 7 concentric "rainbow" ribs, 3 mm deep.
+  * The arch is a CLOSED solid with a flat back for the books to lean on; it is
+    modelled solid on purpose so the slicer fills it with light sparse infill
+    (the cheapest way to make a closed shape).
+  * Only the BASE is hollowed: a skeleton frame with a large lightening window
+    and chamfered edges.
   * All rib flanks are limited to <= 48 deg from vertical, so the ribs print
-    cleanly even where they run horizontally over the top of the arch.
+    cleanly even where they run horizontally over the top of the arch ->
+    the part prints upright with NO supports.
 
 Print orientation: as modelled (base flat on the bed, arch standing up).
 
@@ -27,31 +25,24 @@ import struct
 import zipfile
 
 import numpy as np
-from manifold3d import CrossSection, JoinType, Manifold, OpType
+from manifold3d import CrossSection, JoinType, Manifold
 
 # --------------------------------------------------------------------------
 # Parameters (mm)
 # --------------------------------------------------------------------------
 WIDTH = 135.0           # arch width
 HEIGHT = 155.0          # arch height
-PLATE_DEPTH = 20.0      # arch thickness front-to-back
+PLATE_DEPTH = 20.0      # arch thickness front-to-back (incl. ribs)
 RIB_DEPTH = 3.0         # groove depth of the rainbow ribs
 N_RIBS = 7              # ribs per side (outermost forms the rounded edge)
 FLANK_ANGLE = 48.0      # max rib flank angle from the plate (= overhang angle)
 GROOVE_RADIUS = 1.0     # radius at the bottom of each groove
-WALL_FRONT = 1.6        # corrugated rib shell thickness (2+2 perimeters)
-WALL_RIM = 2.0          # outer rim thickness
-EDGE_ROUND = 0.5        # rounding of the rim's back edges
-INNER_FILLET = 0.8      # fillet where rim meets the rib shell
-FIN_THICK = 1.6         # corbel fins under the cavity ceiling
-CEILING_OVERHANG = 55.0 # cavity ceiling turns flat where the arc passes this
-CORBELS_PER_SIDE = 2    # + one in the centre -> bridges of ~12 mm
-GUSSET = 4.0            # 45 deg gusset between rib shell and cavity floor
+BACK_ROUND = 1.5        # rounding of the arch's back edges
 
-BASE_DEPTH = 105.0      # total depth incl. plate (protrusion = 85)
+BASE_DEPTH = 105.0      # total depth incl. plate
 BASE_THICK = 4.5
-BASE_SIDE = 12.0        # width of the side / far frame bars
-BASE_FRONT_BAR = 7.0    # solid strip right behind the plate
+BASE_SIDE = 10.0        # width of the side / far frame bars
+BASE_FRONT_BAR = 4.0    # solid strip right behind the plate
 BASE_CORNER_R = 16.0    # far-end outer corner radius
 WINDOW_CORNER_R = 9.0   # lightening window corner radius
 TOP_CHAMFER = 0.8       # base top-edge chamfer
@@ -81,8 +72,7 @@ def rib_geometry():
     k = N_RIBS - 0.5
     rc = (R - k * (A * GROOVE_RADIUS + B)) / (k * A + 1)   # crest radius
     pitch = A * (rc + GROOVE_RADIUS) + B
-    assert rc > WALL_FRONT + 0.3, "ribs too tight for the wall thickness"
-    assert RIB_DEPTH - (rc + GROOVE_RADIUS) * (1 - math.cos(b)) > 0
+    assert rc > 0 and RIB_DEPTH - (rc + GROOVE_RADIUS) * (1 - math.cos(b)) > 0
     return rc, pitch, b
 
 
@@ -105,7 +95,6 @@ def front_profile():
             # last crest wraps round into the side wall -> rounded outer edge
             pts += [(c + rc * math.sin(a), rc - rc * math.cos(a))
                     for a in np.linspace(-b, math.pi / 2, 34)]
-    # clean tiny duplicates
     out = [pts[0]]
     for q in pts[1:]:
         if math.dist(q, out[-1]) > 1e-4:
@@ -114,29 +103,15 @@ def front_profile():
     return out
 
 
-def outer_section():
-    """Full (mirrored) plate envelope section, rho in [-R, R]."""
+def plate_section():
+    """Full (mirrored) closed plate section, rho in [-R, R], back edges rounded."""
     half = front_profile()
     left = [(-x, y) for x, y in reversed(half) if x > 1e-9]
-    front = left + half
-    poly = front + [(R, PLATE_DEPTH), (-R, PLATE_DEPTH)]
-    return CrossSection([poly])
-
-
-def plate_section(env):
-    """Envelope minus the open-back cavity, with rounded edges."""
-    ext = env + CrossSection.square([2 * R, 12]).translate([-R, PLATE_DEPTH - 0.5])
-    cav = ext.offset(-WALL_FRONT, JoinType.Round, circular_segments=96)
-    keep = CrossSection.square([2 * (R - WALL_RIM), PLATE_DEPTH + 5]).translate(
-        [-(R - WALL_RIM), -2])
-    cav = cav ^ keep
-    sec = env - cav
-    # round convex corners (rim back edges), then fillet concave ones
-    sec = sec.offset(-EDGE_ROUND, JoinType.Round, circular_segments=48) \
-             .offset(EDGE_ROUND, JoinType.Round, circular_segments=48)
-    sec = sec.offset(INNER_FILLET, JoinType.Round, circular_segments=48) \
-             .offset(-INNER_FILLET, JoinType.Round, circular_segments=48)
-    return sec.simplify(0.01)         # drop redundant offset vertices
+    poly = left + half + [(R, PLATE_DEPTH), (-R, PLATE_DEPTH)]
+    sec = CrossSection([poly])
+    sec = sec.offset(-BACK_ROUND, JoinType.Round, circular_segments=64) \
+             .offset(BACK_ROUND, JoinType.Round, circular_segments=64)
+    return sec.simplify(0.01)
 
 
 def right_half(sec):
@@ -176,6 +151,7 @@ def prism_hull(rings):
 
 
 def base_frame():
+    """Hollow skeleton base: chamfered slab minus a large lightening window."""
     y0 = 5.0                         # front edge hidden inside the plate
     y1 = BASE_DEPTH
     T, c, f = BASE_THICK, TOP_CHAMFER, FOOT_CHAMFER
@@ -201,47 +177,7 @@ def base_frame():
 
 
 def build():
-    env_sec = outer_section()
-    sec = plate_section(env_sec)
-
-    envelope = arch_solid(env_sec)                  # plate without cavity
-    plate = arch_solid(sec)
-
-    # solid bottom 4.5 mm under the plate (cavity floor)
-    floor = Manifold.extrude(env_sec, BASE_THICK)
-
-    # 45 deg gusset between rib shell and floor, inside the cavity
-    yb = RIB_DEPTH + WALL_FRONT
-    g = GUSSET
-    tri = CrossSection([[(0, 0), (yb + g, 0), (yb + g, BASE_THICK),
-                         (yb, BASE_THICK + g), (0, BASE_THICK + g)]])
-    gusset = Manifold.extrude(tri, WIDTH + 2).rotate([90, 0, 90]).translate([-R - 1, 0, 0])
-    gusset = gusset ^ envelope
-
-    # Flat cavity ceiling: above the point where the round ceiling would pass
-    # CEILING_OVERHANG, the cavity is closed by a flat, bridged ceiling ...
-    r_in = R - WALL_RIM
-    phi = math.radians(90 - CEILING_OVERHANG)
-    z_ceil = H_LEG + r_in * math.cos(phi)
-    x_edge = r_in * math.sin(phi)
-    cap = Manifold.cube([WIDTH + 2, PLATE_DEPTH + 2, HEIGHT]).translate(
-        [-R - 1, -1, z_ceil]) ^ envelope
-
-    # ... and 45 deg corbel fins grown out of the rib shell split that ceiling
-    # into short bridges (~12 mm) so no supports are needed.
-    zc, D = z_ceil, PLATE_DEPTH
-    corbel_sec = CrossSection([[(0, zc - 2 - D), (D, zc - 2), (D, zc + 1), (0, zc + 1)]])
-    corbels = []
-    step = x_edge / (CORBELS_PER_SIDE + 1)
-    for k in range(-CORBELS_PER_SIDE, CORBELS_PER_SIDE + 1):
-        xc = k * step
-        c = Manifold.extrude(corbel_sec, FIN_THICK).rotate([90, 0, 90])
-        corbels.append(c.translate([xc - FIN_THICK / 2, 0, 0]) ^ envelope)
-
-    part = Manifold.batch_boolean(
-        [plate, floor, gusset, cap, *corbels, base_frame()],
-        OpType.Add)
-    return part
+    return arch_solid(plate_section()) + base_frame()
 
 
 # --------------------------------------------------------------------------
@@ -308,20 +244,23 @@ def write_3mf(path, v, f, name="Arch Book Divider"):
         z.writestr("3D/3dmodel.model", model)
 
 
+def export(part, out_dir, stem="book_divider"):
+    v, f = mesh_arrays(part)
+    lo, hi = v.min(0), v.max(0)     # footprint centred on the origin, base on z = 0
+    v -= [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2]]
+    write_stl(os.path.join(out_dir, stem + ".stl"), v, f)
+    write_3mf(os.path.join(out_dir, stem + ".3mf"), v, f)
+    return v, f
+
+
 if __name__ == "__main__":
     out_dir = os.path.dirname(os.path.abspath(__file__))
     rc, pitch, _ = rib_geometry()
     part = build()
-    v, f = mesh_arrays(part)
-    # put the part's footprint centre at the origin, base on z = 0
-    lo, hi = v.min(0), v.max(0)
-    v -= [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2]]
+    v, f = export(part, out_dir)
     size = v.max(0) - v.min(0)
     print(f"rib crest radius {rc:.2f} mm, pitch {pitch:.2f} mm")
     print(f"triangles {len(f)}, genus {part.genus()}, status {part.status()}")
     print(f"size  X {size[0]:.2f}  Y {size[1]:.2f}  Z {size[2]:.2f} mm")
-    print(f"solid volume {part.volume() / 1000:.1f} cm3 "
-          f"(= {part.volume() / 1000 * 1.24:.0f} g if printed 100% solid PLA)")
-    write_stl(os.path.join(out_dir, "book_divider.stl"), v, f)
-    write_3mf(os.path.join(out_dir, "book_divider.3mf"), v, f)
+    print(f"solid volume {part.volume() / 1000:.1f} cm3")
     print("written book_divider.stl / book_divider.3mf")

@@ -10,27 +10,22 @@
 
 **Size:** 135 W × 155 H × 105 D mm, arch 20 mm deep, base 4.5 mm thick (85 mm protrusion).
 
-## Lightweight design
-- Rainbow ribs are a **corrugated 1.6 mm shell** (hollow from behind) instead of solid ribs.
-- **Open back tray** with a 2 mm rim – books lean on the rim.
-- **Skeleton base** with a big lightening window.
-- Top of the tray has a flat ceiling carried by 5 small 45° corbels → bridges ≤ 12 mm.
-- Rib flanks ≤ 48°, so everything prints **upright with no supports**.
+## Design
+- Closed arch with 7 rainbow ribs (3 mm deep) on the front and a flat back for the books.
+- Only the **base is hollow**: skeleton frame (10 mm bars) with a large lightening window.
+- Rib flanks ≤ 48°, so it prints **upright with no supports**.
 
-## Print settings (tested in PrusaSlicer 2.7)
-| Setting | Value |
-|---|---|
-| Orientation | As exported – base flat on the bed |
-| Supports | **Off** (ignore a "long bridging" note – real spans are ≤ 12 mm) |
-| Layer height | 0.2 mm, nozzle 0.4 mm |
-| Walls | 3 (2 also fine) |
-| Top / bottom layers | 4 / 3 |
-| Infill | 10 % Gyroid (or 8 % Lightning) |
-| Material | PLA or PETG (matte navy looks like the reference) |
+## Print settings – the infill type is what saves filament
+The arch is modelled solid on purpose; the slicer fills it. With a closed arch the
+infill pattern decides the weight, so **use Lightning infill**:
 
-| Profile | Filament | Time (fast CoreXY) | Time (standard ~60 mm/s) |
+| Profile | Filament | Fast CoreXY | Standard ~60 mm/s |
 |---|---|---|---|
-| 3 walls, 10 % gyroid | **81 g** | ~3 h 35 m | ~7 h |
-| 2 walls, 8 % lightning | **77 g** | ~3 h 10 m | ~6 h 30 m |
+| **2 walls + Lightning 8 % (recommended)** | **~61 g** | ~2 h 20 m | ~5 h |
+| 3 walls + Lightning 10 % (stiffer) | ~84 g | ~3 h | ~6 h 15 m |
+| 2 walls + Grid 15 % (typical default – avoid) | ~125 g | ~4 h 30 m | – |
 
-Print two for a pair of bookends.
+Other settings: base flat on the bed, supports **off**, 0.2 mm layers, 0.4 mm nozzle,
+4 top / 3 bottom layers, PLA or PETG. Print two for a pair of bookends.
+
+(Measured with PrusaSlicer 2.7. Reducing the arch depth to 15 mm only saves ~2 g, so it stays 20 mm.)
