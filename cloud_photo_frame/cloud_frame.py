@@ -136,6 +136,21 @@ class Cfg:
     keyhole_head_r: float = 4.5
     notch_x: float = 135.0
     lip_support: bool = True      # break-away ring under the photo lip (print aid)
+    # closure: "snap" (press-in panel) or "slide" (pencil-box lid from the top)
+    closure: str = "snap"
+    toes_x: tuple = (0.0,)        # x positions of the leg toes (each sits in a bottom bubble)
+    track_clear: float = 0.3      # slide clearance in front of the panel
+    photo_pocket: float = 0.6     # photo pocket depth (slide variant)
+    tongue_z: tuple = (1.5, 6.5)  # side tongue base (z range) on the sliding panel
+    tongue_h: float = 1.8         # tongue protrusion (45 deg flanks)
+    groove_tip_gap: float = 0.5   # extra room at the groove bottom (for the detent bump)
+    detent_y: float = 40.0        # start of the flexible detent arm on each side
+    detent_len: float = 30.0
+    detent_w: float = 3.0
+    detent_bump: float = 0.5
+    ridge: float = 0.65           # detent ridge height in the frame groove (0.35 mm click)
+    comb_pitch: float = 8.0       # break-away comb under the top-border slot roof
+    thumb_x: float = 62.6
     # derived (filled in by derive())
     d: dict = field(default_factory=dict)
 
@@ -161,6 +176,10 @@ class Cfg:
         d["foot_r"] = d["r0"] - self.foot_wall
         d["rect_bot"] = self.leg_rect_bottom if self.leg_rect_bottom is not None else -d["B"]
         d["y_tip"] = -d["B"] - d["foot_r"]
+        if self.closure == "slide":
+            d["z_lip0"] = self.T + self.track_clear + self.photo_pocket
+            d["z_rim"] = d["z_lip0"] + self.lip
+            d["y_sh"] = d["B"] - d["py"] / 2   # shoulder: valley next to the top corner bubble
         # valleys for the seams (variant A)
         d["seam_top_x"] = -d["A"] + 3.5 * d["px"]
         d["seam_bot_x"] = -d["seam_top_x"]
@@ -182,6 +201,23 @@ def variant_B():
         keyhole_y=106.5, keyhole_travel=3.5, keyhole_head_r=4.0, keyhole_x=122.0,
         latch_bump_x=91.5,
     )
+    c.derive()
+    return c
+
+
+def variant_S():
+    """Final: Option-B outer size, bigger clearly-separated bubbles, sliding back panel."""
+    c = Cfg(
+        name="S", title="Cloud frame 324 x 234 - sliding back",
+        R=10.0, zc=6.5, rim=0.0, nx=17, ny=12, split=False, lip=2.0,
+        closure="slide", leg_w=28.0, toes_x=(-8.94, 8.94), foot_wall=2.0, y_h=85.0,
+        keyhole_x=98.36, keyhole_y=100.5, keyhole_travel=6.0, keyhole_head_r=4.0,
+    )
+    c.derive()
+    c.leg_rect_bottom = -c.d["B"] + 2.3
+    c.toes_x = (-c.d["px"] / 2, c.d["px"] / 2)
+    # leg as wide as the outer toe edges -> no undercut when the panel slides up
+    c.leg_w = 2 * (c.d["px"] / 2 + c.d["foot_r"]) + 0.4
     c.derive()
     return c
 
@@ -265,8 +301,8 @@ def leg_outline(c, y_top):
     d = c.d
     w = c.leg_w / 2
     rect = rect_cs(-w, w, d["rect_bot"], y_top)
-    foot = CS.circle(d["foot_r"], 96).translate((0, -d["B"]))
-    return CS.batch_boolean([rect, foot], ADD)
+    toes = [CS.circle(d["foot_r"], 96).translate((tx, -d["B"])) for tx in c.toes_x]
+    return CS.batch_boolean([rect] + toes, ADD)
 
 
 def latch_local(c):
@@ -463,7 +499,175 @@ def build_panel(c, e):
 
 def build_photo(c):
     d = c.d
-    return box(-c.photo_w / 2, c.photo_w / 2, -c.photo_h / 2, c.photo_h / 2, c.T + 0.02, c.T + 0.3)
+    z1 = d["z_lip0"] if c.closure == "slide" else c.T + 0.3
+    return box(-c.photo_w / 2, c.photo_w / 2, -c.photo_h / 2, c.photo_h / 2, z1 - 0.28, z1)
+
+
+# --------------------------------------------------------------------------- sliding-lid variant
+def frame_body(c):
+    d = c.d
+    A, B = d["A"], d["B"]
+    spheres = [M.sphere(c.R, c.seg).translate((x, y, c.zc)) for (x, y) in bubble_centers(c)]
+    plate = box(-A, A, -B, B, 0, d["z_rim"])
+    return union(spheres + [plate]).trim_by_plane((0, 0, 1), 0.0)
+
+
+def tongue_profile_pts(c, x_edge, grow=0.0, tip_extra=0.0):
+    """(x,z) trapezoid of the side tongue on the right edge; grow = normal offset."""
+    z0, z1 = c.tongue_z
+    h = c.tongue_h
+    g = grow * math.sqrt(2)
+    xb = x_edge - 0.6
+    xt = x_edge + h + grow + tip_extra
+    # lower flank z = z0 - g + (x - x_edge); upper flank z = z1 + g - (x - x_edge)
+    return [(xb, z0 - g - 0.6), (xt, z0 - g + (xt - x_edge)), (xt, z1 + g - (xt - x_edge)), (xb, z1 + g + 0.6)]
+
+
+def prism_y(pts_xz, y0, y1, taper0=0.0):
+    """Convex prism of an (x,z) polygon swept along y from y0 to y1."""
+    P = []
+    for (x, z) in pts_xz:
+        P.append((x, y1, z))
+        P.append((x, y0, z))
+    m = hull(P)
+    if taper0:
+        # chamfer the leading (y0) end of a tongue: cut with a 45 deg plane
+        x_edge = min(p[0] for p in pts_xz) + 0.6
+        wedge = hull([(x_edge, y0 - 1, -5), (x_edge, y0 - 1, 20), (x_edge + 20, y0 - 1, -5), (x_edge + 20, y0 - 1, 20),
+                      (x_edge + 20, y0 + 20 - 1, -5), (x_edge + 20, y0 + 20 - 1, 20)])
+        m = m - wedge
+    return m
+
+
+def both_sides(m):
+    return union([m, m.mirror((1, 0, 0))])
+
+
+def detent_geom(c):
+    """Right-side detent: arm cut + bump on the panel, ridge in the frame groove."""
+    d = c.d
+    xe = d["panel_w"] / 2
+    ya, L, w = c.detent_y, c.detent_len, c.detent_w
+    cut = union([box(xe - w - 1.0, xe - w, ya, ya + L + 1.0, -1, c.T + 1),
+                 box(xe - w - 1.0, xe + c.tongue_h + 1.0, ya + L, ya + L + 1.0, -1, c.T + 1)])
+    zt0, zt1 = c.tongue_z
+    zm = (zt0 + zt1) / 2
+    xt = xe + c.tongue_h
+    b = c.detent_bump
+    yb0, yb1 = ya + L - 8.0, ya + L - 2.0
+    bump = hull([(xt - 0.1, yb0, zm - 0.6), (xt - 0.1, yb1, zm - 0.6), (xt - 0.1, yb0, zm + 0.6), (xt - 0.1, yb1, zm + 0.6),
+                 (xt + b, yb0 + b, zm - 0.3), (xt + b, yb1 - b, zm - 0.3), (xt + b, yb0 + b, zm + 0.3), (xt + b, yb1 - b, zm + 0.3)])
+    xg = xt + c.panel_clear + c.groove_tip_gap           # groove bottom
+    r = c.ridge
+    yr0 = ya + L - 1.7
+    ridge = hull([(xg + 0.3, yr0, zm - 0.45), (xg + 0.3, yr0 + 3.0, zm - 0.45), (xg + 0.3, yr0, zm + 0.45), (xg + 0.3, yr0 + 3.0, zm + 0.45),
+                  (xg - r, yr0 + r, zm - 0.3), (xg - r, yr0 + 3.0 - r, zm - 0.3), (xg - r, yr0 + r, zm + 0.3), (xg - r, yr0 + 3.0 - r, zm + 0.3)])
+    return cut, bump, ridge
+
+
+def slot_region(c):
+    """Entry slot through the top border (removed from the frame)."""
+    d = c.d
+    pw = d["pocket_w"] / 2
+    zt = c.T + c.track_clear
+    return union([box(-pw, pw, d["pocket_h"] / 2 - 0.01, 300, -1, zt),
+                  box(-300, 300, d["y_sh"], 300, -1, zt)])
+
+
+def build_frame_slide(c, body):
+    d = c.d
+    zr = d["z_rim"]
+    cuts = []
+    ww, wh = d["win_w"], d["win_h"]
+    cuts.append(box(-ww / 2, ww / 2, -wh / 2, wh / 2, -1, zr + 30))
+    ch = c.win_chamfer + 3.0
+    cuts.append(CS.square((ww, wh), True).extrude(
+        ch, scale_top=((ww + 2 * ch) / ww, (wh + 2 * ch) / wh)).translate((0, 0, zr - c.win_chamfer)))
+    pw, ph = d["pocket_w"], d["pocket_h"]
+    cuts.append(box(-pw / 2, pw / 2, -ph / 2, ph / 2, -1, d["z_lip0"]))
+    lead = 0.5
+    cuts.append(CS.square((pw + 2 * lead + 2, ph + 2 * lead + 2), True).extrude(
+        lead + 1, scale_top=((pw) / (pw + 2 * lead + 2), (ph) / (ph + 2 * lead + 2))).translate((0, 0, -1)))
+    cuts.append(slot_region(c))
+    # side grooves (tongue + 0.3 clearance, deeper tip for the detent bump)
+    g = prism_y(tongue_profile_pts(c, d["panel_w"] / 2, grow=c.panel_clear, tip_extra=c.groove_tip_gap),
+                -ph / 2, 300)
+    cuts.append(both_sides(g))
+    # stand slot (+ upward sweep of the toes so the panel can slide out) + lift scoop
+    sweep = [rect_cs(tx - d["foot_r"], tx + d["foot_r"], -d["B"], -ph / 2 + 2) for tx in c.toes_x]
+    slot = CS.batch_boolean([leg_outline(c, -ph / 2 + 2)] + sweep, ADD).offset(c.slot_clear, m3.JoinType.Round, 2.0, 64)
+    cuts.append(prism(slot, -1, c.slot_depth))
+    cuts.append(M.sphere(4.5, 48).translate((c.leg_w / 2 + 2.3, -ph / 2 - 2.3, -1.8)))
+    frame = body - union(cuts)
+    _, _, ridge = detent_geom(c)
+    return union([frame, both_sides(ridge)])
+
+
+def build_panel_slide(c, e, body):
+    d = c.d
+    hw, hh, T = d["panel_w"] / 2, d["panel_h"] / 2, c.T
+    ytop = hh + 1.0
+    main = box(-hw, hw, -hh, ytop, 0, T)
+    ch_b, ch_f = 0.4, 0.6
+    W, H = 2 * hw, hh + ytop
+    yc = (ytop - hh) / 2
+    env = union([
+        CS.square((W - 2 * ch_b, H - 2 * ch_b), True).extrude(
+            ch_b, scale_top=(W / (W - 2 * ch_b), H / (H - 2 * ch_b))).translate((0, yc, 0)),
+        box(-hw, hw, -hh, ytop, ch_b, T - ch_f),
+        CS.square((W, H), True).extrude(
+            ch_f, scale_top=((W - 2 * ch_f) / W, (H - 2 * ch_f) / H)).translate((0, yc, T - ch_f)),
+    ])
+    main = main ^ env
+    capreg = union([box(-hw, hw, hh, 300, 0, T), box(-300, 300, d["y_sh"] + c.panel_clear, 300, 0, T)])
+    cap = body ^ capreg
+    tongue = prism_y(tongue_profile_pts(c, hw), -hh + 0.2, d["y_sh"] + 3.0, taper0=1)
+    panel = union([main, cap, both_sides(tongue)])
+
+    g = c.leg_gap
+    w = c.leg_w / 2
+    cuts = []
+    chan = leg_outline(c, c.y_h + d["z_a"] + 0.6).offset(g, m3.JoinType.Miter, 2.0)
+    cuts.append(prism(chan, -1, c.floor_z))
+    cuts.append(box(-c.tail_w / 2 - g, c.tail_w / 2 + g, c.y_h, c.y_h + e + 1.0, -1, c.floor_z))
+    off = 0.35 * math.sqrt(2)
+    rs = c.cone_r + off
+    cuts.append(cyl_x(w, w + rs, c.y_h, d["z_a"], rs, 0.0, 48))
+    cuts.append(cyl_x(-w - rs, -w, c.y_h, d["z_a"], 0.0, rs, 48))
+    dcut, bump, _ = detent_geom(c)
+    cuts.append(both_sides(dcut))
+    # key-hole wall hangers (frame hangs on the panel shoulders)
+    for sx in (-1, 1):
+        x = sx * c.keyhole_x
+        y0, y1 = c.keyhole_y, c.keyhole_y + c.keyhole_travel
+        hr = c.keyhole_head_r
+        skin = 2.0
+        head = CS.circle(hr, 48).translate((x, y0))
+        sl = CS.hull(CS.batch_boolean([CS.circle(2.2, 32).translate((x, y0)), CS.circle(2.2, 32).translate((x, y1))], ADD))
+        cuts.append(prism(CS.batch_boolean([head, sl], ADD), -1, skin + 0.01))
+        cav = CS.hull(CS.batch_boolean([CS.circle(hr + 0.1, 48).translate((x, y0)),
+                                        CS.circle(hr + 0.1, 48).translate((x, y1))], ADD))
+        cuts.append(prism(cav, skin, skin + 3.6))
+    # thumb dimples: push here to slide the panel up
+    for sx in (-1, 1):
+        cuts.append(M.sphere(7.0, 64).translate((sx * c.thumb_x, d["B"], -4.3)))
+    panel = panel - union(cuts)
+    return union([panel, both_sides(bump)])
+
+
+def build_comb(c, frame):
+    """Break-away comb that holds up the slot roof in the top border while printing."""
+    d = c.d
+    zr = c.T + c.track_clear
+    roof = frame.slice(zr + 0.1)
+    reg = CS.batch_boolean([rect_cs(-d["pocket_w"] / 2, d["pocket_w"] / 2, d["pocket_h"] / 2, 300),
+                            rect_cs(-300, 300, d["y_sh"], 300)], ADD)
+    area = (roof ^ reg).offset(-0.45, m3.JoinType.Miter, 2.0)
+    stripes = CS.batch_boolean([rect_cs(x - 0.5, x + 0.5, -300, 300)
+                                for x in np.arange(-170, 171, c.comb_pitch)], ADD)
+    base = prism(area, 0, 0.6)
+    ribs = prism(area ^ stripes, 0.59, zr - 0.2)
+    return union([base, ribs])
 
 
 # --------------------------------------------------------------------------- export
@@ -527,11 +731,18 @@ def build(c, outdir):
     phi_stop = stop_angle(c, e)
     tilt, base, foot = stand_pose(c, phi_stop)
 
-    frame = build_frame(c)
-    ring = build_lip_support(c) if c.lip_support else M()
     leg = build_leg(c, e)
-    panel = build_panel(c, e)
     photo = build_photo(c)
+    comb = M()
+    if c.closure == "slide":
+        body = frame_body(c)
+        frame = build_frame_slide(c, body)
+        panel = build_panel_slide(c, e, body)
+        comb = build_comb(c, frame)
+    else:
+        frame = build_frame(c)
+        panel = build_panel(c, e)
+    ring = build_lip_support(c) if c.lip_support else M()
 
     rep = {"variant": c.name, "title": c.title, "cfg": {k: v for k, v in asdict(c).items() if k != "d"},
            "derived": d}
@@ -550,7 +761,10 @@ def build(c, outdir):
         pparts["front_frame_right"] = union([right, ring - lr])
     else:
         rparts["frame"] = frame
-        pparts["front_frame"] = union([frame, ring])
+        pparts["front_frame"] = union([frame, ring, comb])
+        if c.closure == "slide":
+            rparts["comb"] = comb
+            rparts["ring"] = ring
     rparts["panel"], rparts["leg"], rparts["photo"] = panel, leg, photo
     pparts["back_panel_with_stand"] = union([panel, leg])
 
@@ -596,6 +810,22 @@ def build(c, outdir):
     rep["ring_frame_overlap_mm3"] = (ring ^ frame).volume() if c.lip_support else 0.0
     rep["min_gap_panel_leg_mm"] = panel.min_gap(leg, 2.0)
     rep["min_gap_ring_frame_mm"] = ring.min_gap(frame, 2.0) if c.lip_support else None
+    if c.closure == "slide":
+        rep["comb_frame_overlap_mm3"] = (comb ^ frame).volume()
+        rep["min_gap_comb_frame_mm"] = comb.min_gap(frame, 2.0)
+        # sliding check: panel (+ folded leg) pulled up by dy must not hit the frame,
+        # except the two detent bumps passing the ridges near the closed position
+        _, bump, ridge = detent_geom(c)
+        bumps = both_sides(bump)
+        body_only = panel - bumps.translate((0, 0, 0))
+        slide = []
+        for dy in (0.0, 0.3, 1.0, 2.0, 3.0, 4.0, 6.0, 10.0, 40.0, 120.0, 230.0):
+            pv = (body_only.translate((0, dy, 0)) ^ frame).volume()
+            lv = (leg.translate((0, dy, 0)) ^ frame).volume()
+            bv = (bumps.translate((0, dy, 0)) ^ frame).volume()
+            slide.append((dy, round(pv, 3), round(lv, 3), round(bv, 3)))
+        rep["slide_check_dy_panel_leg_bump_mm3"] = slide
+        rep["min_gap_panel_frame_mm"] = body_only.min_gap(frame, 2.0)
 
     with open(os.path.join(outdir, "report.json"), "w") as fh:
         json.dump(rep, fh, indent=1, default=str)
@@ -604,14 +834,16 @@ def build(c, outdir):
 
 if __name__ == "__main__":
     which = sys.argv[1] if len(sys.argv) > 1 else "all"
-    cfgs = {"A": variant_A, "B": variant_B}
+    cfgs = {"S": variant_S, "A": variant_A, "B": variant_B}
     for k in (cfgs if which == "all" else [which]):
         c = cfgs[k]()
         out = os.path.join(HERE, "build", k)
         r = build(c, out)
         keys = ("variant", "stand", "leg_sweep_overlap_mm3", "leg_frame_overlap_mm3", "panel_frame_overlap_mm3",
-                "ring_frame_overlap_mm3", "min_gap_panel_leg_mm", "min_gap_ring_frame_mm", "filament_total_g")
-        print(json.dumps({kk: r[kk] for kk in keys}, indent=1, default=str))
+                "ring_frame_overlap_mm3", "min_gap_panel_leg_mm", "min_gap_ring_frame_mm", "filament_total_g",
+                "comb_frame_overlap_mm3", "min_gap_comb_frame_mm", "slide_check_dy_panel_leg_bump_mm3",
+                "min_gap_panel_frame_mm")
+        print(json.dumps({kk: r.get(kk) for kk in keys}, default=str))
         for p, inf in r["print_parts"].items():
             print(f"  {p:24s} size={tuple(round(s,1) for s in inf['size'])} bodies={inf['bodies']} "
                   f"fil={inf['filament_g']:.0f}g overhang>50={inf['overhang_mm2_gt50deg']:.0f}mm2 fits={inf['fits_A2L']}")
