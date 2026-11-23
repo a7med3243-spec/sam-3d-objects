@@ -20,7 +20,7 @@ part = "insert"; // [frame:Front frame, cover:Back cover, insert:Name plate, pla
 
 /* [Name plate text] */
 // Country / city / date ... (Arabic is supported)
-label = "PARIS";
+label = "TURKEY";
 // Optional smaller second line (leave empty for one line)
 second_line = "";
 text_style = "raised"; // [raised:Raised (2 colours by filament change), engraved:Engraved]

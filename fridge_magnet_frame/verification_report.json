@@ -21,6 +21,11 @@
    "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4776, volume=1.33 cm3"
   },
   {
+   "name": "mesh integrity: nameplate_TURKEY",
+   "ok": true,
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=2908, volume=1.33 cm3"
+  },
+  {
    "name": "mesh integrity: nameplate_arabic_baris",
    "ok": true,
    "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5108, volume=1.32 cm3"
@@ -137,6 +142,11 @@
   },
   {
    "name": "nameplate fit: nameplate_PARIS",
+   "ok": true,
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+  },
+  {
+   "name": "nameplate fit: nameplate_TURKEY",
    "ok": true,
    "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
@@ -266,6 +276,11 @@
    "detail": "text 19.6 x 4.9 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
+   "name": "text fits plate: nameplate_TURKEY",
+   "ok": true,
+   "detail": "text 24.5 x 4.3 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
+  },
+  {
    "name": "text fits plate: nameplate_arabic_baris",
    "ok": true,
    "detail": "text 16.5 x 6.0 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
@@ -342,6 +357,11 @@
    11.35,
    5.0
   ],
+  "nameplate_TURKEY_size": [
+   33.2,
+   11.35,
+   5.0
+  ],
   "nameplate_arabic_baris_size": [
    33.2,
    11.35,
@@ -414,6 +434,7 @@
   ],
   "nameplate_2026_front_z": -0.6,
   "nameplate_PARIS_front_z": -0.6,
+  "nameplate_TURKEY_front_z": -0.6,
   "nameplate_arabic_baris_front_z": -0.6,
   "nameplate_engraved_example_front_z": -0.0,
   "nameplate_test_t1_front_z": -0.6,
