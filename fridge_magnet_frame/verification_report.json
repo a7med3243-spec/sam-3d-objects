@@ -3,102 +3,102 @@
   {
    "name": "mesh integrity: frame",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=13596, volume=3.65 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=22292, volume=5.04 cm3"
   },
   {
    "name": "mesh integrity: cover",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=7148, volume=6.35 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=7148, volume=7.23 cm3"
   },
   {
    "name": "mesh integrity: nameplate_2026",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5716, volume=1.24 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6592, volume=1.32 cm3"
   },
   {
    "name": "mesh integrity: nameplate_PARIS",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=3904, volume=1.25 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4776, volume=1.33 cm3"
   },
   {
    "name": "mesh integrity: nameplate_arabic_baris",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4228, volume=1.24 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5108, volume=1.32 cm3"
   },
   {
    "name": "mesh integrity: nameplate_engraved_example",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=8016, volume=1.19 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4008, volume=1.27 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t1",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5932, volume=1.24 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6812, volume=1.32 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t10",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=3904, volume=1.25 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4776, volume=1.33 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t11",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5716, volume=1.24 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6592, volume=1.32 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t12",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4228, volume=1.24 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5108, volume=1.32 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t2",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=9056, volume=1.24 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=9932, volume=1.32 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t3",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=9496, volume=1.24 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=10368, volume=1.32 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t4",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5424, volume=1.25 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6304, volume=1.33 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t5",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=2792, volume=1.24 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=3668, volume=1.32 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t6",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6796, volume=1.24 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=7676, volume=1.32 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t7",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=9952, volume=1.24 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=10832, volume=1.32 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t8",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=10100, volume=1.23 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=10988, volume=1.31 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t9",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5128, volume=1.23 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6008, volume=1.31 cm3"
   },
   {
    "name": "frame size",
    "ok": true,
-   "detail": "92.0 x 72.2 x 3.60 mm (body 92 x 60 + name tab 40 x 12.2)"
+   "detail": "93.6 x 73.1 x 4.40 mm (body 93.6 x 61.6 + name tab 38 x 11.5)"
   },
   {
    "name": "cover size",
    "ok": true,
-   "detail": "86.30 x 56.10 x 2.00 mm (incl. hook + tongues)"
+   "detail": "86.30 x 56.10 x 2.20 mm (incl. hook + tongues)"
   },
   {
    "name": "no collision frame/cover (cover pulled back on ledges)",
@@ -123,92 +123,92 @@
   {
    "name": "magnet crush ribs grip the magnets",
    "ok": true,
-   "detail": "rib/magnet interference 0.156 mm3 total (4 magnets)"
+   "detail": "rib/magnet interference 0.185 mm3 total (4 magnets)"
   },
   {
    "name": "magnets hidden behind skin",
    "ok": true,
-   "detail": "0.4 mm skin to fridge, magnet top 0.1 mm below photo side"
+   "detail": "0.4 mm skin to fridge, magnet top 0.3 mm below photo side"
   },
   {
    "name": "nameplate fit: nameplate_2026",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_PARIS",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_arabic_baris",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_engraved_example",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t1",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t10",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t11",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t12",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t2",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t3",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t4",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t5",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t6",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t7",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t8",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "nameplate fit: nameplate_test_t9",
    "ok": true,
-   "detail": "press-fit rib interference 0.172 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
   },
   {
    "name": "pull-out test: cover is held by hook + 2 tongues",
@@ -218,7 +218,7 @@
   {
    "name": "tilt-in insertion at tongues is collision-free",
    "ok": true,
-   "detail": "max overlap 0.0002 mm2 along a 25 deg -> 0 deg swing"
+   "detail": "max overlap 0.0003 mm2 along a 25 deg -> 0 deg swing"
   },
   {
    "name": "snap hook deflection is within the flexure travel",
@@ -233,12 +233,12 @@
   {
    "name": "printable without supports: frame",
    "ok": true,
-   "detail": "3 flat bridge/overhang areas above the bed (all other faces <= 45 deg); widest bridge 1.2 mm (<= 8.5 mm prints cleanly): [{'z': 2.6, 'area': 12.72, 'short_span': 1.2}, {'z': 2.6, 'area': 12.72, 'short_span': 1.2}, {'z': 2.6, 'area': 9.01, 'short_span': 0.85}]"
+   "detail": "3 flat bridge/overhang areas above the bed (all other faces <= 45 deg); widest bridge 1.2 mm (<= 8.5 mm prints cleanly): [{'z': 3.4, 'area': 12.72, 'short_span': 1.2}, {'z': 3.4, 'area': 12.72, 'short_span': 1.2}, {'z': 3.4, 'area': 9.01, 'short_span': 0.85}]"
   },
   {
    "name": "printable without supports: cover",
    "ok": true,
-   "detail": "4 flat bridge/overhang areas above the bed (all other faces <= 45 deg); widest bridge 8.3 mm (<= 8.5 mm prints cleanly): [{'z': 1.6, 'area': 53.74, 'short_span': 8.3}, {'z': 1.6, 'area': 53.74, 'short_span': 8.3}, {'z': 1.6, 'area': 53.74, 'short_span': 8.3}, {'z': 1.6, 'area': 53.74, 'short_span': 8.3}]"
+   "detail": "4 flat bridge/overhang areas above the bed (all other faces <= 45 deg); widest bridge 8.3 mm (<= 8.5 mm prints cleanly): [{'z': 1.8, 'area': 53.74, 'short_span': 8.3}, {'z': 1.8, 'area': 53.74, 'short_span': 8.3}, {'z': 1.8, 'area': 53.74, 'short_span': 8.3}, {'z': 1.8, 'area': 53.74, 'short_span': 8.3}]"
   },
   {
    "name": "printable without supports: nameplate_2026",
@@ -248,174 +248,174 @@
   {
    "name": "vertical walls >= 0.8 mm (2 perimeters): frame",
    "ok": true,
-   "detail": "wall thickness 0.5th pct 1.20 mm, 5th pct 1.20 mm, median 2.70 mm"
+   "detail": "wall thickness 0.5th pct 1.40 mm, 5th pct 1.40 mm, median 3.50 mm"
   },
   {
    "name": "vertical walls >= 0.8 mm (2 perimeters): cover",
    "ok": true,
-   "detail": "wall thickness 0.5th pct 1.20 mm, 5th pct 1.50 mm, median 4.94 mm"
+   "detail": "wall thickness 0.5th pct 1.20 mm, 5th pct 1.50 mm, median 5.74 mm"
   },
   {
    "name": "text fits plate: nameplate_2026",
    "ok": true,
-   "detail": "text 15.3 x 5.1 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 14.7 x 4.9 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_PARIS",
    "ok": true,
-   "detail": "text 20.4 x 5.1 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 19.6 x 4.9 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_arabic_baris",
    "ok": true,
-   "detail": "text 17.2 x 6.2 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 16.5 x 6.0 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t1",
    "ok": true,
-   "detail": "text 27.2 x 2.7 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 25.3 x 2.5 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t10",
    "ok": true,
-   "detail": "text 20.4 x 5.1 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 19.6 x 4.9 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t11",
    "ok": true,
-   "detail": "text 15.3 x 5.1 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 14.7 x 4.9 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t12",
    "ok": true,
-   "detail": "text 17.2 x 6.2 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 16.5 x 6.0 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t2",
    "ok": true,
-   "detail": "text 26.1 x 3.8 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 24.3 x 3.6 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t3",
    "ok": true,
-   "detail": "text 26.9 x 3.3 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 25.0 x 3.1 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t4",
    "ok": true,
-   "detail": "text 22.7 x 6.7 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 21.8 x 6.5 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t5",
    "ok": true,
-   "detail": "text 26.4 x 3.2 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 24.5 x 3.0 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t6",
    "ok": true,
-   "detail": "text 24.3 x 5.6 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 22.6 x 5.2 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t7",
    "ok": true,
-   "detail": "text 24.6 x 4.6 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 22.9 x 4.3 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t8",
    "ok": true,
-   "detail": "text 20.0 x 3.0 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 18.6 x 2.8 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
   {
    "name": "text fits plate: nameplate_test_t9",
    "ok": true,
-   "detail": "text 11.0 x 6.5 mm on a 30.7 x 8.3 mm face"
+   "detail": "text 10.6 x 6.3 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   }
  ],
  "info": {
   "nameplate_2026_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_PARIS_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_arabic_baris_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_engraved_example_size": [
-   34.3,
-   11.4,
-   3.6
+   33.2,
+   11.35,
+   4.4
   ],
   "nameplate_test_t1_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t10_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t11_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t12_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t2_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t3_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t4_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t5_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t6_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t7_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t8_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_test_t9_size": [
-   34.3,
-   11.4,
-   4.2
+   33.2,
+   11.35,
+   5.0
   ],
   "nameplate_2026_front_z": -0.6,
   "nameplate_PARIS_front_z": -0.6,
   "nameplate_arabic_baris_front_z": -0.6,
-  "nameplate_engraved_example_front_z": 0.0,
+  "nameplate_engraved_example_front_z": -0.0,
   "nameplate_test_t1_front_z": -0.6,
   "nameplate_test_t10_front_z": -0.6,
   "nameplate_test_t11_front_z": -0.6,
@@ -435,9 +435,9 @@
   "hook_deflection_needed_mm": 0.65,
   "latch_strain_snap-in": 0.73,
   "latch_strain_hard stop": 1.35,
-  "weight_frame_g_PLA": 4.5,
-  "weight_cover_g_PLA": 7.9,
-  "weight_nameplate_2026_g_PLA": 1.5,
-  "weight_total_g_PLA": 13.9
+  "weight_frame_g_PLA": 6.2,
+  "weight_cover_g_PLA": 9.0,
+  "weight_nameplate_2026_g_PLA": 1.6,
+  "weight_total_g_PLA": 16.9
  }
 }

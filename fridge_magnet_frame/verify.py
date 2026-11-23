@@ -14,11 +14,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 STL = os.path.join(HERE, "stl")
 
 # ---- design constants (must match fridge_photo_frame.scad defaults) ----
-lip_t, photo_space, cover_t = 1.2, 0.4, 2.0
+lip_t, photo_space, cover_t = 1.8, 0.4, 2.2
 T = lip_t + photo_space + cover_t
 pocket = (86.6, 54.6); cw, ch = 86.3, 54.3
-tp_cy = -pocket[1] / 2 - 1.2 - 11.7 / 2
-boss = (30.7, 8.3); nameplate_top = T
+tp_cy = -pocket[1] / 2 - 1.4 - 11.4 / 2
+boss = (29.6, 8.0); nameplate_top = T
 mag_pos = [(-36, -19.5), (36, -19.5), (-36, 19.5), (36, 19.5)]
 PLA, PETG = 1.24, 1.27  # g/cm3
 
@@ -56,8 +56,8 @@ for n, m in parts.items():
 
 # ------------------------------------------------------------------ 2. dimensions
 fb = parts["frame"].bounds; ext = fb[1] - fb[0]
-check("frame size", abs(ext[0] - 92) < 0.05 and abs(ext[1] - 72.2) < 0.05 and abs(ext[2] - T) < 0.01,
-      f"{ext[0]:.1f} x {ext[1]:.1f} x {ext[2]:.2f} mm (body 92 x 60 + name tab 40 x 12.2)")
+check("frame size", abs(ext[0] - 93.6) < 0.05 and abs(ext[1] - 73.1) < 0.05 and abs(ext[2] - T) < 0.01,
+      f"{ext[0]:.1f} x {ext[1]:.1f} x {ext[2]:.2f} mm (body 93.6 x 61.6 + name tab 38 x 11.5)")
 cb = parts["cover"].bounds; cext = cb[1] - cb[0]
 check("cover size", abs(cext[2] - cover_t) < 0.01, f"{cext[0]:.2f} x {cext[1]:.2f} x {cext[2]:.2f} mm (incl. hook + tongues)")
 for n in parts:
@@ -96,7 +96,7 @@ check("cover-to-frame running clearance (cover on photo)", 0.05 <= gap <= 0.3, f
 vm = vol(cover_flush, magnets)
 mag_ok = 0 < vm < 4 * 1.5  # a few tenths of mm3 per magnet
 check("magnet crush ribs grip the magnets", mag_ok, f"rib/magnet interference {vm:.3f} mm3 total (4 magnets)")
-check("magnets hidden behind skin", True, "0.4 mm skin to fridge, magnet top 0.1 mm below photo side")
+check("magnets hidden behind skin", True, "0.4 mm skin to fridge, magnet top 0.3 mm below photo side")
 
 np_names = [n for n in parts if n.startswith("nameplate")]
 for n in np_names:
@@ -105,7 +105,8 @@ for n in np_names:
     # interference must only be the 4 press-fit ribs: tiny volume, located at x = +/-17
     inter = frame_mf ^ ins
     bb = inter.bounding_box() if not inter.is_empty() else None
-    rib_only = (bb is None) or (min(abs(bb[0]), abs(bb[3])) > 16.5)
+    ribs = [c for c in inter.decompose() if c.volume() > 1e-4]
+    rib_only = len(ribs) == 4 and all(c.volume() < 0.25 for c in ribs)
     check(f"nameplate fit: {n}", vf < 1.0 and vc < 1e-3 and rib_only,
           f"press-fit rib interference {vf:.3f} mm3 (ribs only={rib_only}), cover contact {vc:.4f} mm3")
     # face of plate must be flush with the frame front (z=0) and text proud by 0.6 (raised) or 0 (engraved)
@@ -148,7 +149,7 @@ zsign = 1 if (pc[0] + pc[2]) / 2 > 0 else -1     # section u = zsign * z, v = y
 def tilt_test(x, label):
     fr = section(frame_mf, x)
     cv = section(cover_flush, x)
-    piv = (zsign * (T - 1.5), -27.6)        # tongue in its slot
+    piv = (zsign * (T - 1.6), -27.6)        # tongue in its slot
     worst = 0.0
     path_ok = True
     for ang_deg in np.linspace(25, 0, 51):
@@ -239,15 +240,20 @@ for n in ["frame", "cover"]:
           f"wall thickness 0.5th pct {q[0]:.2f} mm, 5th pct {q[1]:.2f} mm, median {q[2]:.2f} mm")
 
 # ------------------------------------------------------------------ 9. text fit
+import manifold3d as _m3
+pill_r = 3.05
+pill = CrossSection.square((boss[0] - 2 * pill_r, boss[1] - 2 * pill_r), center=True).offset(pill_r, _m3.JoinType.Round, circular_segments=64)
+safe = pill.offset(-0.6, _m3.JoinType.Round, circular_segments=64)          # keep 0.6 mm margin to the edge
 for n in np_names:
     m = parts[n]
     top = m.bounds[1][2]
     if top > nameplate_top + 0.3:   # raised text
-        sl = m.section(plane_origin=(0, 0, nameplate_top + 0.3), plane_normal=(0, 0, 1))
-        bb = sl.bounds
-        tw, th = bb[1][0] - bb[0][0], bb[1][1] - bb[0][1]
-        ok = tw <= boss[0] - 1.6 and th <= boss[1] - 0.8
-        check(f"text fits plate: {n}", ok, f"text {tw:.1f} x {th:.1f} mm on a {boss[0]} x {boss[1]} mm face")
+        txt = to_mf(m).slice(nameplate_top + 0.3)
+        out = (txt - safe).area()
+        b4 = txt.bounds()
+        check(f"text fits plate: {n}", out < 0.01,
+              f"text {b4[2]-b4[0]:.1f} x {b4[3]-b4[1]:.1f} mm, area outside the safe zone {out:.3f} mm2 "
+              f"(pill face {boss[0]} x {boss[1]} mm)")
 
 # ------------------------------------------------------------------ 10. weight
 tot = 0

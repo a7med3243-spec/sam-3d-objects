@@ -25,7 +25,7 @@ label = "PARIS";
 second_line = "";
 text_style = "raised"; // [raised:Raised (2 colours by filament change), engraved:Engraved]
 // Max text height (it shrinks automatically if the text is long)
-text_size = 5.2;
+text_size = 5.0;
 // Raised height / engraving depth
 text_depth = 0.6;
 font_latin = "Liberation Sans:style=Bold";
@@ -39,7 +39,7 @@ photo_space = 0.4; // [0.4, 0.6, 0.8, 1.0]
 // Side clearance around the photo (per side)
 photo_clr = 0.3;
 // How much the front lip covers the photo edge (per side)
-lip_overlap = 1.5;
+lip_overlap = 1.2;
 
 /* [Magnets] */
 mag_d = 8;
@@ -62,28 +62,29 @@ $fa = 3; $fs = 0.2;
 eps = 0.01;
 
 // ---------------- derived dimensions ----------------
-lip_t    = 1.2;                                   // front lip (6 layers @0.2)
-cover_t  = max(2.0, mag_t + 0.1 + mag_skin);      // back cover thickness
-T        = lip_t + photo_space + cover_t;         // total thickness (3.6 default)
+lip_t    = 1.8;                                   // thick front lip (9 layers @0.2)
+cover_t  = max(2.2, mag_t + 0.1 + mag_skin);      // back cover thickness
+T        = lip_t + photo_space + cover_t;         // total thickness (4.4 default, like the reference)
 pocket   = [photo_w + 2*photo_clr, photo_h + 2*photo_clr];   // 86.6 x 54.6
 pocket_r = 1.0;                                    // sharp photo corners still fit
-window   = [photo_w - 2*lip_overlap, photo_h - 2*lip_overlap]; // 83 x 51
-win_r    = 2.0;
-wall     = 2.7;
-outer    = pocket + [2*wall, 2*wall];             // 92 x 60
-R_out    = 4.5;
+window   = [photo_w - 2*lip_overlap, photo_h - 2*lip_overlap]; // 83.6 x 51.6
+win_r    = 5.0;                                   // soft window corners
+wall     = 3.5;
+outer    = pocket + [2*wall, 2*wall];             // 93.6 x 61.6
+R_out    = 9.0;                                   // large rounded corners
 
 // name-plate socket in the bottom tab
-nwin      = [31, 8.6];  nwin_r = 2.0;             // visible window
+tab_w     = 38;  tab_h = 11.5;                    // bottom tab (below the body)
+tab_r     = 5;   fil_r = 4;                        // tab corners / blend into body
 shoulder  = 1.4;                                   // lip that stops the plate
-tab_pocket= nwin + 2*[shoulder + insert_clr, shoulder + insert_clr]; // 34.1 x 11.7
-tp_r      = 1.5;
-sep       = 1.2;                                   // wall between photo and plate
-tp_top    = -pocket.y/2 - sep;
+sep       = 1.4;                                   // wall between photo and plate
+tab_bot   = -outer.y/2 - tab_h;                    // -42.3
+tp_top    = -pocket.y/2 - sep;                     // -28.7
+tab_pocket= [tab_w - 2*2.5, tp_top - (tab_bot + 2.2)];   // 33 x 11.4 (walls 2.5 / 2.2)
 tp_cy     = tp_top - tab_pocket.y/2;               // socket / window centre y
-tab_w     = tab_pocket.x + 2*3;                    // tab width (side walls 3 mm)
-tab_bot   = tp_top - tab_pocket.y - 2.0;           // tab bottom y (bottom wall 2 mm)
-tab_r     = 4;  fil_r = 3;
+nwin      = tab_pocket - 2*[shoulder + insert_clr, shoulder + insert_clr]; // 29.9 x 8.3
+nwin_r    = 3.2;                                   // pill-shaped name plate
+tp_r      = nwin_r + shoulder + insert_clr;
 
 // back cover
 cw   = pocket.x - 2*cover_clr;                     // 86.3
@@ -139,16 +140,18 @@ function outline_pts(d, n = 18) =
     );
 module frame_outline_2d(d = 0) polygon(outline_pts(d));
 
-// front edge: printable "teardrop" fillet (45 deg at the bed, round above)
-// back edge : quarter-round
-rf = 1.0;  rb = 0.8;
-function front_d(z) = z < rf*(1 - 1/sqrt(2)) ? rf*(2 - sqrt(2)) - z
-                                             : rf - sqrt(max(0, rf*rf - (rf - z)*(rf - z)));
+// front edges: printable "teardrop" fillet (45 deg at the bed, round above)
+// back edge  : quarter-round
+rf = 2.0;  rb = 1.5;  rw = 1.2;  rn = 0.8;       // outer front, outer back, photo window, name window
+function tear_d(z, r) = z < r*(1 - 1/sqrt(2)) ? r*(2 - sqrt(2)) - z
+                                              : (z >= r ? 0 : r - sqrt(max(0, r*r - (r - z)*(r - z))));
 function back_d(z)  = let(u = z - (T - rb)) u <= 0 ? 0 : rb - sqrt(max(0, rb*rb - u*u));
 function edge_profile() = concat(
-    [for (i = [0:20]) let(z = rf*i/20) [z, front_d(z)]],
-    [for (i = [0:16]) let(z = T - rb + rb*i/16) [z, back_d(z)]]
+    [for (i = [0:24]) let(z = rf*i/24) [z, tear_d(z, rf)]],
+    [for (i = [0:18]) let(z = T - rb + rb*i/18) [z, back_d(z)]]
 );
+// window cutter profile: rounded front edge, straight through the lip
+function win_profile(r) = concat([[-0.3, tear_d(0, r) + 0.3]], [for (i = [0:12]) let(z = r*i/12) [z, tear_d(z, r)]], [[lip_t + 1, 0]]);
 
 module loft_outline(profile) {
     rings = [for (p = profile) [for (q = outline_pts(p[1])) [q.x, q.y, p[0]]]];
@@ -172,10 +175,10 @@ module frame() {
     ledge_z = T - latch_a;                         // underside of the retaining ledges
     difference() {
         loft_outline(edge_profile());
-        // photo window with 0.5 mm front chamfer
-        lofted(window, win_r, [[-0.5, 1.0], [0.5, 0], [lip_t + 1, 0]]);
-        // name window with 0.5 mm front chamfer
-        translate([0, tp_cy, 0]) lofted(nwin, nwin_r, [[-0.5, 1.0], [0.5, 0], [lip_t + 1, 0]]);
+        // photo window with rounded front edge
+        lofted(window, win_r, win_profile(rw));
+        // name window with rounded front edge
+        translate([0, tp_cy, 0]) lofted(nwin, nwin_r, win_profile(rn));
         // photo + cover pocket, 0.4 mm lead-in chamfer at the back
         lofted(pocket, pocket_r, [[lip_t, 0], [T - 0.4, 0], [T + 0.5, 0.9]]);
         // name-plate socket, 0.3 mm lead-in chamfer
@@ -285,7 +288,7 @@ module label_2d(s, size, maxw) {
                  language = ar ? "ar" : "en");
 }
 module text_2d() {
-    maxw = boss.x - 3.4;
+    maxw = boss.x - 4.2;                           // keeps text inside the pill ends
     if (second_line == "") label_2d(label, text_size, maxw);
     else {
         s1 = min(text_size, 3.6);
@@ -300,12 +303,15 @@ module insert() {
             // flange (0.3 bed chamfer against elephant foot)
             lofted(flange, tp_r - insert_clr, [[0, -0.3], [0.3, 0], [F, 0]]);
             // visible face, flush with the frame front, 0.3 chamfer
-            lofted(boss, nwin_r - 0.15, [[F - eps, 0], [top - 0.3, 0], [top, -0.3]]);
-            // press-fit ribs on the short sides (lead-in taper toward the front)
-            for (sx = [-1, 1], sy = [-1, 1])
-                translate([sx*(flange.x/2 + insert_clr + insert_grip - 0.4), sy*2.6, 0]) hull() {
+            lofted(boss, nwin_r - 0.15, [[F - eps, 0], [top - 0.5, 0], [top - 0.15, -0.12], [top, -0.5]]);
+            // 4 press-fit ribs: middle of both short sides + two on the bottom side
+            // (lead-in taper toward the front)
+            for (rb_ = [[[1, 0], [flange.x/2, 0]], [[-1, 0], [-flange.x/2, 0]],
+                        [[0, -1], [9, -flange.y/2]], [[0, -1], [-9, -flange.y/2]]])
+                let(n = rb_[0], p = rb_[1] + rb_[0]*(insert_clr + insert_grip - 0.4))
+                translate([p.x, p.y, 0]) hull() {
                     translate([0, 0, 0.4]) cylinder(r = 0.4, h = F - 1.2, $fn = 20);
-                    translate([-sx*0.3, 0, F - 0.15]) cylinder(r = 0.1, h = 0.1, $fn = 8);
+                    translate([-n.x*0.3, -n.y*0.3, F - 0.15]) cylinder(r = 0.1, h = 0.1, $fn = 8);
                 }
             if (text_style == "raised")
                 translate([0, 0, top - eps]) linear_extrude(text_depth + eps) text_2d();
