@@ -3,7 +3,7 @@
   {
    "name": "mesh integrity: frame",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=22292, volume=5.04 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=22356, volume=5.03 cm3"
   },
   {
    "name": "mesh integrity: cover",
@@ -13,87 +13,92 @@
   {
    "name": "mesh integrity: nameplate_2026",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6592, volume=1.32 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=7032, volume=1.25 cm3"
   },
   {
    "name": "mesh integrity: nameplate_PARIS",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4776, volume=1.33 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5216, volume=1.26 cm3"
   },
   {
    "name": "mesh integrity: nameplate_TURKEY",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=2908, volume=1.33 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=3348, volume=1.26 cm3"
+  },
+  {
+   "name": "mesh integrity: nameplate_TURKEY_tight",
+   "ok": true,
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=3348, volume=1.26 cm3"
   },
   {
    "name": "mesh integrity: nameplate_arabic_baris",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5108, volume=1.32 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5548, volume=1.25 cm3"
   },
   {
    "name": "mesh integrity: nameplate_engraved_example",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4008, volume=1.27 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4448, volume=1.20 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t1",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6812, volume=1.32 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=7252, volume=1.24 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t10",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4776, volume=1.33 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5216, volume=1.26 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t11",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6592, volume=1.32 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=7032, volume=1.25 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t12",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5108, volume=1.32 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=5548, volume=1.25 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t2",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=9932, volume=1.32 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=10372, volume=1.25 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t3",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=10368, volume=1.32 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=10808, volume=1.25 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t4",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6304, volume=1.33 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6744, volume=1.26 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t5",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=3668, volume=1.32 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=4108, volume=1.25 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t6",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=7676, volume=1.32 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=8116, volume=1.25 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t7",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=10832, volume=1.32 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=11272, volume=1.24 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t8",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=10988, volume=1.31 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=11428, volume=1.24 cm3"
   },
   {
    "name": "mesh integrity: nameplate_test_t9",
    "ok": true,
-   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6008, volume=1.31 cm3"
+   "detail": "watertight=True, winding=True, manifold=NoError, bodies=1, triangles=6448, volume=1.24 cm3"
   },
   {
    "name": "frame size",
@@ -136,89 +141,184 @@
    "detail": "0.4 mm skin to fridge, magnet top 0.3 mm below photo side"
   },
   {
-   "name": "nameplate fit: nameplate_2026",
+   "name": "nameplate hold in updated frame: nameplate_2026",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
   },
   {
-   "name": "nameplate fit: nameplate_PARIS",
+   "name": "nameplate hold in your printed frame: nameplate_2026",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
   },
   {
-   "name": "nameplate fit: nameplate_TURKEY",
+   "name": "nameplate hold in updated frame: nameplate_PARIS",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.30 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~6.6 N, arm strain 0.77 %"
   },
   {
-   "name": "nameplate fit: nameplate_arabic_baris",
+   "name": "nameplate hold in your printed frame: nameplate_PARIS",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
   },
   {
-   "name": "nameplate fit: nameplate_engraved_example",
+   "name": "nameplate hold in updated frame: nameplate_TURKEY",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.30 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~6.6 N, arm strain 0.77 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t1",
+   "name": "nameplate hold in your printed frame: nameplate_TURKEY",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t10",
+   "name": "nameplate hold in updated frame: nameplate_TURKEY_tight",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.30 mm, max arm deflection while pushing in/out 0.60 mm (slot 0.65), click 0.30 mm; holding friction ~0.7 N (plate weighs 0.016 N), push-out ~8.8 N, arm strain 1.02 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t11",
+   "name": "nameplate hold in your printed frame: nameplate_TURKEY_tight",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.60 mm, max arm deflection while pushing in/out 0.60 mm (slot 0.65), click 0.00 mm; holding friction ~1.4 N (plate weighs 0.016 N), push-out ~1.4 N, arm strain 1.02 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t12",
+   "name": "nameplate hold in updated frame: nameplate_arabic_baris",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t2",
+   "name": "nameplate hold in your printed frame: nameplate_arabic_baris",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t3",
+   "name": "nameplate hold in updated frame: nameplate_engraved_example",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t4",
+   "name": "nameplate hold in your printed frame: nameplate_engraved_example",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t5",
+   "name": "nameplate hold in updated frame: nameplate_test_t1",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t6",
+   "name": "nameplate hold in your printed frame: nameplate_test_t1",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t7",
+   "name": "nameplate hold in updated frame: nameplate_test_t10",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t8",
+   "name": "nameplate hold in your printed frame: nameplate_test_t10",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
   },
   {
-   "name": "nameplate fit: nameplate_test_t9",
+   "name": "nameplate hold in updated frame: nameplate_test_t11",
    "ok": true,
-   "detail": "press-fit rib interference 0.200 mm3 (ribs only=True), cover contact 0.0000 mm3"
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
+  },
+  {
+   "name": "nameplate hold in your printed frame: nameplate_test_t11",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
+  },
+  {
+   "name": "nameplate hold in updated frame: nameplate_test_t12",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
+  },
+  {
+   "name": "nameplate hold in your printed frame: nameplate_test_t12",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
+  },
+  {
+   "name": "nameplate hold in updated frame: nameplate_test_t2",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
+  },
+  {
+   "name": "nameplate hold in your printed frame: nameplate_test_t2",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
+  },
+  {
+   "name": "nameplate hold in updated frame: nameplate_test_t3",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
+  },
+  {
+   "name": "nameplate hold in your printed frame: nameplate_test_t3",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
+  },
+  {
+   "name": "nameplate hold in updated frame: nameplate_test_t4",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
+  },
+  {
+   "name": "nameplate hold in your printed frame: nameplate_test_t4",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
+  },
+  {
+   "name": "nameplate hold in updated frame: nameplate_test_t5",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
+  },
+  {
+   "name": "nameplate hold in your printed frame: nameplate_test_t5",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
+  },
+  {
+   "name": "nameplate hold in updated frame: nameplate_test_t6",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
+  },
+  {
+   "name": "nameplate hold in your printed frame: nameplate_test_t6",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
+  },
+  {
+   "name": "nameplate hold in updated frame: nameplate_test_t7",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
+  },
+  {
+   "name": "nameplate hold in your printed frame: nameplate_test_t7",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
+  },
+  {
+   "name": "nameplate hold in updated frame: nameplate_test_t8",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
+  },
+  {
+   "name": "nameplate hold in your printed frame: nameplate_test_t8",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
+  },
+  {
+   "name": "nameplate hold in updated frame: nameplate_test_t9",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.15 mm, max arm deflection while pushing in/out 0.15 mm (slot 0.65), click 0.00 mm; holding friction ~0.4 N (plate weighs 0.016 N), push-out ~0.4 N, arm strain 0.26 %"
+  },
+  {
+   "name": "nameplate hold in your printed frame: nameplate_test_t9",
+   "ok": true,
+   "detail": "only the 4 spring bumps touch=True; seated preload 0.45 mm, max arm deflection while pushing in/out 0.45 mm (slot 0.65), click 0.00 mm; holding friction ~1.1 N (plate weighs 0.016 N), push-out ~1.1 N, arm strain 0.77 %"
   },
   {
    "name": "pull-out test: cover is held by hook + 2 tongues",
@@ -253,12 +353,12 @@
   {
    "name": "printable without supports: nameplate_2026",
    "ok": true,
-   "detail": "4 flat bridge/overhang areas above the bed (all other faces <= 45 deg); widest bridge 0.25 mm (<= 8.5 mm prints cleanly): [{'z': 0.4, 'area': 0.13, 'short_span': 0.25}, {'z': 0.4, 'area': 0.13, 'short_span': 0.25}, {'z': 0.4, 'area': 0.13, 'short_span': 0.25}, {'z': 0.4, 'area': 0.13, 'short_span': 0.25}]"
+   "detail": "8 flat bridge/overhang areas above the bed (all other faces <= 45 deg); widest bridge 1.5 mm (<= 8.5 mm prints cleanly): [{'z': 0.2, 'area': 0.24, 'short_span': 0.1}, {'z': 0.2, 'area': 0.24, 'short_span': 0.1}, {'z': 0.2, 'area': 0.24, 'short_span': 0.1}, {'z': 0.2, 'area': 0.24, 'short_span': 0.1}, {'z': 0.2, 'area': 3.59, 'short_span': 1.5}]"
   },
   {
    "name": "vertical walls >= 0.8 mm (2 perimeters): frame",
    "ok": true,
-   "detail": "wall thickness 0.5th pct 1.40 mm, 5th pct 1.40 mm, median 3.50 mm"
+   "detail": "wall thickness 0.5th pct 1.10 mm, 5th pct 1.40 mm, median 3.50 mm"
   },
   {
    "name": "vertical walls >= 0.8 mm (2 perimeters): cover",
@@ -277,6 +377,11 @@
   },
   {
    "name": "text fits plate: nameplate_TURKEY",
+   "ok": true,
+   "detail": "text 24.5 x 4.3 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
+  },
+  {
+   "name": "text fits plate: nameplate_TURKEY_tight",
    "ok": true,
    "detail": "text 24.5 x 4.3 mm, area outside the safe zone 0.000 mm2 (pill face 29.6 x 8.0 mm)"
   },
@@ -348,106 +453,148 @@
  ],
  "info": {
   "nameplate_2026_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_PARIS_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_TURKEY_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
+   5.0
+  ],
+  "nameplate_TURKEY_tight_size": [
+   32.7,
+   12.6,
    5.0
   ],
   "nameplate_arabic_baris_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_engraved_example_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    4.4
   ],
   "nameplate_test_t1_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t10_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t11_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t12_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t2_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t3_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t4_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t5_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t6_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t7_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t8_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
   "nameplate_test_t9_size": [
-   33.2,
-   11.35,
+   32.7,
+   12.3,
    5.0
   ],
+  "nameplate_2026_updated frame_hold_N": 0.35,
+  "nameplate_2026_your printed frame_hold_N": 1.06,
   "nameplate_2026_front_z": -0.6,
+  "nameplate_PARIS_updated frame_hold_N": 0.35,
+  "nameplate_PARIS_your printed frame_hold_N": 1.06,
   "nameplate_PARIS_front_z": -0.6,
+  "nameplate_TURKEY_updated frame_hold_N": 0.35,
+  "nameplate_TURKEY_your printed frame_hold_N": 1.06,
   "nameplate_TURKEY_front_z": -0.6,
+  "nameplate_TURKEY_tight_updated frame_hold_N": 0.71,
+  "nameplate_TURKEY_tight_your printed frame_hold_N": 1.42,
+  "nameplate_TURKEY_tight_front_z": -0.6,
+  "nameplate_arabic_baris_updated frame_hold_N": 0.35,
+  "nameplate_arabic_baris_your printed frame_hold_N": 1.06,
   "nameplate_arabic_baris_front_z": -0.6,
+  "nameplate_engraved_example_updated frame_hold_N": 0.35,
+  "nameplate_engraved_example_your printed frame_hold_N": 1.06,
   "nameplate_engraved_example_front_z": -0.0,
+  "nameplate_test_t1_updated frame_hold_N": 0.35,
+  "nameplate_test_t1_your printed frame_hold_N": 1.06,
   "nameplate_test_t1_front_z": -0.6,
+  "nameplate_test_t10_updated frame_hold_N": 0.35,
+  "nameplate_test_t10_your printed frame_hold_N": 1.06,
   "nameplate_test_t10_front_z": -0.6,
+  "nameplate_test_t11_updated frame_hold_N": 0.35,
+  "nameplate_test_t11_your printed frame_hold_N": 1.06,
   "nameplate_test_t11_front_z": -0.6,
+  "nameplate_test_t12_updated frame_hold_N": 0.35,
+  "nameplate_test_t12_your printed frame_hold_N": 1.06,
   "nameplate_test_t12_front_z": -0.6,
+  "nameplate_test_t2_updated frame_hold_N": 0.35,
+  "nameplate_test_t2_your printed frame_hold_N": 1.06,
   "nameplate_test_t2_front_z": -0.6,
+  "nameplate_test_t3_updated frame_hold_N": 0.35,
+  "nameplate_test_t3_your printed frame_hold_N": 1.06,
   "nameplate_test_t3_front_z": -0.6,
+  "nameplate_test_t4_updated frame_hold_N": 0.35,
+  "nameplate_test_t4_your printed frame_hold_N": 1.06,
   "nameplate_test_t4_front_z": -0.6,
+  "nameplate_test_t5_updated frame_hold_N": 0.35,
+  "nameplate_test_t5_your printed frame_hold_N": 1.06,
   "nameplate_test_t5_front_z": -0.6,
+  "nameplate_test_t6_updated frame_hold_N": 0.35,
+  "nameplate_test_t6_your printed frame_hold_N": 1.06,
   "nameplate_test_t6_front_z": -0.6,
+  "nameplate_test_t7_updated frame_hold_N": 0.35,
+  "nameplate_test_t7_your printed frame_hold_N": 1.06,
   "nameplate_test_t7_front_z": -0.6,
+  "nameplate_test_t8_updated frame_hold_N": 0.35,
+  "nameplate_test_t8_your printed frame_hold_N": 1.06,
   "nameplate_test_t8_front_z": -0.6,
+  "nameplate_test_t9_updated frame_hold_N": 0.35,
+  "nameplate_test_t9_your printed frame_hold_N": 1.06,
   "nameplate_test_t9_front_z": -0.6,
   "retention_faces_mm2": {
    "hook": 6.5,
@@ -458,7 +605,7 @@
   "latch_strain_hard stop": 1.35,
   "weight_frame_g_PLA": 6.2,
   "weight_cover_g_PLA": 9.0,
-  "weight_nameplate_2026_g_PLA": 1.6,
-  "weight_total_g_PLA": 16.9
+  "weight_nameplate_2026_g_PLA": 1.5,
+  "weight_total_g_PLA": 16.8
  }
 }

@@ -99,16 +99,57 @@ check("magnet crush ribs grip the magnets", mag_ok, f"rib/magnet interference {v
 check("magnets hidden behind skin", True, "0.4 mm skin to fridge, magnet top 0.3 mm below photo side")
 
 np_names = [n for n in parts if n.startswith("nameplate")]
+# name plate is held by 4 spring arms (cantilevers) whose bumps press on the socket wall
+ARM_B, ARM_A, ARM_SLOT, ARM_H, E_PLA, MU = 0.8, 8.4, 0.65, T - lip_t, 3500.0, 0.3
+def arm_force(d):                      # N per arm for a bump deflection d (cantilever, load at a)
+    I = ARM_H * ARM_B**3 / 12
+    return 3 * E_PLA * I * d / ARM_A**3
+def bump_contacts(fr, pl):
+    comps = [c for c in (fr ^ pl).decompose() if c.volume() > 1e-5]
+    return comps, [abs((c.bounding_box()[0] + c.bounding_box()[3]) / 2) for c in comps]
+def arm_deflection(fr, pl, sy):
+    """smallest inward move of one spring arm (top: sy=+1, bottom: sy=-1) that clears the frame"""
+    box = Manifold.cube((6, 3.2, 6)).translate((6.5, tp_cy + (3.6 if sy > 0 else -6.8), -1))
+    arm = pl ^ box
+    if (fr ^ arm).volume() < 1e-5:
+        return 0.0
+    lo, hi = 0.0, 1.5
+    for _ in range(14):
+        mid = (lo + hi) / 2
+        if (fr ^ arm.translate((0, -sy * mid, 0))).volume() < 1e-5: hi = mid
+        else: lo = mid
+    return hi
+TAB_BOX = Manifold.cube((44, 16, 8)).translate((-22, tp_cy - 8, -1))
+def plate_test(tag, fr, plate_mf, sweep=True):
+    fr = fr ^ TAB_BOX                                     # only the socket region matters (faster booleans)
+    comps, xs = bump_contacts(fr, plate_mf)
+    only_bumps = len(comps) == 4 and all(7.9 <= xc <= 10.9 for xc in xs)
+    seated = min(arm_deflection(fr, plate_mf, sy) for sy in (1, -1))
+    worst = seated
+    for dz in (np.arange(0.0, ARM_H + 0.25, 0.05) if sweep else []):   # push the plate out toward the back
+        moved = plate_mf.translate((0, 0, dz))
+        worst = max(worst, max(arm_deflection(fr, moved, sy) for sy in (1, -1)))
+    return only_bumps, seated, worst
+SWEEP = {"nameplate_TURKEY", "nameplate_PARIS"}
+frames_to_test = [("updated frame", frame_mf)]
+old = os.environ.get("OLD_FRAME")
+if old:
+    frames_to_test.append(("your printed frame", to_mf(trimesh.load(old, force="mesh"))))
 for n in np_names:
     ins = place_nameplate(parts[n])
-    vf, vc = vol(frame_mf, ins), vol(cover_flush, ins)
-    # interference must only be the 4 press-fit ribs: tiny volume, located at x = +/-17
-    inter = frame_mf ^ ins
-    bb = inter.bounding_box() if not inter.is_empty() else None
-    ribs = [c for c in inter.decompose() if c.volume() > 1e-4]
-    rib_only = len(ribs) == 4 and all(c.volume() < 0.25 for c in ribs)
-    check(f"nameplate fit: {n}", vf < 1.0 and vc < 1e-3 and rib_only,
-          f"press-fit rib interference {vf:.3f} mm3 (ribs only={rib_only}), cover contact {vc:.4f} mm3")
+    vc = vol(cover_flush, ins)
+    for tag, fr in frames_to_test:
+        only_bumps, seated, worst = plate_test(tag, fr, ins, sweep=(n in SWEEP or n.endswith('_tight')))
+        click = worst - seated
+        hold = 4 * arm_force(seated) * MU
+        push = 4 * (arm_force(worst) * (1 + MU) / (1 - MU) if click > 0.05 else arm_force(seated) * MU)   # click: climb the 45 deg ramp; else friction only
+        strain = 3 * ARM_B * worst / (2 * ARM_A**2)
+        ok = only_bumps and vc < 1e-3 and seated >= 0.1 and worst <= ARM_SLOT - 0.03 and strain < 0.02
+        check(f"nameplate hold in {tag}: {n}", ok,
+              f"only the 4 spring bumps touch={only_bumps}; seated preload {seated:.2f} mm, "
+              f"max arm deflection while pushing in/out {worst:.2f} mm (slot {ARM_SLOT}), click {click:.2f} mm; "
+              f"holding friction ~{hold:.1f} N (plate weighs 0.016 N), push-out ~{push:.1f} N, arm strain {strain*100:.2f} %")
+        report["info"][f"{n}_{tag}_hold_N"] = round(hold, 2)
     # face of plate must be flush with the frame front (z=0) and text proud by 0.6 (raised) or 0 (engraved)
     zmin = ins.bounding_box()[2]
     report["info"][n + "_front_z"] = round(zmin, 3)

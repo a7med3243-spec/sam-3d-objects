@@ -54,8 +54,10 @@ mag_grip = 0.05;
 cover_clr = 0.15;
 // Gap between name plate and its socket (per side)
 insert_clr = 0.15;
-// Press-fit interference of the name plate ribs
-insert_grip = 0.1;
+// Name-plate hold: how far the 4 spring arms press on the socket wall (bigger = firmer)
+plate_grip = 0.45; // [0.3:Soft, 0.45:Normal, 0.6:Tight]
+// Click grooves for the name plate in the frame (plates also hold by spring force without them)
+plate_click = true;
 
 /* [Hidden] */
 $fa = 3; $fs = 0.2;
@@ -99,8 +101,13 @@ mag_pos  = [[-36,-19.5],[36,-19.5],[-36,19.5],[36,19.5]];
 mag_pr   = mag_d/2 + 0.15;                         // magnet pocket radius
 recess_d = 0.8;                                    // filament-saving back recess
 
+// name plate spring arms (4 cantilevers on the long edges, bumps near their free ends)
+arm_b  = 0.8;   arm_s = 0.65;                      // arm width (2 perimeters) / flexure slot
+arm_x0 = 1.0;   arm_x1 = 11.0;                     // anchor ... free end (x, each side)
+bump_x = [8.2, 10.6];
+groove_d = 0.3;                                    // click-groove depth in the frame
 // name plate
-flange = tab_pocket - 2*[insert_clr, insert_clr];  // 33.8 x 11.4
+flange = tab_pocket - 2*[insert_clr, insert_clr];  // 32.7 x 11.1
 boss   = nwin - 2*[0.15, 0.15];                    // 30.7 x 8.3
 F      = T - lip_t;                                // flange thickness (flush with back)
 
@@ -177,6 +184,14 @@ module frame() {
         loft_outline(edge_profile());
         // photo window with rounded front edge
         lofted(window, win_r, win_profile(rw));
+        frame_cutters();
+    }
+}
+// Everything a front frame needs inside (same for every frame shape): name window,
+// photo + cover pocket, name-plate socket, tongue slots, latch groove, click grooves.
+module frame_cutters() {
+    ledge_z = T - latch_a;
+    union() {
         // name window with rounded front edge
         translate([0, tp_cy, 0]) lofted(nwin, nwin_r, win_profile(rn));
         // photo + cover pocket, 0.4 mm lead-in chamfer at the back
@@ -190,6 +205,13 @@ module frame() {
         // groove for the snap hook (top)
         translate([-(hook_w + 0.6)/2, pocket.y/2 - 1.0, lip_t])
             cube([hook_w + 0.6, (ch/2 + hook_e + 0.2) - (pocket.y/2 - 1.0), ledge_z - lip_t]);
+        // click grooves for the name-plate spring bumps (45 deg flanks, printable face-down)
+        if (plate_click) for (sx = [-1, 1], sy = [-1, 1])
+            translate([0, tp_cy, T - plate_bump_zc() - 0.1]) mirror([sx < 0 ? 1 : 0, 0, 0]) mirror([0, sy < 0 ? 1 : 0, 0])
+                hull() {
+                    translate([bump_x[0] - 1.2, tab_pocket.y/2 - 0.2, -0.65 - groove_d]) cube([bump_x[1] - bump_x[0] + 2.2, 0.2, 2*(0.65 + groove_d)]);
+                    translate([bump_x[0] - 1.2, tab_pocket.y/2, -0.65]) cube([bump_x[1] - bump_x[0] + 2.2, groove_d, 1.3]);
+                }
     }
 }
 
@@ -304,21 +326,37 @@ module insert() {
             lofted(flange, tp_r - insert_clr, [[0, -0.3], [0.3, 0], [F, 0]]);
             // visible face, flush with the frame front, 0.3 chamfer
             lofted(boss, nwin_r - 0.15, [[F - eps, 0], [top - 0.5, 0], [top - 0.15, -0.12], [top, -0.5]]);
-            // 4 press-fit ribs: middle of both short sides + two on the bottom side
-            // (lead-in taper toward the front)
-            for (rb_ = [[[1, 0], [flange.x/2, 0]], [[-1, 0], [-flange.x/2, 0]],
-                        [[0, -1], [9, -flange.y/2]], [[0, -1], [-9, -flange.y/2]]])
-                let(n = rb_[0], p = rb_[1] + rb_[0]*(insert_clr + insert_grip - 0.4))
-                translate([p.x, p.y, 0]) hull() {
-                    translate([0, 0, 0.4]) cylinder(r = 0.4, h = F - 1.2, $fn = 20);
-                    translate([-n.x*0.3, -n.y*0.3, F - 0.15]) cylinder(r = 0.1, h = 0.1, $fn = 8);
-                }
+            // bumps on the 4 spring arms: they press on the socket wall and click into
+            // the frame grooves. 45 deg ramps both ways -> push in from the back,
+            // push out from the front.
+            for (sx = [-1, 1], sy = [-1, 1]) mirror([sx < 0 ? 1 : 0, 0, 0]) mirror([0, sy < 0 ? 1 : 0, 0]) plate_bump();
             if (text_style == "raised")
                 translate([0, 0, top - eps]) linear_extrude(text_depth + eps) text_2d();
+        }
+        // flexure slots that free the 4 spring arms (wider on the first layer: elephant-foot relief)
+        for (sx = [-1, 1], sy = [-1, 1]) mirror([sx < 0 ? 1 : 0, 0, 0]) mirror([0, sy < 0 ? 1 : 0, 0]) {
+            translate([0, 0, -1]) linear_extrude(1 + F + eps) arm_slot_2d();
+            translate([0, 0, -1]) linear_extrude(1 + 0.2) offset(delta = 0.15) arm_slot_2d();
         }
         if (text_style == "engraved")
             translate([0, 0, top - text_depth]) linear_extrude(text_depth + 1) text_2d();
     }
+}
+function plate_bump_e()  = insert_clr + plate_grip;              // bump height above the flange edge
+function plate_bump_zc() = F/2 + 0.05;                           // bump centre height (plate coords)
+module plate_bump() {
+    e = plate_bump_e();  fy = flange.y/2;
+    r = max(0.6, e);                                              // ramp length -> <= 45 deg
+    hull() {
+        translate([bump_x[0], fy - 0.3, 0.2 + r]) cube([bump_x[1] - bump_x[0], 0.3 + e, max(0.05, F - 0.4 - 2*r)]);
+        translate([bump_x[0], fy - 0.3, 0.2]) cube([bump_x[1] - bump_x[0], 0.3, F - 0.4]);
+    }
+}
+module arm_slot_2d() {
+    fy = flange.y/2;  ys = fy - arm_b - arm_s;
+    translate([arm_x0, ys]) square([arm_x1 + arm_s - arm_x0, arm_s]);
+    translate([arm_x1, ys]) square([arm_s, fy + 1 - ys]);
+    translate([arm_x0, ys + arm_s/2]) circle(d = arm_s, $fn = 24);
 }
 module insert_real() translate([0, tp_cy, T]) rotate([0, 180, 0]) insert();
 
@@ -328,6 +366,7 @@ module insert_real() translate([0, tp_cy, T]) rotate([0, 180, 0]) insert();
 if (part == "frame") frame();
 else if (part == "cover") translate([0, 0, cover_t]) rotate([0, 180, 0]) cover_zc();   // photo side down
 else if (part == "insert") insert();
+else if (part == "cutters") frame_cutters();
 else if (part == "plate") {
     frame();
     translate([0, outer.y/2 + ch/2 + 6 + 8, cover_t]) rotate([0, 180, 0]) cover_zc();

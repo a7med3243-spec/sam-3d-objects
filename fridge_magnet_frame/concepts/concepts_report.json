@@ -1,0 +1,74 @@
+{
+ "stamp": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 8.3,
+  "outline_mm": [
+   102.0,
+   81.5
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 16.4
+ },
+ "airplane": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 12.2,
+  "outline_mm": [
+   108.0,
+   85.5
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 20.9
+ },
+ "retro_tv": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 9.21,
+  "outline_mm": [
+   104.0,
+   110.7
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 21.0
+ },
+ "ottoman": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 10.2,
+  "outline_mm": [
+   104.0,
+   110.4
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 25.0
+ },
+ "boarding_pass": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 8.2,
+  "outline_mm": [
+   136.0,
+   81.0
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 32.1
+ },
+ "suitcase": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 7.7,
+  "outline_mm": [
+   106.0,
+   96.6
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 20.5
+ }
+}
