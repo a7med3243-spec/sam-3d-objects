@@ -1,11 +1,12 @@
 """
-Filament-optimized arch book divider / bookend - parametric generator.
+Filament-optimized book divider / bookend - parametric generator.
 
-Outputs a watertight, print-ready mesh as STL and 3MF (units: mm).
+Outputs watertight, print-ready meshes as STL and 3MF (units: mm) for six
+outline shapes: arch, pointed_arch, house, mountain, tablet, octagon.
 
-Design:
-  * Arch plate 135 x 155 mm with 7 concentric "rainbow" ribs, 3 mm deep, on
-    BOTH faces (front and back look the same; books rest on the rib crests).
+Design (shared by all shapes):
+  * Plate 135 x 155 mm with 7 concentric ribs, 3 mm deep, on BOTH faces; the
+    ribs follow the outline as exact offsets (mitred at sharp corners).
   * The arch is a CLOSED solid, modelled solid on purpose so the slicer fills
     it with light sparse infill (the cheapest way to make a closed shape).
   * Only the BASE is hollowed: a skeleton frame with a large lightening window
@@ -14,9 +15,10 @@ Design:
     cleanly even where they run horizontally over the top of the arch ->
     the part prints upright with NO supports.
 
-Print orientation: as modelled (base flat on the bed, arch standing up).
+Print orientation: as modelled (base flat on the bed, plate standing up).
 
-Run:  python book_divider.py            (needs: pip install manifold3d numpy)
+Run:  python book_divider.py [shape ...]     (default: all shapes -> models/)
+      needs: pip install manifold3d numpy
 """
 
 import math
@@ -25,7 +27,7 @@ import struct
 import zipfile
 
 import numpy as np
-from manifold3d import CrossSection, Manifold
+from manifold3d import CrossSection, JoinType, Manifold, OpType
 
 # --------------------------------------------------------------------------
 # Parameters (mm)
@@ -47,11 +49,9 @@ WINDOW_CORNER_R = 9.0   # lightening window corner radius
 TOP_CHAMFER = 0.8       # base top-edge chamfer
 FOOT_CHAMFER = 0.4      # base bottom-edge chamfer (elephant-foot relief)
 
-ARC_SEGMENTS = 200      # segments over the 180 deg top arc
 PAIR_GAP = 8.0          # gap between the two parts in the pair file
 
 R = WIDTH / 2.0                 # arch outer radius
-H_LEG = HEIGHT - R              # height of the straight legs (arc centre z)
 
 
 # --------------------------------------------------------------------------
@@ -103,28 +103,179 @@ def front_profile():
     return out
 
 
-def plate_section():
-    """Full (mirrored) plate section, rho in [-R, R], ribs on BOTH faces."""
-    half = front_profile()
-    left = [(-x, y) for x, y in reversed(half) if x > 1e-9]
-    front = left + half                                  # rho: -R -> R
-    back = [(x, PLATE_DEPTH - y) for x, y in reversed(front)]   # rho: R -> -R
-    return CrossSection([front + back]).simplify(0.005)
-
-
-def right_half(sec):
-    return sec ^ CrossSection.square([R + 5, PLATE_DEPTH + 10]).translate([0, -5])
+def profile_section(d_max=None):
+    """Rib section in the (d, y) plane: d = distance in from the outline edge
+    (0 = outer edge, R = centre groove), y = depth; ribs on BOTH faces."""
+    front = [(R - rho, y) for rho, y in front_profile()]          # d: R -> 0
+    back = [(d, PLATE_DEPTH - y) for d, y in reversed(front)]      # d: 0 -> R
+    poly = front + back
+    sec = CrossSection([poly])
+    if sec.area() <= 0:                                            # make it CCW
+        sec = CrossSection([poly[::-1]])
+    if d_max is not None and d_max < R:                            # arcs: r >= 0
+        sec = sec ^ CrossSection.square([d_max, PLATE_DEPTH + 2]).translate([0, -1])
+    return sec.simplify(0.005)
 
 
 # --------------------------------------------------------------------------
-# 3D assembly
+# Outline shapes.  Every shape is symmetric and described by its LEFT half
+# (x <= 0) as a list of edges, each with the region ("cell") of the plate
+# where that edge is the nearest one.  Inside its cell the ribs are the
+# rib section swept along the edge (straight edge -> extrusion, arc ->
+# revolve), so all ribs follow the outline as exact concentric offsets.
 # --------------------------------------------------------------------------
-def arch_solid(sec):
-    """Sweep a (rho, y) section along the arch: two straight legs + 180 deg arc."""
-    legs = Manifold.extrude(sec, H_LEG)                     # (x=rho, y, z)
-    top = Manifold.revolve(right_half(sec), ARC_SEGMENTS, 180.0)
-    top = top.rotate([90, 0, 0]).mirror([0, 1, 0]).translate([0, 0, H_LEG])
-    return legs + top
+class Line:
+    def __init__(self, a, b):
+        """Edge from a to b (2D points in the x/z plane), interior on its right."""
+        self.a = np.array(a, float)
+        t = np.array(b, float) - self.a
+        self.t = t / np.linalg.norm(t)
+        self.n = np.array([self.t[1], -self.t[0]])                 # inward normal
+
+    def dist(self, p):
+        return float(self.n @ (np.asarray(p, float) - self.a))
+
+    def halfplane_closer_than(self, other):
+        """a.x + b.z <= c  where this edge is at least as close as `other`."""
+        g = self.n - other.n
+        return g[0], g[1], float(self.n @ self.a - other.n @ other.a)
+
+    def solid(self, sec):
+        m = Manifold.extrude(sec, 1000.0)                          # (d, y, e)
+        n, t = self.n, self.t
+        o = self.a - 500.0 * t
+        return m.transform([[n[0], 0, t[0], o[0]],
+                            [0, 1, 0, 0],
+                            [n[1], 0, t[1], o[1]]])
+
+
+class Arc:
+    def __init__(self, c, r, a0, a1):
+        """Convex arc, centre c, radius r, from angle a0 to a1 (deg, from +x
+        toward +z); the plate lies inside the circle."""
+        self.c, self.r, self.a0, self.a1 = np.array(c, float), r, a0, a1
+
+    def solid(self, sec_r):
+        a0, a1 = self.a0 - 2, self.a1 + 2                         # clipped later
+        seg = max(8, int(math.ceil((a1 - a0) / 0.9)))
+        m = Manifold.revolve(sec_r, seg, a1 - a0)                  # (r cos, r sin, y)
+        m = m.rotate([90, 0, 0]).mirror([0, 1, 0])                 # (r cos, y, r sin)
+        m = m.rotate([0, -a0, 0])                                  # start at angle a0
+        return m.translate([self.c[0], 0, self.c[1]])
+
+
+def clip_polygon(poly, a, b, c):
+    """Sutherland-Hodgman: keep the part of convex `poly` with a*x + b*z <= c."""
+    out = []
+    for i in range(len(poly)):
+        p, q = poly[i], poly[(i + 1) % len(poly)]
+        fp, fq = a * p[0] + b * p[1] - c, a * q[0] + b * q[1] - c
+        if fp <= 0:
+            out.append(p)
+        if fp * fq < 0:
+            s = fp / (fp - fq)
+            out.append((p[0] + s * (q[0] - p[0]), p[1] + s * (q[1] - p[1])))
+    return out
+
+
+def cell(*halfplanes):
+    """Convex cell in the left half (x <= 0, z >= 0) cut by halfplanes a,b,c."""
+    poly = [(-R - 5, 0), (0, 0), (0, HEIGHT + 5), (-R - 5, HEIGHT + 5)]
+    for hp in halfplanes:
+        poly = clip_polygon(poly, *hp)
+    return poly
+
+
+def cell_prism(poly, overlap=0.02):
+    """Cell as a prism through the plate; grown a hair so neighbours overlap
+    (no coincident seam faces -> clean unions)."""
+    cs = CrossSection([poly]).offset(overlap, JoinType.Miter, 4.0)
+    m = Manifold.extrude(cs, PLATE_DEPTH + 2)                       # (x, z, e)
+    return m.rotate([90, 0, 0]).translate([0, PLATE_DEPTH + 1, 0])
+
+
+def lines_only(lines):
+    """Cells for an outline made only of straight edges (exact bisectors)."""
+    return [(ln, cell(*[ln.halfplane_closer_than(o) for o in lines if o is not ln]))
+            for ln in lines]
+
+
+H = HEIGHT
+
+
+def shape_arch():
+    """Rainbow arch: straight sides + semicircle."""
+    h = H - R
+    return [(Line((-R, 0), (-R, h)), cell((0, 1, h))),
+            (Arc((0, h), R, 90, 180), cell((0, -1, -h)))]
+
+
+def shape_pointed_arch(k=0.75):
+    """Pointed (Moroccan / gothic) arch: two arcs whose centres sit k*R
+    across the centre line, meeting in a point."""
+    c = k * R
+    ra = R + c
+    rise = math.sqrt(ra * ra - c * c)
+    h = H - rise
+    apex = math.degrees(math.atan2(rise, -c))
+    return [(Line((-R, 0), (-R, h)), cell((0, 1, h))),
+            (Arc((c, h), ra, apex, 180), cell((0, -1, -h)))]
+
+
+def shape_house(roof_deg=38.0):
+    """House: straight walls + pitched roof."""
+    h = H - R * math.tan(math.radians(roof_deg))
+    return lines_only([Line((-R, 0), (-R, h)), Line((-R, h), (0, H))])
+
+
+def shape_mountain():
+    """Mountain / tree: a single peak, chevron ribs."""
+    return lines_only([Line((-R, 0), (0, H))])
+
+
+def shape_tablet(rc=30.0):
+    """Tablet: straight walls, rounded top corners, flat top."""
+    xc, zc = -R + rc, H - rc
+    wall = Line((-R, 0), (-R, zc))
+    top = Line((xc, H), (0, H))
+    return [(wall, cell((0, 1, zc), (1, 1, H - R))),
+            (Arc((xc, zc), rc, 90, 180), cell((1, 0, xc), (0, -1, -zc))),
+            (top, cell((-1, 0, -xc), (-1, -1, -(H - R))))]
+
+
+def shape_octagon(k=38.0):
+    """Octagon top: straight walls, 45 deg chamfers, flat top."""
+    return lines_only([Line((-R, 0), (-R, H - k)), Line((-R, H - k), (-R + k, H)),
+                       Line((-R + k, H), (0, H))])
+
+
+SHAPES = {
+    "arch": shape_arch,
+    "pointed_arch": shape_pointed_arch,
+    "house": shape_house,
+    "mountain": shape_mountain,
+    "tablet": shape_tablet,
+    "octagon": shape_octagon,
+}
+
+
+def plate(shape="arch"):
+    sec = profile_section()
+    pieces = []
+    for edge, poly in SHAPES[shape]():
+        if isinstance(edge, Arc):
+            s = profile_section(d_max=edge.r)
+            # section in (r, y) with r = arc radius - d
+            s = s.mirror([1, 0]).translate([edge.r, 0])
+            body = edge.solid(s)
+        else:
+            body = edge.solid(sec)
+        pieces.append(body ^ cell_prism(poly))
+    half = Manifold.batch_boolean(pieces, OpType.Add)
+    full = half + half.mirror([1, 0, 0])
+    # mitred seams can leave zero-volume slivers as separate shells: drop them
+    solids = [c for c in full.decompose() if c.volume() > 1.0]
+    return Manifold.batch_boolean(solids, OpType.Add)
 
 
 def rounded_rect(x0, x1, y0, y1, radii, n=24):
@@ -174,8 +325,8 @@ def base_frame():
     return slab - cut
 
 
-def build():
-    return arch_solid(plate_section()) + base_frame()
+def build(shape="arch"):
+    return plate(shape) + base_frame()
 
 
 # --------------------------------------------------------------------------
@@ -255,26 +406,34 @@ def pair_layout(v, f, gap=PAIR_GAP):
     return [rot + [-dx, 0, 0], rot + [dx, 0, 0]], f
 
 
-if __name__ == "__main__":
-    out_dir = os.path.dirname(os.path.abspath(__file__))
-    rc, pitch, _ = rib_geometry()
-    part = build()
+NAMES = {
+    "arch": "Arch", "pointed_arch": "Pointed Arch", "house": "House",
+    "mountain": "Mountain", "tablet": "Tablet", "octagon": "Octagon",
+}
+
+
+def export_shape(shape, out_dir):
+    """<shape>.stl, <shape>.3mf and <shape>_x2.3mf (pair laid out on one plate)."""
+    part = build(shape)
     v, f = centred(part)
-    write_stl(os.path.join(out_dir, "book_divider.stl"), v, f)
-    write_3mf(os.path.join(out_dir, "book_divider.3mf"), [("Book Divider", v, f)])
-
+    title = f"{NAMES[shape]} Book Divider"
+    write_stl(os.path.join(out_dir, f"{shape}.stl"), v, f, name=shape)
+    write_3mf(os.path.join(out_dir, f"{shape}.3mf"), [(title, v, f)], title=title)
     (va, vb), _ = pair_layout(v, f)
-    write_3mf(os.path.join(out_dir, "book_divider_x2.3mf"),
-              [("Book Divider A", va, f), ("Book Divider B", vb, f)],
-              title="Arch Book Divider - pair")
-    write_stl(os.path.join(out_dir, "book_divider_x2.stl"),
-              np.vstack([va, vb]), np.vstack([f, f + len(va)]))
+    write_3mf(os.path.join(out_dir, f"{shape}_x2.3mf"),
+              [(title + " A", va, f), (title + " B", vb, f)], title=title + " - pair")
+    return part, v, f
 
-    size = v.max(0) - v.min(0)
-    both = np.vstack([va, vb])
-    psize = both.max(0) - both.min(0)
+
+if __name__ == "__main__":
+    import sys
+    shapes = sys.argv[1:] or list(SHAPES)
+    out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
+    os.makedirs(out_dir, exist_ok=True)
+    rc, pitch, _ = rib_geometry()
     print(f"rib crest radius {rc:.2f} mm, pitch {pitch:.2f} mm")
-    print(f"triangles {len(f)}, genus {part.genus()}, status {part.status()}")
-    print(f"size  X {size[0]:.2f}  Y {size[1]:.2f}  Z {size[2]:.2f} mm")
-    print(f"pair footprint  X {psize[0]:.1f}  Y {psize[1]:.1f} mm")
-    print("written book_divider(.stl/.3mf) and book_divider_x2(.stl/.3mf)")
+    for shape in shapes:
+        part, v, f = export_shape(shape, out_dir)
+        size = v.max(0) - v.min(0)
+        print(f"{shape:13s} {size[0]:.0f} x {size[1]:.0f} x {size[2]:.0f} mm, "
+              f"{len(f)} triangles, genus {part.genus()}, {part.status()}")
