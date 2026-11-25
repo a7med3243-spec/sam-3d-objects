@@ -70,5 +70,113 @@
   "watertight": true,
   "bodies": 1,
   "weight_g_PLA": 20.5
+ },
+ "wavy": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 7.51,
+  "outline_mm": [
+   106.0,
+   86.0
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 19.0
+ },
+ "zigzag": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 8.56,
+  "outline_mm": [
+   104.8,
+   84.8
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 18.4
+ },
+ "flower": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 6.2,
+  "outline_mm": [
+   116.0,
+   98.0
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 21.8
+ },
+ "cloud": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 12.3,
+  "outline_mm": [
+   117.2,
+   93.1
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 26.5
+ },
+ "torn": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 7.55,
+  "outline_mm": [
+   114.7,
+   89.2
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 18.0
+ },
+ "drip": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 8.2,
+  "outline_mm": [
+   100.0,
+   99.1
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 20.6
+ },
+ "classic": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 8.2,
+  "outline_mm": [
+   117.0,
+   100.8
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 21.8
+ },
+ "mountains": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 8.2,
+  "outline_mm": [
+   100.0,
+   97.3
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 20.1
+ },
+ "puzzle": {
+  "core_inside_outline": true,
+  "window_inside_photo_lip": true,
+  "min_border_mm": 6.85,
+  "outline_mm": [
+   126.0,
+   92.5
+  ],
+  "watertight": true,
+  "bodies": 1,
+  "weight_g_PLA": 23.2
  }
 }

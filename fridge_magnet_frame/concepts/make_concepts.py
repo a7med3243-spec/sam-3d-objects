@@ -192,8 +192,148 @@ def suitcase():
     deb = unary_union(caps + straps)
     return outer, win, deb
 
+# ------------------------------------------------------------------ set 2: wavy / organic / ornate
+def perimeter_wave(poly, amp, wavelength, kind="sine", step=0.2, phase=0.0, seed=0):
+    """displace a closed outline along its outward normal: sine, triangle (zigzag) or torn"""
+    ring_ = orient(poly, 1.0).exterior
+    L = ring_.length
+    n = max(3, round(L / wavelength)); wl = L / n
+    s = np.arange(0, L, step)
+    pts = np.array([ring_.interpolate(v).coords[0] for v in s])
+    t = np.roll(pts, -1, axis=0) - np.roll(pts, 1, axis=0)
+    t /= np.linalg.norm(t, axis=1)[:, None]
+    nrm = np.c_[t[:, 1], -t[:, 0]]                       # outward for a CCW outline
+    u = 2 * np.pi * s / wl + phase
+    if kind == "sine":
+        f = amp * np.sin(u)
+    elif kind == "tri":
+        f = amp * (2 / np.pi) * np.arcsin(np.sin(u))
+    else:                                                # "torn": random jagged knots + slow drift
+        rng = np.random.default_rng(seed)
+        ks = np.cumsum(rng.uniform(1.4, 3.2, int(L / 1.4) + 5)); ks = ks[ks < L - 1]
+        f = np.interp(s, np.r_[0, ks, L], np.r_[0, rng.uniform(-amp, amp, len(ks)), 0]) \
+            + 0.35 * amp * np.sin(2 * np.pi * s / 37 + 1.3)
+    return Polygon(pts + nrm * f[:, None]).buffer(0)
+
+def along(poly, spacing, offset=0.0):
+    """points + outward normals evenly spaced along a closed outline"""
+    r = orient(poly, 1.0).exterior; L = r.length; n = max(3, round(L / spacing))
+    out = []
+    for i in range(n):
+        s = i * L / n
+        p = np.array(r.interpolate(s).coords[0]); q = np.array(r.interpolate((s + 0.3) % L).coords[0])
+        t = (q - p) / np.linalg.norm(q - p); nn = np.array([t[1], -t[0]])
+        out.append((p + nn * offset, nn, i))
+    return out
+
+def wavy():
+    outer = perimeter_wave(rrect(-51, 51, -45.5, 36.5, 10), 2.0, 11.0)
+    win = perimeter_wave(rrect(-39.9, 39.9, -23.9, 23.9, 8), 1.6, 9.6)
+    return outer, win, ring(win, 3.0)
+
+def zigzag():
+    outer = smooth(perimeter_wave(rrect(-51, 51, -45.5, 36.5, 7), 1.9, 5.2, "tri"), 0.6, 0.7)
+    win = rrect(-41, 41, -25, 25, 2.5)
+    inner = perimeter_wave(win.buffer(3.0, resolution=32), 0.85, 3.4, "tri")
+    return outer, win, inner.exterior.buffer(0.4, 8)
+
+def flower():
+    body = rrect(-48, 48, -44.5, 33.5, 9)
+    def petal(R, d):                                   # almond (vesica) petal, long axis = y
+        return Point(-d, 0).buffer(R, 64).intersection(Point(d, 0).buffer(R, 64))
+    petals, veins = [], []
+    for c, nn, i in along(body, 6.4, 0.0):
+        big = i % 2 == 0
+        R, d, out = (7.0, 4.3, 4.6) if big else (5.4, 3.4, 2.6)
+        pe = affinity.rotate(petal(R, d), math.degrees(math.atan2(nn[1], nn[0])) - 90, origin=(0, 0))
+        cc = c + nn * out
+        petals.append(affinity.translate(pe, *cc))
+        if big:
+            veins.append(line([tuple(c + nn * 1.6), tuple(c + nn * 6.6)], 0.6))
+    outer = smooth(unary_union([body] + petals), 0.9, 0.4)
+    win = rrect(-41.8, 41.8, -25.8, 25.8, 14)
+    return outer, win, unary_union([ring(win, 3.0)] + veins)
+
+def cloud():
+    body = rrect(-48, 48, -44.5, 32, 12)
+    rng = np.random.default_rng(3); bumps = []
+    for c, nn, i in along(body, 12.5, 0.6):
+        r = rng.uniform(4.5, 6.0) if c[1] < -40 else rng.uniform(6.5, 10.5)
+        bumps.append(Point(*c).buffer(r, 64))
+    outer = smooth(unary_union([body] + bumps), 2.2, 1.0)
+    wb = rrect(-38.4, 38.4, -22.4, 22.4, 7)
+    win = smooth(unary_union([wb] + [Point(*c).buffer(3.2, 32) for c, _, _ in along(wb, 7.2)]), 1.0, 0.3)
+    def sparkle(x, y, s):
+        pts = [(x + (s if k % 2 == 0 else s * 0.28) * math.cos(math.radians(90 * k / 2)),
+                y + (s if k % 2 == 0 else s * 0.28) * math.sin(math.radians(90 * k / 2))) for k in range(8)]
+        return Polygon(pts)
+    return outer, win, unary_union([sparkle(-31, 31, 3.4), sparkle(33, 33, 2.6), sparkle(24, 37.5, 1.8)])
+
+def torn():
+    base = box(-50, -45, 50, 35)
+    paper = perimeter_wave(base, 1.2, 3, "torn", step=0.25, seed=11)
+    paper = paper.buffer(0.3, 8).buffer(-0.6, 8).buffer(0.3, 8)
+    def tape(cx, cy, ang, w=26, h=8.5):
+        ys = np.linspace(-h / 2, h / 2, 9)
+        left = [(-w / 2 + (0.7 if k % 2 else 0), y) for k, y in enumerate(ys)]
+        right = [(w / 2 - (0.7 if k % 2 else 0), y) for k, y in enumerate(ys[::-1])]
+        return affinity.translate(affinity.rotate(Polygon(left + right), ang, origin=(0, 0)), cx, cy)
+    tapes = unary_union([tape(-44.5, 31.5, 38), tape(44.5, 31.5, -38)])
+    outer = unary_union([paper, tapes])
+    win = rrect(-41, 41, -25, 25, 0.6).difference(tapes)
+    return outer, win, tapes.boundary.buffer(0.35, 8)
+
+def drip():
+    body = rrect(-50, 50, -44.5, 35, 10)
+    drops = []
+    for x, w, L in [(-38, 6.5, 9), (-28, 5, 4), (-18, 7.5, 15), (-6, 5.5, 6), (5, 8, 11), (17, 5, 3.5), (27, 6.5, 13), (38, 5.5, 7)]:
+        drops += [LineString([(x, -43), (x, -44.5 - L)]).buffer(w / 2, resolution=24), Point(x, -44.5 - L).buffer(w / 2 + 0.9, 32)]
+    outer = smooth(unary_union([body] + drops), 3.0, 0.8)
+    win = rrect(-41.8, 41.8, -25.8, 25.8, 6)
+    return outer, win, ring(win, 3.0)
+
+def classic():
+    body = rrect(-50, 50, -44.5, 34.5, 2.5)
+    meds = [(sx * 50, y) for sx in (-1, 1) for y in (34.5, -44.5)]
+    shell = Point(0, 34.5).buffer(11, 64).intersection(box(-12, 34.5, 12, 47))
+    scal = [Point(11 * math.cos(a), 34.5 + 11 * math.sin(a)).buffer(2.3, 24) for a in np.linspace(0, np.pi, 9)]
+    parts = [body, shell] + scal + [Point(*m).buffer(8.5, 64) for m in meds] + \
+            [Point(sx * 50, -5).buffer(5, 48) for sx in (-1, 1)] + [affinity.scale(Point(0, -44.5).buffer(1, 64), 15, 5.5)]
+    outer = smooth(unary_union(parts), 1.4, 0.6)
+    win = rrect(-41.8, 41.8, -25.8, 25.8, 1.5)
+    deb = [ring(win, 1.8, 0.6), ring(win, 3.0, 0.6)]
+    for m in meds:
+        deb.append(Point(*m).buffer(5.5, 48).difference(Point(*m).buffer(4.9, 48)))
+        deb += [Point(m[0] + 2.7 * math.cos(a), m[1] + 2.7 * math.sin(a)).buffer(1.1, 16) for a in np.linspace(0, 2 * np.pi, 7)[:-1]]
+        deb.append(Point(*m).buffer(0.8, 16))
+    deb += [line([(0, 35.6), (9.4 * math.cos(a), 34.5 + 9.4 * math.sin(a))], 0.6) for a in np.linspace(0.35, np.pi - 0.35, 7)]
+    return outer, win, unary_union(deb)
+
+def mountains():
+    body = rrect(-50, 50, -45, 33, 7)
+    ridge = [(-50, 27), (-44, 36), (-38, 41.5), (-31, 35.5), (-24, 44), (-15, 53), (-7, 43), (0, 39), (8, 47.5),
+             (16, 41), (24, 36.5), (31, 44), (38, 49), (45, 40), (50, 33), (50, 27)]
+    outer = smooth(unary_union([body, Polygon(ridge)]), 1.0, 1.4)
+    win = rrect(-41.8, 41.8, -25.8, 25.8, 3)
+    snow = []
+    for xt, yt, dl, dr in [(-15, 53, 5.0, 4.0), (38, 49, 3.5, 3.5), (8, 47.5, 4.2, 4.0), (-24, 44, 3.5, 3.6)]:
+        snow.append(line([(xt - dl, yt - 5), (xt - dl / 2, yt - 3.6), (xt, yt - 5.2), (xt + dr / 2, yt - 3.6), (xt + dr, yt - 5)], 0.7))
+    return outer, win, unary_union(snow)
+
+def puzzle():
+    body = rrect(-61, 53, -45.5, 35, 3)
+    knob = unary_union([box(-0.5, -2.4, 3.6, 2.4), Point(7.0, 0).buffer(5.0, 48)])      # points +x from x=0
+    right = affinity.translate(knob, 53, 0)
+    top = affinity.translate(affinity.rotate(knob, 90, origin=(0, 0)), -4, 35)
+    socket = affinity.translate(knob.buffer(0.35, 24), -61, 0)                          # fits a neighbour's knob
+    outer = smooth(unary_union([body, right, top]).difference(socket), 0.8, 0.8)
+    win = rrect(-41.8, 41.8, -25.8, 25.8, 2.5)
+    return outer, win, Polygon()
+
 CONCEPTS = {"stamp": stamp, "airplane": airplane, "retro_tv": retro_tv,
-            "ottoman": ottoman, "boarding_pass": boarding_pass, "suitcase": suitcase}
+            "ottoman": ottoman, "boarding_pass": boarding_pass, "suitcase": suitcase,
+            "wavy": wavy, "zigzag": zigzag, "flower": flower, "cloud": cloud, "torn": torn,
+            "drip": drip, "classic": classic, "mountains": mountains, "puzzle": puzzle}
 
 def build(name, cutters):
     outer, win, deb = CONCEPTS[name]()
@@ -224,10 +364,11 @@ if __name__ == "__main__":
     os.makedirs(out, exist_ok=True)
     ct = trimesh.load(cut_path, force="mesh")
     cutters = Manifold(Mesh(vert_properties=np.asarray(ct.vertices, np.float32), tri_verts=np.asarray(ct.faces, np.uint32)))
-    allrep = {}
+    rp = os.path.join(out, "concepts_report.json")
+    allrep = json.load(open(rp)) if os.path.exists(rp) else {}
     for name in (sys.argv[3:] or CONCEPTS):
         tm, rep = build(name, cutters)
         tm.export(os.path.join(out, f"concept_{name}.stl"))
         allrep[name] = rep
         print(name, rep)
-    json.dump(allrep, open(os.path.join(out, "concepts_report.json"), "w"), indent=1)
+    json.dump(allrep, open(rp, "w"), indent=1)
