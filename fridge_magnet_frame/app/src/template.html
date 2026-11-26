@@ -1,0 +1,749 @@
+<title>صانع لوحة الاسم</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@700&family=Montserrat:wght@800&display=swap">
+<style>
+/* Layout: preview of the plate in its frame tab on top, a single column of
+   control groups below (two columns on wide screens), download bar pinned. */
+:root {
+  --bg: #eceff5;
+  --surface: #ffffff;
+  --surface-2: #f5f7fb;
+  --ink: #17203a;
+  --muted: #5d667c;
+  --line: #d8dde8;
+  --accent: #e2602a;          /* filament orange */
+  --accent-ink: #ffffff;
+  --accent-soft: #fde9df;
+  --plate: #22304f;
+  --warn-bg: #fff3e6;
+  --warn-ink: #8a3d10;
+  --ok-ink: #22704a;
+  --stage-top: #f7f8fb;
+  --stage-bottom: #dfe4ee;
+  --font-display: "Reem Kufi", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1220; --surface: #151c2f; --surface-2: #1b2339; --ink: #e8ecf5; --muted: #9ba4ba; --line: #283252;
+    --accent: #ff8a4c; --accent-ink: #1b0d05; --accent-soft: #3a2316; --plate: #2e3f66;
+    --warn-bg: #3a2414; --warn-ink: #ffc59b; --ok-ink: #7fd6a6; --stage-top: #1a2238; --stage-bottom: #0f1526;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1220; --surface: #151c2f; --surface-2: #1b2339; --ink: #e8ecf5; --muted: #9ba4ba; --line: #283252;
+  --accent: #ff8a4c; --accent-ink: #1b0d05; --accent-soft: #3a2316; --plate: #2e3f66;
+  --warn-bg: #3a2414; --warn-ink: #ffc59b; --ok-ink: #7fd6a6; --stage-top: #1a2238; --stage-bottom: #0f1526;
+  color-scheme: dark;
+}
+html { direction: rtl; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 110px;
+}
+.wrap { max-width: 1180px; margin-inline: auto; display: grid; gap: 16px; }
+header.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+header.top h1 { font-family: var(--font-display); font-size: clamp(24px, 4vw, 32px); margin: 0; line-height: 1.2; text-wrap: balance; }
+header.top p { margin: 0; color: var(--muted); flex-basis: 100%; }
+.mark { width: 44px; height: 30px; flex: none; }
+.app { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .app { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: start; }
+  .stage { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); } }
+.stage, .group { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+.stage { padding: 12px; display: grid; gap: 10px; min-width: 0; }
+.viewer { position: relative; border-radius: 10px; overflow: hidden; aspect-ratio: 16 / 11; max-width: 100%;
+  background: linear-gradient(180deg, var(--stage-top), var(--stage-bottom)); }
+.viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.viewbtns { position: absolute; inset-inline-start: 8px; top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+.viewbtns button, .seg button, .tabs button {
+  font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+.viewbtns button[aria-pressed="true"], .seg button[aria-pressed="true"], .tabs button[aria-selected="true"] {
+  background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.facts { display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px; }
+.facts span { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 3px 9px; font-variant-numeric: tabular-nums; }
+.facts b { font-weight: 600; }
+.warn { background: var(--warn-bg); color: var(--warn-ink); border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+.swatchrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.swatchrow .lbl { min-width: 74px; }
+.sw { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--line); cursor: pointer; padding: 0; }
+.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--accent); }
+.panel { display: grid; gap: 12px; min-width: 0; }
+.group { padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.group h2 { font-family: var(--font-display); font-size: 18px; margin: 0; letter-spacing: .2px; }
+label, .lab { font-size: 14px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+label output { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+input[type="text"] {
+  font: inherit; font-size: 18px; width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface-2); color: var(--ink); }
+input[type="text"]:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { font-size: 18px; min-width: 38px; height: 36px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); cursor: pointer; font-family: system-ui, sans-serif; }
+.tabs, .seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.fontgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; max-height: 330px; overflow-y: auto; padding: 2px; }
+.fontcard { border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--ink); padding: 8px 10px; cursor: pointer;
+  text-align: center; min-width: 0; display: grid; gap: 2px; }
+.fontcard .sample { font-size: 22px; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fontcard .nm { font-size: 11px; color: var(--muted); font-family: var(--font-body); direction: ltr; }
+.fontcard[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+.icongrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 6px; }
+.icongrid button { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; padding: 7px; display: grid; place-items: center; color: var(--ink); font: inherit; font-size: 12px; }
+.icongrid button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent); }
+.icongrid canvas { width: 100%; height: 100%; }
+.switch { justify-content: flex-start; gap: 10px; color: var(--ink); cursor: pointer; }
+.switch input { width: 18px; height: 18px; accent-color: var(--accent); }
+.filebtn { display: inline-flex; gap: 8px; align-items: center; border: 1px dashed var(--line); border-radius: 10px; padding: 8px 12px; cursor: pointer; color: var(--ink); }
+.filebtn input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.note { margin: 0; font-size: 13px; color: var(--muted); }
+.note b { color: var(--ink); }
+.row2 { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+.dlbar { position: fixed; inset: auto 0 0 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line);
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.dlbar .in { max-width: 1180px; margin-inline: auto; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.primary { font: inherit; font-weight: 700; font-size: 16px; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 12px; padding: 12px 22px; cursor: pointer; }
+.primary:disabled { opacity: .55; cursor: wait; }
+#dlmsg { font-size: 13px; color: var(--muted); min-width: 0; flex: 1 1 220px; }
+#dlmsg.ok { color: var(--ok-ink); }
+#dlmsg.bad { color: var(--warn-ink); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <svg class="mark" viewBox="0 0 44 30" aria-hidden="true"><rect x="1" y="1" width="42" height="20" rx="6" fill="var(--plate)"/><rect x="12" y="14" width="20" height="14" rx="5" fill="var(--plate)"/><rect x="14.5" y="17.5" width="15" height="7" rx="3.5" fill="var(--accent)"/></svg>
+    <h1>صانع لوحة الاسم</h1>
+    <p>اكتب الاسم واختر الخط والرموز، وحمّل ملف اللوحة جاهز يركب على برواز الثلاجة.</p>
+  </header>
+
+  <main class="app">
+    <section class="stage" aria-label="معاينة اللوحة">
+      <div class="viewer" id="viewer">
+        <canvas id="gl" aria-label="معاينة ثلاثية الأبعاد، اسحب للتدوير"></canvas>
+        <div class="viewbtns" role="group" aria-label="زاوية المعاينة">
+          <button type="button" data-view="front" aria-pressed="true">من قدام</button>
+          <button type="button" data-view="angle" aria-pressed="false">مائل</button>
+          <button type="button" data-view="plate" aria-pressed="false">اللوحة لحالها</button>
+        </div>
+      </div>
+      <div class="facts" id="facts"></div>
+      <div class="warn" id="warn" hidden></div>
+      <div class="swatchrow" id="plateSw"><span class="lbl">لون البرواز</span></div>
+      <div class="swatchrow" id="textSw"><span class="lbl">لون الكتابة</span></div>
+    </section>
+
+    <div class="panel">
+      <section class="group" aria-labelledby="g1">
+        <h2 id="g1">الكتابة</h2>
+        <label for="line1">السطر الأول</label>
+        <input type="text" id="line1" dir="auto" maxlength="40" autocomplete="off">
+        <div class="chips" id="sym" aria-label="رموز تنضاف للنص"></div>
+        <label for="line2">سطر ثاني (اختياري)</label>
+        <input type="text" id="line2" dir="auto" maxlength="40" placeholder="مثلاً 2026" autocomplete="off">
+      </section>
+
+      <section class="group" aria-labelledby="g2">
+        <h2 id="g2">الخط</h2>
+        <div class="tabs" role="tablist" id="fontTabs">
+          <button type="button" role="tab" data-g="ar" aria-selected="false">عربي</button>
+          <button type="button" role="tab" data-g="en" aria-selected="true">إنجليزي</button>
+          <button type="button" role="tab" data-g="sc" aria-selected="false">مزخرف</button>
+          <button type="button" role="tab" data-g="up" aria-selected="false">خطك الخاص</button>
+        </div>
+        <div class="fontgrid" id="fontgrid"></div>
+        <div id="upbox" hidden>
+          <label class="filebtn" for="fontfile">رفع ملف خط (TTF أو OTF أو WOFF)<input type="file" id="fontfile" accept=".ttf,.otf,.woff,.woff2"></label>
+          <p class="note" id="upname">أي خط عندك في جوالك أو كمبيوترك يشتغل هنا.</p>
+        </div>
+      </section>
+
+      <section class="group" aria-labelledby="g3">
+        <h2 id="g3">الرموز</h2>
+        <div class="seg" role="group" aria-label="مكان الرمز" id="iconSide">
+          <button type="button" data-side="L" aria-pressed="true">رمز يسار الكتابة</button>
+          <button type="button" data-side="R" aria-pressed="false">رمز يمين الكتابة</button>
+        </div>
+        <div class="icongrid" id="icongrid"></div>
+        <label for="iconScale">حجم الرمز <output id="iconScaleOut"></output></label>
+        <input type="range" id="iconScale" min="0.6" max="1.6" step="0.05">
+      </section>
+
+      <section class="group" aria-labelledby="g4">
+        <h2 id="g4">الحجم والسماكة</h2>
+        <label class="switch" for="auto"><input type="checkbox" id="auto"> تكبير تلقائي يملأ اللوحة</label>
+        <label for="size">ارتفاع الكتابة <output id="sizeOut"></output></label>
+        <input type="range" id="size" min="2.5" max="7.5" step="0.1">
+        <label for="thick">سماكة الحروف <output id="thickOut"></output></label>
+        <input type="range" id="thick" min="-0.15" max="0.4" step="0.01">
+        <label for="spacing">تباعد الحروف <output id="spacingOut"></output></label>
+        <input type="range" id="spacing" min="-0.05" max="0.4" step="0.01">
+        <label for="l2">حجم السطر الثاني <output id="l2Out"></output></label>
+        <input type="range" id="l2" min="0.4" max="1" step="0.05">
+      </section>
+
+      <section class="group" aria-labelledby="g5">
+        <h2 id="g5">الطباعة</h2>
+        <div class="seg" role="group" aria-label="نوع الكتابة" id="modeSeg">
+          <button type="button" data-mode="raised" aria-pressed="true">كتابة بارزة</button>
+          <button type="button" data-mode="engraved" aria-pressed="false">كتابة محفورة</button>
+        </div>
+        <label for="height"><span id="heightLbl">ارتفاع البروز</span> <output id="heightOut"></output></label>
+        <input type="range" id="height" min="0.4" max="1.2" step="0.1">
+        <div class="seg" role="group" aria-label="قوة التثبيت" id="gripSeg">
+          <button type="button" data-grip="normal" aria-pressed="true">تثبيت عادي</button>
+          <button type="button" data-grip="tight" aria-pressed="false">تثبيت أقوى</button>
+        </div>
+        <label class="switch" for="two"><input type="checkbox" id="two"> أضف ملفين للطباعة بلونين (AMS)</label>
+        <p class="note" id="printNote"></p>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="dlbar">
+  <div class="in">
+    <button type="button" class="primary" id="dl">تحميل ملف الطباعة</button>
+    <span id="dlmsg" role="status">ملف ZIP فيه ملف STL للوحة وطريقة الطباعة.</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-array@3.2.4/dist/d3-array.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-contour@4.0.2/dist/d3-contour.min.js"></script>
+<script>var GEO = /*GEO*/;</script>
+<script>/*CORE*/</script>
+<script>
+(function () {
+'use strict';
+// ---------------------------------------------------------------- constants
+var R = 24;                                            // raster resolution, px per mm
+var BOSS = { w: 29.6, h: 8.0, r: 3.05 };               // visible face of the plate
+var SAFE = { w: 28.1, h: 6.5, r: 2.3 };                // text must stay inside (0.75 mm from the edge)
+var T = 4.4, TP_CY = -34.4, ZTOP = 4.4;
+var CW = Math.ceil((BOSS.w + 2) * R), CH = Math.ceil((BOSS.h + 2) * R);
+var BASES = { normal: NP.decodeBase(GEO.normal), tight: NP.decodeBase(GEO.tight) };
+
+var FONTS = [
+  ['Cairo', 800, 'ar'], ['Tajawal', 800, 'ar'], ['Almarai', 800, 'ar'], ['Changa', 700, 'ar'], ['El Messiri', 700, 'ar'],
+  ['Lalezar', 400, 'ar'], ['Reem Kufi', 700, 'ar'], ['Reem Kufi Fun', 700, 'ar'], ['Noto Kufi Arabic', 800, 'ar'], ['Kufam', 800, 'ar'],
+  ['Lemonada', 700, 'ar'], ['Marhey', 700, 'ar'], ['Baloo Bhaijaan 2', 800, 'ar'], ['Readex Pro', 700, 'ar'], ['Rakkas', 400, 'ar'],
+  ['Jomhuria', 400, 'ar'], ['Katibeh', 400, 'ar'], ['Blaka', 400, 'ar'], ['Amiri', 700, 'ar'], ['Aref Ruqaa', 700, 'ar'],
+  ['Mirza', 700, 'ar'], ['Noto Naskh Arabic', 700, 'ar'],
+  ['Montserrat', 800, 'en'], ['Poppins', 700, 'en'], ['Bebas Neue', 400, 'en'], ['Anton', 400, 'en'], ['Oswald', 700, 'en'],
+  ['Rubik', 700, 'en'], ['Fredoka', 700, 'en'], ['Righteous', 400, 'en'], ['Bungee', 400, 'en'], ['Luckiest Guy', 400, 'en'],
+  ['Titan One', 400, 'en'], ['Lilita One', 400, 'en'], ['Black Ops One', 400, 'en'], ['Alfa Slab One', 400, 'en'],
+  ['Abril Fatface', 400, 'en'], ['Playfair Display', 800, 'en'], ['Cinzel', 700, 'en'], ['Cinzel Decorative', 700, 'en'],
+  ['Pacifico', 400, 'sc'], ['Lobster', 400, 'sc'], ['Dancing Script', 700, 'sc'], ['Kaushan Script', 400, 'sc'], ['Satisfy', 400, 'sc'],
+  ['Caveat', 700, 'sc'], ['Courgette', 400, 'sc'], ['Yellowtail', 400, 'sc'], ['Shrikhand', 400, 'sc'], ['Permanent Marker', 400, 'sc'],
+  ['Great Vibes', 400, 'sc']
+].map(function (a) { return { f: a[0], w: a[1], g: a[2] }; });
+var USER_FONT = { f: 'NameplateUserFont', w: 400, g: 'up', label: '' };
+
+var SYMBOLS = ['★', '☆', '♥︎', '♡', '✈︎', '☀︎', '☾', '✿', '❀', '♫', '✦', '❄︎', '⚓︎', '☁︎', '•', '|', '—', '~'];
+var PLATE_COLORS = ['#22304f', '#1b1b1f', '#f2f2ee', '#b8243a', '#e88fb0', '#2f7d6d', '#d9b46a', '#e2602a', '#3d7dd8'];
+var TEXT_COLORS = ['#f4f1ea', '#1b1b1f', '#d9b46a', '#e2602a', '#e88fb0', '#7fd1e8', '#9fdc7a', '#b8243a', '#22304f'];
+
+// ---------------------------------------------------------------- icons (100 x 100 box, drawn white; holes cut with destination-out)
+function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function poly(c, pts) { c.beginPath(); pts.forEach(function (p, i) { if (i) c.lineTo(p[0], p[1]); else c.moveTo(p[0], p[1]); }); c.closePath(); c.fill(); }
+function circ(c, x, y, r) { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fill(); }
+function cut(c, fn) { c.save(); c.globalCompositeOperation = 'destination-out'; fn(); c.restore(); }
+function starPts(cx, cy, ro, ri, n, rot) { var p = []; for (var i = 0; i < n * 2; i++) { var a = (rot || -Math.PI / 2) + i * Math.PI / n, r = i % 2 ? ri : ro; p.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } return p; }
+var ICONS = {
+  heart: ['قلب', function (c) { c.beginPath(); c.moveTo(50, 90); c.bezierCurveTo(18, 66, 4, 48, 4, 31); c.bezierCurveTo(4, 16, 16, 6, 30, 6); c.bezierCurveTo(39, 6, 46, 11, 50, 19); c.bezierCurveTo(54, 11, 61, 6, 70, 6); c.bezierCurveTo(84, 6, 96, 16, 96, 31); c.bezierCurveTo(96, 48, 82, 66, 50, 90); c.fill(); }],
+  star: ['نجمة', function (c) { poly(c, starPts(50, 54, 48, 20, 5)); }],
+  sparkle: ['لمعة', function (c) { poly(c, starPts(50, 50, 48, 11, 4)); }],
+  plane: ['طيارة', function (c) {
+    c.beginPath(); c.ellipse(50, 50, 46, 7, 0, 0, Math.PI * 2); c.fill();
+    poly(c, [[40, 47], [62, 47], [42, 9], [33, 9]]); poly(c, [[40, 53], [62, 53], [42, 91], [33, 91]]);
+    poly(c, [[7, 47], [19, 47], [11, 29], [4, 29]]); poly(c, [[7, 53], [19, 53], [11, 71], [4, 71]]); }],
+  sun: ['شمس', function (c) { circ(c, 50, 50, 21); for (var i = 0; i < 8; i++) { c.save(); c.translate(50, 50); c.rotate(i * Math.PI / 4); rr(c, -4.5, -48, 9, 18, 4.5); c.fill(); c.restore(); } }],
+  moon: ['هلال', function (c) { circ(c, 46, 52, 42); cut(c, function () { circ(c, 66, 38, 36); }); }],
+  cloud: ['غيمة', function (c) { circ(c, 30, 60, 18); circ(c, 52, 46, 24); circ(c, 74, 58, 19); rr(c, 12, 58, 78, 26, 13); c.fill(); }],
+  palm: ['نخلة', function (c) {
+    c.save(); c.lineWidth = 9; c.lineCap = 'round'; c.strokeStyle = '#fff'; c.beginPath(); c.moveTo(44, 95); c.quadraticCurveTo(40, 62, 54, 38); c.stroke(); c.restore();
+    [-168, -128, -88, -48, -8].forEach(function (d) { var a = d * Math.PI / 180; c.beginPath(); c.ellipse(54 + 21 * Math.cos(a), 36 + 21 * Math.sin(a), 22, 6.5, a, 0, Math.PI * 2); c.fill(); });
+    circ(c, 49, 43, 5); circ(c, 60, 43, 5); }],
+  mountain: ['جبال', function (c) {
+    poly(c, [[2, 90], [36, 26], [52, 54], [66, 36], [98, 90]]);
+    cut(c, function () { c.lineWidth = 4.5; c.lineJoin = 'round'; c.beginPath(); c.moveTo(22, 52); c.lineTo(29, 58); c.lineTo(35, 50); c.lineTo(41, 58); c.lineTo(47, 51); c.moveTo(57, 50); c.lineTo(62, 55); c.lineTo(66, 49); c.lineTo(71, 55); c.lineTo(76, 50); c.stroke(); }); }],
+  anchor: ['مرساة', function (c) {
+    c.save(); c.strokeStyle = '#fff'; c.lineWidth = 7; c.beginPath(); c.arc(50, 15, 8, 0, Math.PI * 2); c.stroke();
+    c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(50, 56, 33, 0.12 * Math.PI, 0.88 * Math.PI); c.stroke(); c.restore();
+    rr(c, 46, 23, 8, 66, 3); c.fill(); rr(c, 28, 33, 44, 8, 4); c.fill();
+    poly(c, [[93, 52], [79, 59], [91, 71]]); poly(c, [[7, 52], [21, 59], [9, 71]]); }],
+  camera: ['كاميرا', function (c) { rr(c, 5, 30, 90, 58, 11); c.fill(); rr(c, 31, 19, 30, 16, 5); c.fill();
+    cut(c, function () { circ(c, 50, 59, 21); rr(c, 73, 38, 13, 7, 2.5); c.fill(); }); circ(c, 50, 59, 12); cut(c, function () { circ(c, 50, 59, 5); }); }],
+  pin: ['موقع', function (c) { c.beginPath(); c.moveTo(50, 97); c.bezierCurveTo(30, 70, 14, 54, 14, 37); c.arc(50, 37, 36, Math.PI, 0); c.bezierCurveTo(86, 54, 70, 70, 50, 97); c.fill(); cut(c, function () { circ(c, 50, 37, 13); }); }],
+  snow: ['ثلج', function (c) { c.save(); c.strokeStyle = '#fff'; c.lineWidth = 7; c.lineCap = 'round';
+    for (var i = 0; i < 6; i++) { c.save(); c.translate(50, 50); c.rotate(i * Math.PI / 3); c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -44); c.moveTo(0, -26); c.lineTo(-11, -37); c.moveTo(0, -26); c.lineTo(11, -37); c.stroke(); c.restore(); }
+    c.restore(); }],
+  note: ['موسيقى', function (c) { c.beginPath(); c.ellipse(27, 78, 14, 10, -0.35, 0, Math.PI * 2); c.fill(); c.beginPath(); c.ellipse(74, 70, 14, 10, -0.35, 0, Math.PI * 2); c.fill();
+    rr(c, 35, 20, 8, 58, 2); c.fill(); rr(c, 82, 12, 8, 58, 2); c.fill(); poly(c, [[35, 21], [90, 8], [90, 23], [35, 36]]); }],
+  crown: ['تاج', function (c) { poly(c, [[8, 84], [8, 33], [30, 56], [50, 20], [70, 56], [92, 33], [92, 84]]); circ(c, 8, 28, 7); circ(c, 50, 15, 7); circ(c, 92, 28, 7); }],
+  cup: ['قهوة', function (c) { rr(c, 12, 42, 60, 48, 14); c.fill(); rr(c, 12, 42, 60, 20, 2); c.fill();
+    c.save(); c.strokeStyle = '#fff'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.arc(74, 63, 13, -Math.PI / 2, Math.PI / 2); c.stroke();
+    c.lineWidth = 5; [26, 42, 58].forEach(function (x) { c.beginPath(); c.moveTo(x, 34); c.bezierCurveTo(x - 7, 26, x + 7, 18, x, 8); c.stroke(); }); c.restore(); }],
+  flower: ['وردة', function (c) { for (var i = 0; i < 6; i++) { var a = i * Math.PI / 3; circ(c, 50 + 25 * Math.cos(a), 50 + 25 * Math.sin(a), 18); } cut(c, function () { circ(c, 50, 50, 12); }); circ(c, 50, 50, 6.5); }],
+  tulip: ['توليب', function (c) {
+    c.beginPath(); c.moveTo(27, 18); c.quadraticCurveTo(25, 52, 50, 58); c.quadraticCurveTo(75, 52, 73, 18); c.lineTo(62, 32); c.lineTo(50, 10); c.lineTo(38, 32); c.closePath(); c.fill();
+    rr(c, 47, 54, 6, 42, 3); c.fill(); c.beginPath(); c.ellipse(35, 80, 15, 5.5, -0.7, 0, Math.PI * 2); c.fill(); }],
+  globe: ['كرة أرضية', function (c) { c.save(); c.strokeStyle = '#fff'; c.lineWidth = 7; c.beginPath(); c.arc(50, 50, 42, 0, Math.PI * 2); c.stroke();
+    c.beginPath(); c.ellipse(50, 50, 18, 42, 0, 0, Math.PI * 2); c.stroke(); c.beginPath(); c.moveTo(8, 50); c.lineTo(92, 50); c.stroke();
+    c.lineWidth = 6; c.beginPath(); c.moveTo(14, 30); c.lineTo(86, 30); c.moveTo(14, 70); c.lineTo(86, 70); c.stroke(); c.restore(); }],
+  suitcase: ['شنطة سفر', function (c) { rr(c, 7, 30, 86, 58, 10); c.fill(); c.save(); c.strokeStyle = '#fff'; c.lineWidth = 7; rr(c, 34, 14, 32, 22, 7); c.stroke(); c.restore();
+    cut(c, function () { c.fillRect(25, 30, 6, 58); c.fillRect(69, 30, 6, 58); }); }]
+};
+var iconCache = {};
+function iconCanvas(name, px) {
+  var key = name + '@' + px; if (iconCache[key]) return iconCache[key];
+  var cv = document.createElement('canvas'); cv.width = cv.height = Math.max(8, Math.round(px));
+  var c = cv.getContext('2d'); c.scale(cv.width / 100, cv.height / 100); c.fillStyle = '#fff'; ICONS[name][1](c);
+  iconCache[key] = cv; return cv;
+}
+
+// ---------------------------------------------------------------- state
+var DEFAULTS = { line1: 'TURKEY', line2: '', font: 'Montserrat', iconL: '', iconR: '', iconScale: 1, auto: true, size: 5, thick: 0.05,
+  spacing: 0.02, l2: 0.6, mode: 'raised', height: 0.6, grip: 'normal', two: true, plateColor: '#22304f', textColor: '#f4f1ea', tab: 'en' };
+var state = Object.assign({}, DEFAULTS);
+try { var saved = JSON.parse(localStorage.getItem('nameplate-maker') || 'null'); if (saved) Object.keys(DEFAULTS).forEach(function (k) { if (saved[k] !== undefined) state[k] = saved[k]; }); } catch (e) {}
+if (state.font === USER_FONT.f) state.font = DEFAULTS.font;
+function persist() { try { localStorage.setItem('nameplate-maker', JSON.stringify(state)); } catch (e) {} }
+
+function $(id) { return document.getElementById(id); }
+function isAr(s) { return /[֐-ࣿﭐ-﻿]/.test(s); }
+function fontObj() { if (state.font === USER_FONT.f) return USER_FONT; return FONTS.find(function (f) { return f.f === state.font; }) || FONTS[22]; }
+
+// ---------------------------------------------------------------- Google Fonts, loaded on demand
+var linkDone = {};
+function fontHref(f) { return 'https://fonts.googleapis.com/css2?family=' + f.f.replace(/ /g, '+') + (f.w !== 400 ? ':wght@' + f.w : '') + '&display=swap'; }
+function addFont(f) {
+  if (f.g === 'up') return Promise.resolve();
+  if (!linkDone[f.f]) linkDone[f.f] = new Promise(function (res) {
+    var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = fontHref(f); l.onload = res; l.onerror = res; document.head.appendChild(l);
+    setTimeout(res, 6000);
+  });
+  return linkDone[f.f];
+}
+function ensureFont(f, text) {
+  return addFont(f).then(function () {
+    if (!document.fonts || !document.fonts.load) return;
+    return Promise.race([document.fonts.load(f.w + ' 100px "' + f.f + '"', text || 'Aa'), new Promise(function (r) { setTimeout(r, 6000); })]).catch(function () {});
+  });
+}
+
+// ---------------------------------------------------------------- text + icons -> mask -> distance field -> outlines
+var mask = document.createElement('canvas'); mask.width = CW; mask.height = CH;
+var mctx = mask.getContext('2d', { willReadFrequently: true });
+function setFont(ctx, f, px, text) {
+  ctx.font = f.w + ' ' + px + 'px "' + f.f + '", "IBM Plex Sans Arabic", sans-serif';
+  ctx.direction = isAr(text) ? 'rtl' : 'ltr'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  if ('letterSpacing' in ctx) ctx.letterSpacing = (state.spacing * px).toFixed(2) + 'px';
+}
+function measureText(ctx, f, text, px) {
+  if (!text || !text.trim()) return null;
+  setFont(ctx, f, px, text);
+  var m = ctx.measureText(text);
+  var L = m.actualBoundingBoxLeft, Rr = m.actualBoundingBoxRight, A = m.actualBoundingBoxAscent, D = m.actualBoundingBoxDescent;
+  if (!(L + Rr > 0) || !(A + D > 0)) return null;
+  return { text: text, px: px, L: L, R: Rr, A: A, D: D, w: L + Rr, h: A + D };
+}
+function pillSdf(x, y, s) {                         // signed distance to a rounded rect (negative inside), mm
+  var qx = Math.abs(x) - (s.w / 2 - s.r), qy = Math.abs(y) - (s.h / 2 - s.r);
+  return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - s.r;
+}
+function layout(f) {
+  var REF = 100;
+  var t1 = measureText(mctx, f, state.line1, REF);
+  var t2 = measureText(mctx, f, state.line2, REF * state.l2);
+  var h1 = t1 ? t1.h : 72;
+  var isz = h1 * state.iconScale, gap = 0.22 * h1;
+  var row1 = [];
+  if (state.iconL) row1.push({ icon: state.iconL, w: isz, h: isz });
+  if (t1) row1.push(Object.assign({ isText: true }, t1));
+  if (state.iconR) row1.push({ icon: state.iconR, w: isz, h: isz });
+  if (!row1.length && !t2) return null;
+  var W1 = row1.reduce(function (s, it) { return s + it.w; }, 0) + Math.max(0, row1.length - 1) * gap;
+  var H1 = row1.reduce(function (s, it) { return Math.max(s, it.h); }, 0);
+  var lineGap = t2 && row1.length ? 0.28 * h1 : 0;
+  var W = Math.max(W1, t2 ? t2.w : 0), H = H1 + lineGap + (t2 ? t2.h : 0);
+  var thick = Math.max(0, state.thick), k;
+  if (state.auto || !t1) {
+    var lo = 0, hi = 1;
+    for (var i = 0; i < 40; i++) { var m = (lo + hi) / 2; if (pillSdf(W * m / 2, H * m / 2, SAFE) <= -thick - 0.03) lo = m; else hi = m; }
+    k = lo;
+  } else k = state.size / h1;
+  return { row1: row1, t2: t2, W1: W1, H1: H1, W: W, H: H, lineGap: lineGap, gap: gap, k: k };
+}
+function drawMask(f, L) {
+  var s = L.k * R;                                    // canvas px per reference px
+  mctx.setTransform(1, 0, 0, 1, 0, 0); mctx.clearRect(0, 0, CW, CH); mctx.fillStyle = '#fff';
+  var top = CH / 2 - L.H * s / 2, x = CW / 2 - L.W1 * s / 2, cy1 = top + L.H1 * s / 2;
+  L.row1.forEach(function (it) {
+    if (it.isText) {
+      setFont(mctx, f, it.px * s, it.text);
+      mctx.fillText(it.text, x + it.L * s, cy1 - (it.h * s) / 2 + it.A * s);
+    } else {
+      var px = it.w * s, ic = iconCanvas(it.icon, Math.round(px * 2));
+      mctx.drawImage(ic, x, cy1 - px / 2, px, px);
+    }
+    x += it.w * s + L.gap * s;
+  });
+  if (L.t2) {
+    var t2 = L.t2, y2 = top + (L.H1 + L.lineGap) * s;
+    setFont(mctx, f, t2.px * s, t2.text);
+    mctx.fillText(t2.text, CW / 2 - (t2.w * s) / 2 + t2.L * s, y2 + t2.A * s);
+  }
+}
+var INF = 1e20;
+function edt1d(f, n, d, v, z) {
+  var k = 0; v[0] = 0; z[0] = -INF; z[1] = INF;
+  for (var q = 1; q < n; q++) {
+    var s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]);
+    while (s <= z[k]) { k--; s = ((f[q] + q * q) - (f[v[k]] + v[k] * v[k])) / (2 * q - 2 * v[k]); }
+    k++; v[k] = q; z[k] = s; z[k + 1] = INF;
+  }
+  k = 0;
+  for (q = 0; q < n; q++) { while (z[k + 1] < q) k++; d[q] = (q - v[k]) * (q - v[k]) + f[v[k]]; }
+}
+function edt(target, w, h) {                            // distance (px) to the nearest target pixel
+  var g = new Float64Array(w * h), i, x, y;
+  for (i = 0; i < w * h; i++) g[i] = target[i] ? 0 : INF;
+  var n = Math.max(w, h), f = new Float64Array(n), d = new Float64Array(n), v = new Int32Array(n), z = new Float64Array(n + 1);
+  for (x = 0; x < w; x++) { for (y = 0; y < h; y++) f[y] = g[y * w + x]; edt1d(f, h, d, v, z); for (y = 0; y < h; y++) g[y * w + x] = d[y]; }
+  for (y = 0; y < h; y++) { for (x = 0; x < w; x++) f[x] = g[y * w + x]; edt1d(f, w, d, v, z); for (x = 0; x < w; x++) g[y * w + x] = Math.sqrt(d[x]); }
+  return g;
+}
+function segD2(p, a, b) {
+  var dx = b[0] - a[0], dy = b[1] - a[1], l = dx * dx + dy * dy, t = l ? ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l : 0;
+  t = Math.max(0, Math.min(1, t)); var x = a[0] + t * dx - p[0], y = a[1] + t * dy - p[1]; return x * x + y * y;
+}
+function simplifyOpen(p, eps) {
+  var keep = new Uint8Array(p.length); keep[0] = keep[p.length - 1] = 1; var st = [[0, p.length - 1]], e2 = eps * eps;
+  while (st.length) { var se = st.pop(), s = se[0], e = se[1], idx = -1, dm = e2;
+    for (var i = s + 1; i < e; i++) { var d = segD2(p[i], p[s], p[e]); if (d > dm) { dm = d; idx = i; } }
+    if (idx >= 0) { keep[idx] = 1; st.push([s, idx], [idx, e]); } }
+  return p.filter(function (_, i) { return keep[i]; });
+}
+function simplifyRing(r, eps) {
+  if (r.length < 8) return r;
+  var far = 0, md = 0; for (var i = 1; i < r.length; i++) { var dx = r[i][0] - r[0][0], dy = r[i][1] - r[0][1], d = dx * dx + dy * dy; if (d > md) { md = d; far = i; } }
+  var a = simplifyOpen(r.slice(0, far + 1), eps), b = simplifyOpen(r.slice(far).concat([r[0]]), eps);
+  return a.slice(0, -1).concat(b.slice(0, -1));
+}
+function outlines() {
+  var f = fontObj(), L = layout(f);
+  if (!L || L.k <= 0) return { polys: [], L: null, lost: 0, clipped: 0 };
+  drawMask(f, L);
+  var img = mctx.getImageData(0, 0, CW, CH).data, N = CW * CH, a = new Float32Array(N), inside = new Uint8Array(N), outside = new Uint8Array(N), i;
+  for (i = 0; i < N; i++) { a[i] = img[i * 4 + 3] / 255; inside[i] = a[i] >= 0.5 ? 1 : 0; outside[i] = 1 - inside[i]; }
+  var dToOut = edt(outside, CW, CH), dToIn = edt(inside, CW, CH);
+  var tR = state.thick * R, F = new Float64Array(N), Fraw = new Float64Array(N);
+  for (i = 0; i < N; i++) {
+    var fv = inside[i] ? dToOut[i] - 0.5 : -(dToIn[i] - 0.5);
+    if (Math.abs(fv) < 1.5 && a[i] > 0.02 && a[i] < 0.98) fv = a[i] - 0.5;
+    var x = i % CW, y = (i / CW) | 0, xm = (x - CW / 2) / R, ym = (CH / 2 - y) / R;
+    var g = -pillSdf(xm, ym, SAFE) * R;
+    Fraw[i] = fv + tR; F[i] = Math.min(Fraw[i], g);
+  }
+  // how much was cut off by the plate edge, and how much is thinner than one 0.4 mm nozzle line
+  var nRaw = 0, nIn = 0, ero = new Uint8Array(N), rr2 = 0.21 * R;
+  for (i = 0; i < N; i++) { if (Fraw[i] >= 0) nRaw++; if (F[i] >= 0) nIn++; ero[i] = F[i] >= rr2 ? 1 : 0; }
+  var dE = edt(ero, CW, CH), lostN = 0;
+  for (i = 0; i < N; i++) if (F[i] >= 0 && dE[i] > rr2 + 0.7) lostN++;
+  var contours = d3.contours().size([CW, CH]).thresholds([0])(F);
+  var polys = [];
+  (contours[0] ? contours[0].coordinates : []).forEach(function (pg) {
+    var rings = pg.map(function (ring) {
+      var r = ring.slice(0, -1).map(function (p) { return [(p[0] - CW / 2) / R, (CH / 2 - p[1]) / R]; });
+      return simplifyRing(r, 0.008);
+    }).filter(function (r) { return r.length >= 3 && Math.abs(NP.area(r)) > 0.01; });
+    if (rings.length && Math.abs(NP.area(rings[0])) > 0.03) polys.push(rings);
+  });
+  return { polys: polys, L: L, lost: nIn ? lostN / nIn : 0, clipped: nRaw ? 1 - nIn / nRaw : 0 };
+}
+
+// ---------------------------------------------------------------- 3D preview
+var gl = $('gl'), viewer = $('viewer');
+var renderer = new THREE.WebGLRenderer({ canvas: gl, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(30, 1.4, 1, 1000);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8090a8, 0.75));
+var key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(-30, 50, 80); scene.add(key);
+var rim = new THREE.DirectionalLight(0xffffff, 0.35); rim.position.set(40, -20, 30); scene.add(rim);
+var controls = new THREE.OrbitControls(camera, gl); controls.enableDamping = true; controls.dampingFactor = 0.12;
+controls.addEventListener('change', render);
+function geomFrom(posB64, idxB64, u32) {
+  var pos = new Float32Array(NP_b64(posB64).buffer), idx = u32 ? new Uint32Array(NP_b64(idxB64).buffer) : new Uint16Array(NP_b64(idxB64).buffer);
+  var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setIndex(new THREE.BufferAttribute(idx, 1)); g.computeVertexNormals(); return g;
+}
+function NP_b64(b) { var s = atob(b), o = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) o[i] = s.charCodeAt(i); return o; }
+var frameMat = new THREE.MeshStandardMaterial({ color: state.plateColor, roughness: 0.62, metalness: 0.02 });
+var frameMesh = new THREE.Mesh(geomFrom(GEO.frame.pos, GEO.frame.idx, GEO.frame.u32), frameMat);
+frameMesh.rotation.y = Math.PI;                       // front of the frame toward the camera
+scene.add(frameMesh);
+var photo = (function () {
+  var c = document.createElement('canvas'); c.width = 512; c.height = 256; var x = c.getContext('2d');
+  var gr = x.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, '#f2a65a'); gr.addColorStop(0.55, '#e0728a'); gr.addColorStop(1, '#5b3b7a');
+  x.fillStyle = gr; x.fillRect(0, 0, 512, 256); x.fillStyle = 'rgba(30,20,50,.85)';
+  for (var i = 0, px = 0; px < 512; i++) { var w = 26 + (i * 37) % 30, h = 50 + (i * 53) % 90; x.fillRect(px, 256 - h, w, h); px += w + 6; }
+  var t = new THREE.CanvasTexture(c);
+  var m = new THREE.Mesh(new THREE.PlaneGeometry(86, 18), new THREE.MeshBasicMaterial({ map: t }));
+  m.position.set(0, -18, -1.95); return m;
+})();
+scene.add(photo);
+var plateMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.02 });
+var plateMesh = new THREE.Mesh(new THREE.BufferGeometry(), plateMat); scene.add(plateMesh);
+var view = 'front';
+function setView(v, instant) {
+  view = v;
+  var inFrame = v !== 'plate';
+  frameMesh.visible = inFrame; photo.visible = inFrame;
+  plateMesh.position.set(0, inFrame ? TP_CY : 0, inFrame ? -T : -T);
+  var tgt = inFrame ? new THREE.Vector3(0, TP_CY + 3, 0) : new THREE.Vector3(0, 0, 0);
+  var pos = v === 'front' ? new THREE.Vector3(0, TP_CY + 4, 82) : v === 'angle' ? new THREE.Vector3(-46, TP_CY + 26, 60) : new THREE.Vector3(-12, -26, 52);
+  camera.position.copy(pos); controls.target.copy(tgt); controls.update();
+  document.querySelectorAll('.viewbtns button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === v)); });
+  render();
+}
+function resize() {
+  var r = viewer.getBoundingClientRect(); if (!r.width) return;
+  renderer.setSize(r.width, r.height, false); camera.aspect = r.width / r.height; camera.updateProjectionMatrix(); render();
+}
+var raf = 0;
+function render() { if (raf) return; raf = requestAnimationFrame(function () { raf = 0; controls.update(); renderer.render(scene, camera); }); }
+new ResizeObserver(resize).observe(viewer);
+function updatePlateMesh(polys) {
+  var info = {}, mode = polys.length ? state.mode : 'none';
+  var tris = NP.buildPlate(BASES[state.grip], polys, mode, state.height, info);
+  var n = tris.length / 3, col = new Float32Array(n * 3), cb = new THREE.Color(state.plateColor), ct = new THREE.Color(state.textColor);
+  var textFrom = (info.nBase + info.nTop) * 3;
+  for (var i = 0; i < n; i++) { var c = i >= textFrom ? ct : cb; col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+  var g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(tris, 3)); g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  g.computeVertexNormals();
+  plateMesh.geometry.dispose(); plateMesh.geometry = g; render();
+}
+
+// ---------------------------------------------------------------- UI
+var current = { polys: [] }, token = 0, timer = 0;
+function fmt(v, d) { return Number(v).toFixed(d == null ? 1 : d); }
+function refreshOutputs() {
+  $('sizeOut').textContent = state.auto ? 'تلقائي' : fmt(state.size) + ' ملم';
+  $('thickOut').textContent = (state.thick > 0 ? '+' : '') + fmt(state.thick, 2) + ' ملم';
+  $('spacingOut').textContent = fmt(state.spacing * 100, 0) + '٪';
+  $('l2Out').textContent = fmt(state.l2 * 100, 0) + '٪';
+  $('iconScaleOut').textContent = fmt(state.iconScale * 100, 0) + '٪';
+  $('heightOut').textContent = fmt(state.height) + ' ملم';
+  $('heightLbl').textContent = state.mode === 'raised' ? 'ارتفاع البروز' : 'عمق الحفر';
+  $('size').disabled = state.auto;
+  $('two').disabled = state.mode !== 'raised';
+  var p = state.mode === 'raised'
+    ? 'اطبعها مثل ما هي في الملف، الكتابة لفوق. طبقة 0.2 ملم، بدون دعامات. <b>للون ثاني:</b> غيّر الفلمنت عند <b>' + fmt(ZTOP) + ' ملم</b>. ولو عندك AMS استخدم الملفين _base و _text كأجزاء لنفس القطعة.'
+    : 'اطبعها مثل ما هي في الملف، الوجه لفوق. طبقة 0.2 ملم، بدون دعامات. تقدر تعبي الحفر بلون أو صبغ بعد الطباعة.';
+  $('printNote').innerHTML = p;
+}
+function schedule() { clearTimeout(timer); timer = setTimeout(regen, 90); persist(); refreshOutputs(); }
+function regen() {
+  var my = ++token, f = fontObj();
+  ensureFont(f, state.line1 + state.line2).then(function () {
+    if (my !== token) return;
+    var res;
+    try { res = outlines(); } catch (e) { console.error(e); res = { polys: [], L: null, lost: 0, clipped: 0 }; }
+    current = res; updatePlateMesh(res.polys); updateFacts(res);
+  });
+}
+function bbox(polys) {
+  var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  polys.forEach(function (p) { p[0].forEach(function (q) { x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); }); });
+  return polys.length ? [x1 - x0, y1 - y0] : [0, 0];
+}
+function updateFacts(res) {
+  var bb = bbox(res.polys), facts = $('facts');
+  facts.textContent = '';
+  function chip(lbl, val) { var s = document.createElement('span'); s.append(lbl + ' '); var b = document.createElement('b'); b.textContent = val; s.append(b); facts.append(s); }
+  chip('مقاس الكتابة', fmt(bb[0]) + ' × ' + fmt(bb[1]) + ' ملم');
+  chip(state.mode === 'raised' ? 'البروز' : 'الحفر', fmt(state.height) + ' ملم');
+  if (state.mode === 'raised') chip('تغيير اللون عند', fmt(ZTOP) + ' ملم');
+  chip('اللوحة', '29.6 × 8 ملم');
+  var msgs = [];
+  if (!res.polys.length) msgs.push('اكتب كلمة أو اختر رمز عشان تطلع على اللوحة.');
+  if (res.clipped > 0.004) msgs.push('جزء من الكتابة طالع برا حدود اللوحة وانقص. صغّر الحجم أو شغّل التكبير التلقائي.');
+  if (res.lost > 0.06) msgs.push('بعض الخطوط أرفع من 0.4 ملم وما راح تنطبع زين بالفوهة العادية. زد سماكة الحروف أو الحجم، أو اختر خط أعرض.');
+  var w = $('warn'); w.hidden = !msgs.length; w.textContent = msgs.join(' ');
+}
+
+function buildSymbols() {
+  var box = $('sym');
+  SYMBOLS.forEach(function (s) {
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = s.replace('︎', ''); b.title = 'أضف ' + s;
+    b.addEventListener('click', function () {
+      var inp = document.activeElement === $('line2') ? $('line2') : $('line1'), st = inp.selectionStart != null ? inp.selectionStart : inp.value.length;
+      inp.value = inp.value.slice(0, st) + s + inp.value.slice(inp.selectionEnd != null ? inp.selectionEnd : st);
+      state[inp.id] = inp.value; schedule(); inp.focus();
+    });
+    b.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    box.append(b);
+  });
+}
+var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+  es.forEach(function (e) { if (e.isIntersecting) { addFont(e.target._font); io.unobserve(e.target); } });
+}, { root: null, rootMargin: '120px' }) : null;
+function sampleText() { var t = (state.line1 || '').trim(); return t || (state.tab === 'ar' ? 'تركيا' : 'TURKEY'); }
+function buildFontGrid() {
+  var grid = $('fontgrid'); grid.textContent = '';
+  $('upbox').hidden = state.tab !== 'up';
+  var list = state.tab === 'up' ? (USER_FONT.label ? [USER_FONT] : []) : FONTS.filter(function (f) { return f.g === state.tab; });
+  list.forEach(function (f) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'fontcard'; b._font = f;
+    b.setAttribute('aria-pressed', String(state.font === f.f));
+    var s = document.createElement('span'); s.className = 'sample'; s.textContent = sampleText();
+    s.style.fontFamily = '"' + f.f + '", "IBM Plex Sans Arabic", sans-serif'; s.style.fontWeight = f.w; s.dir = 'auto';
+    var n = document.createElement('span'); n.className = 'nm'; n.textContent = f.label || f.f;
+    b.append(s, n);
+    b.addEventListener('click', function () { state.font = f.f; grid.querySelectorAll('.fontcard').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); schedule(); });
+    grid.append(b);
+    if (io && f.g !== 'up') io.observe(b); else addFont(f);
+  });
+  document.querySelectorAll('#fontTabs button').forEach(function (t) { t.setAttribute('aria-selected', String(t.dataset.g === state.tab)); });
+}
+function refreshSamples() { var t = sampleText(); document.querySelectorAll('.fontcard .sample').forEach(function (s) { s.textContent = t; }); }
+var iconSide = 'L';
+function buildIcons() {
+  var grid = $('icongrid'); grid.textContent = '';
+  var cur = iconSide === 'L' ? state.iconL : state.iconR;
+  var none = document.createElement('button'); none.type = 'button'; none.textContent = 'بدون'; none.setAttribute('aria-pressed', String(!cur));
+  none.addEventListener('click', function () { setIcon(''); }); grid.append(none);
+  Object.keys(ICONS).forEach(function (k) {
+    var b = document.createElement('button'); b.type = 'button'; b.title = ICONS[k][0]; b.setAttribute('aria-label', ICONS[k][0]);
+    b.setAttribute('aria-pressed', String(cur === k));
+    var cv = document.createElement('canvas'); cv.width = cv.height = 64; var c = cv.getContext('2d');
+    var src = iconCanvas(k, 128); c.drawImage(src, 0, 0, 64, 64); c.globalCompositeOperation = 'source-in';
+    c.fillStyle = getComputedStyle(document.body).color || '#17203a'; c.fillRect(0, 0, 64, 64);
+    b.append(cv); b.addEventListener('click', function () { setIcon(k); }); grid.append(b);
+  });
+}
+function setIcon(k) { if (iconSide === 'L') state.iconL = k; else state.iconR = k; buildIcons(); schedule(); }
+function swatches(id, list, keyName) {
+  var row = $(id);
+  list.forEach(function (c) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'sw'; b.style.background = c; b.setAttribute('aria-label', c);
+    b.setAttribute('aria-pressed', String(state[keyName] === c));
+    b.addEventListener('click', function () {
+      state[keyName] = c; row.querySelectorAll('.sw').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      if (keyName === 'plateColor') frameMat.color.set(c);
+      persist(); updatePlateMesh(current.polys);
+    });
+    row.append(b);
+  });
+}
+function segment(id, attr, keyName) {
+  document.querySelectorAll('#' + id + ' button').forEach(function (b) {
+    b.setAttribute('aria-pressed', String(b.dataset[attr] === state[keyName]));
+    b.addEventListener('click', function () {
+      state[keyName] = b.dataset[attr];
+      document.querySelectorAll('#' + id + ' button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      if (keyName === 'mode') { state.height = Math.min(state.height, state.mode === 'engraved' ? 1.0 : 1.2); $('height').max = state.mode === 'engraved' ? '1' : '1.2'; $('height').value = state.height; }
+      schedule();
+    });
+  });
+}
+function bindRange(id, keyName) { var el = $(id); el.value = state[keyName]; el.addEventListener('input', function () { state[keyName] = parseFloat(el.value); schedule(); }); }
+
+// font upload
+$('fontfile').addEventListener('change', function () {
+  var file = this.files && this.files[0]; if (!file) return;
+  file.arrayBuffer().then(function (buf) {
+    var ff = new FontFace(USER_FONT.f, buf);
+    return ff.load().then(function (loaded) {
+      document.fonts.add(loaded); USER_FONT.label = file.name.replace(/\.[^.]+$/, ''); iconCache = {};
+      state.font = USER_FONT.f; $('upname').textContent = 'الخط المستخدم: ' + USER_FONT.label; buildFontGrid(); schedule();
+    });
+  }).catch(function () { $('upname').textContent = 'ما قدرت أقرأ هذا الملف. جرّب ملف TTF أو OTF.'; });
+});
+
+// ---------------------------------------------------------------- download
+var downloads = null, inViewer = !!(window.claude && window.claude.use);
+if (inViewer) window.claude.use('downloads').then(function (d) { downloads = d; }).catch(function () {});
+function slug() {
+  var t = (state.line1 + ' ' + state.line2).replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 30);
+  return 'nameplate' + (t ? '_' + t : '');
+}
+function instructions(name, files) {
+  return [
+    'لوحة الاسم: ' + (state.line1 || '') + (state.line2 ? ' / ' + state.line2 : ''),
+    'الخط: ' + (fontObj().label || fontObj().f) + '   التثبيت: ' + (state.grip === 'tight' ? 'أقوى' : 'عادي'),
+    '',
+    'الملفات:',
+    files.map(function (f) { return '  - ' + f; }).join('\n'),
+    '',
+    'الطباعة:',
+    '  - اطبع الملف مثل ما هو: الظهر على السرير والكتابة لفوق. بدون دعامات.',
+    '  - طبقة 0.2 ملم، 3 جدران، حشوة 15٪.',
+    state.mode === 'raised'
+      ? '  - للكتابة بلون ثاني: أضف تغيير فلمنت (Color change / M600) عند ارتفاع ' + fmt(ZTOP) + ' ملم.\n  - ولو عندك AMS: افتح ' + name + '_base.stl و ' + name + '_text.stl كجزأين لنفس القطعة، وكل جزء بلونه.'
+      : '  - الكتابة محفورة ' + fmt(state.height) + ' ملم: تقدر تعبيها بصبغ أو قلم بعد الطباعة.',
+    '',
+    'التركيب: ادف اللوحة من ورا في فتحة لسان البرواز لين تثبت. ولتغييرها ادفها من قدام.',
+    ''
+  ].join('\n');
+}
+function makeZip() {
+  var base = BASES[state.grip], polys = current.polys, name = slug(), mode = polys.length ? state.mode : 'none', files = [];
+  files.push({ name: name + '.stl', data: NP.stl(NP.buildPlate(base, polys, mode, state.height), name) });
+  if (mode === 'raised' && state.two) {
+    files.push({ name: name + '_base.stl', data: NP.stl(NP.buildPlate(base, [], 'none', 0), name) });
+    files.push({ name: name + '_text.stl', data: NP.stl(NP.buildText(base, polys, state.height), name) });
+  }
+  var txt = 'طريقة_الطباعة.txt';
+  files.push({ name: txt, data: new TextEncoder().encode(instructions(name, files.map(function (f) { return f.name; }))) });
+  return { name: name, bytes: NP.zip(files) };
+}
+function setMsg(t, cls) { var m = $('dlmsg'); m.textContent = t; m.className = cls || ''; }
+$('dl').addEventListener('click', function () {
+  var z;
+  try { z = makeZip(); } catch (e) { console.error(e); setMsg('صار خطأ وأنا أجهز الملف. غيّر النص شوي وجرّب مرة ثانية.', 'bad'); return; }
+  var filename = z.name + '.zip', blob = new Blob([z.bytes], { type: 'application/zip' });
+  if (downloads) {
+    downloads.save({ filename: filename, data: blob }).then(function () { setMsg('تم. افتح ملف ' + filename + ' وطلّع منه ملف STL.', 'ok'); })
+      .catch(function (e) {
+        var c = e && e.code;
+        if (c === 'declined') setMsg('ألغيت التحميل. اضغط الزر مرة ثانية لما تكون جاهز.');
+        else if (c === 'rate_limited') setMsg('فيه نافذة تحميل مفتوحة. انتظر ثواني وجرّب.');
+        else if (c === 'host_unavailable') setMsg('هذا التطبيق ما يقدر يحفظ ملفات هنا. افتح الصفحة في المتصفح أو من الكمبيوتر.', 'bad');
+        else if (c === 'extension_not_enabled') setMsg('ملفات ZIP مو متاحة في هذا العرض. افتح الصفحة من claude.ai في المتصفح.', 'bad');
+        else setMsg('ما قدرت أحفظ الملف هنا. افتح الصفحة من claude.ai في المتصفح وجرّب.', 'bad');
+      });
+  } else if (!inViewer) {
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.append(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000); setMsg('تم تجهيز ' + filename + '.', 'ok');
+  } else {
+    setMsg('التحميل مو متاح في هذا العرض. افتح الصفحة من claude.ai في المتصفح.', 'bad');
+  }
+});
+window.__nameplate = { state: state, makeZip: makeZip, current: function () { return current; }, regen: regen };
+
+// ---------------------------------------------------------------- start
+$('line1').value = state.line1; $('line2').value = state.line2; $('auto').checked = state.auto; $('two').checked = state.two;
+['line1', 'line2'].forEach(function (id) { $(id).addEventListener('input', function () { state[id] = this.value; refreshSamples(); schedule(); }); });
+$('auto').addEventListener('change', function () { state.auto = this.checked; schedule(); });
+$('two').addEventListener('change', function () { state.two = this.checked; persist(); });
+bindRange('size', 'size'); bindRange('thick', 'thick'); bindRange('spacing', 'spacing'); bindRange('l2', 'l2'); bindRange('iconScale', 'iconScale'); bindRange('height', 'height');
+if (!('letterSpacing' in mctx)) { $('spacing').disabled = true; $('spacingOut').textContent = 'غير مدعوم في هذا المتصفح'; }
+segment('modeSeg', 'mode', 'mode'); segment('gripSeg', 'grip', 'grip');
+document.querySelectorAll('#iconSide button').forEach(function (b) { b.addEventListener('click', function () {
+  iconSide = b.dataset.side; document.querySelectorAll('#iconSide button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); buildIcons(); }); });
+document.querySelectorAll('#fontTabs button').forEach(function (t) { t.addEventListener('click', function () { state.tab = t.dataset.g; persist(); buildFontGrid(); }); });
+document.querySelectorAll('.viewbtns button').forEach(function (b) { b.addEventListener('click', function () { setView(b.dataset.view); }); });
+swatches('plateSw', PLATE_COLORS, 'plateColor'); swatches('textSw', TEXT_COLORS, 'textColor'); frameMat.color.set(state.plateColor);
+buildSymbols(); buildFontGrid(); buildIcons(); refreshOutputs(); resize(); setView('front'); regen();
+})();
+</script>
