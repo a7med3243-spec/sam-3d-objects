@@ -318,6 +318,21 @@ python3 05-walnut-board/make_guide.py 30cm     # يحتاج PrusaSlicer و Playw
 - **وقت الطباعة:** بسرعات قريبة من Bambu حوالي **7 ساعات** للصغير و**12 ساعة** لمقاس 30 سم. بسرعات PrusaSlicer الافتراضية الأرقام أطول بكثير (حوالي 21 و54 ساعة).
 - **التفاصيل:** الأرقام لكل قطعة موجودة في `05-walnut-board/<المقاس>/weight.json`.
 
+### كل القطع في ملف STL واحد
+
+`all_parts_one_file.stl` في مجلد `stl` لكل مقاس: القطعة البنية وقاعدة الآية مرتبتين جنب بعض على السرير، كل قطعة بوضعية الطباعة الصحيحة.
+
+| | الصغير | 30 سم |
+|---|---|---|
+| المقاس على السرير | 210 × 181 مم، ارتفاع 92 مم | 300 × 257 مم، ارتفاع 92 مم |
+| يناسب سرير | 330 × 320 (A2L)، وأيضاً 220 × 220 | 330 × 320 (A2L) |
+
+- **STL ما يحمل ألوان.** الملف مناسب للطباعة دفعة واحدة **بلون واحد**، والآية تُقرأ من البروز.
+- **لا تضف تغيير خيط بالارتفاع** على هذا الملف: التغيير يشمل كل الطبعة، فيتغيّر لون القطعة البنية أيضاً من 7 مم وفوق.
+- **مع AMS:** في Bambu Studio اضغط على القطعة بالزر الأيمن ← Split ← To objects، ثم اختر لون كل قطعة. الآية تطلع بنفس لون اللوح الأبيض.
+- **للبني والأبيض والآية الغامقة بأقل هدر:** استخدم ملفات الطباعة المنفصلة لكل لون.
+- **إعادة التوليد:** `python3 05-walnut-board/all_in_one.py 30cm` (أو `small`).
+
 ### طباعة الآية بلونين
 
 - **بدون طابعة ألوان:** اللوح الأبيض مع الآية قطعة واحدة (`panel_..._white_with_verse.stl`). اطبعه أبيض، وأضف **تغيير خيط** إلى اللون الغامق عند:
@@ -355,8 +370,8 @@ python3 05-walnut-board/make_guide.py 30cm     # يحتاج PrusaSlicer و Playw
 02-floating-shelf/stl/  shelf.stl  calligraphy.stl  peg.stl   (+ calligraphy_base_clear / _accent_gold)
 03-horizon-moon/stl/    disc.stl   shelf.stl  peg.stl   (+ disc_base_ivory / disc_accent_gold)
 04-fluted-arch/stl/     panel.stl  shelf.stl  verse.stl  peg.stl
-05-walnut-board/small/stl/  main_brown_board_shelf_knobs.stl  panel_white_with_verse.stl  (+ mmu_*)
-05-walnut-board/30cm/stl/   main_brown_board_shelf_knobs.stl  panel_white_with_verse.stl  (+ mmu_*)   ← Bambu Lab A2L
+05-walnut-board/small/stl/  main_brown_board_shelf_knobs.stl  panel_white_with_verse.stl  all_parts_one_file.stl  (+ mmu_*)
+05-walnut-board/30cm/stl/   main_brown_board_shelf_knobs.stl  panel_white_with_verse.stl  all_parts_one_file.stl  (+ mmu_*)   ← Bambu Lab A2L
 renders/                صور العرض
 ```
 

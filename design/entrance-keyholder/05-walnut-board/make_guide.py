@@ -154,7 +154,8 @@ ol li {{ margin-bottom: 1.5mm; }}
 <li><b>التعليق:</b> برغيان في الجدار على نفس الارتفاع والمسافة بينهما <b>{HANG_MM:.0f} مم</b>. اترك 2.5 مم تحت رأس البرغي، علّق القطعة وأنزلها 10 مم. شريط لاصق مزدوج صغير في الأسفل يمنع ارتفاعها عند سحب المفاتيح.</li>
 </ol>
 <div class="box">ملفات 3MF جرّبتها في PrusaSlicer. لو ما ظهرت الأجزاء بألوانها في Bambu Studio، استخدم ملفات <code>stl</code>:
-<code>main_brown_board_shelf_knobs.stl</code> للبني، و<code>panel_white_with_verse.stl</code> مع تغيير الخيط عند {CHANGE_Z:.1f} مم.</div>
+<code>main_brown_board_shelf_knobs.stl</code> للبني، و<code>panel_white_with_verse.stl</code> مع تغيير الخيط عند {CHANGE_Z:.1f} مم.
+وملف <code>all_parts_one_file.stl</code> فيه القطعتان معاً مرتبتين على السرير، للطباعة دفعة واحدة بلون واحد.</div>
 <p class="small">المقاسات والأوزان من ملفات التصميم والسلايسر؛ التحمّل محسوب نظرياً ولم يُختبر على قطعة مطبوعة.</p>
 </body></html>"""
 
@@ -186,7 +187,7 @@ def make_pdf(html_text, out_pdf):
 
 
 STLS = ["main_brown_board_shelf_knobs.stl", "panel_white_with_verse.stl",
-        "mmu_panel_white.stl", "mmu_verse_dark.stl"]
+        "mmu_panel_white.stl", "mmu_verse_dark.stl", "all_parts_one_file.stl"]
 
 
 if __name__ == "__main__":
