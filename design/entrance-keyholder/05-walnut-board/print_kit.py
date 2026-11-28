@@ -32,6 +32,8 @@ OUT = os.path.join(HERE, SIZE, "print_kit")
 BED_X, BED_Y, BED_Z = 330.0, 320.0, 325.0     # Bambu Lab A2L
 GAP = 10.0
 
+APPLICATION = "PrusaSlicer-2.7.2"   # the slicer these 3MF files were checked with
+
 COLOUR = {"walnut": "#6B4A33", "white": "#F1EDE6", "dark": "#2A1D16", "brass": "#C8A25A"}
 
 # plate id, title, objects; each object is a list of (stl, colour) volumes
@@ -106,6 +108,10 @@ def write_plate_3mf(path, objects):
              'xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" '
              'xmlns:slic3rpe="http://schemas.slic3r.org/3mf/2017/06">'
              '<metadata name="slic3rpe:Version3mf">1</metadata>'
+             # Bambu Studio and OrcaSlicer only use their PrusaSlicer-3MF reader (the one that reads
+             # Slic3r_PE_model.config: parts and their filament) when Application names PrusaSlicer.
+             # Without it they load each object as a single part and the colour split is lost.
+             f'<metadata name="Application">{APPLICATION}</metadata>'
              f'<resources>{"".join(res)}</resources><build>{items}</build></model>')
     config = f'<?xml version="1.0" encoding="UTF-8"?><config>{"".join(cfg)}</config>'
     ctypes = ('<?xml version="1.0" encoding="UTF-8"?>'

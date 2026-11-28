@@ -153,9 +153,9 @@ ol li {{ margin-bottom: 1.5mm; }}
 <li><b>قاعدة الآية:</b> ضع الغراء في التجويف واضغط اللوح الأبيض فيه حتى يستوي تحت الرف.</li>
 <li><b>التعليق:</b> برغيان في الجدار على نفس الارتفاع والمسافة بينهما <b>{HANG_MM:.0f} مم</b>. اترك 2.5 مم تحت رأس البرغي، علّق القطعة وأنزلها 10 مم. شريط لاصق مزدوج صغير في الأسفل يمنع ارتفاعها عند سحب المفاتيح.</li>
 </ol>
-<div class="box">ملفات 3MF جرّبتها في PrusaSlicer. لو ما ظهرت الأجزاء بألوانها في Bambu Studio، استخدم ملفات <code>stl</code>:
-<code>main_brown_board_shelf_knobs.stl</code> للبني، و<code>panel_white_with_verse.stl</code> مع تغيير الخيط عند {CHANGE_Z:.1f} مم.
-وملف <code>all_parts_one_file.stl</code> فيه القطعتان معاً مرتبتين على السرير، للطباعة دفعة واحدة بلون واحد.</div>
+<div class="box"><b>كل القطع في ملف واحد:</b> <code>all_parts_one_file.3mf</code> فيه القطعتان على سرير واحد بألوانها (خيط 1 بني، 2 أبيض، 3 غامق) لطابعة AMS — حوالي 60 تبديل لون، فالهدر أكثر من الطبعتين المنفصلتين. و<code>all_parts_one_file.stl</code> نفس الترتيب بدون ألوان، للطباعة بلون واحد.<br>
+ملفات 3MF جرّبتها في PrusaSlicer، ومكتوبة بالصيغة التي يقرأ بها Bambu Studio ملفات PrusaSlicer (الأجزاء ولون كل جزء). لو ما ظهرت الألوان، استخدم ملفات <code>stl</code>:
+<code>main_brown_board_shelf_knobs.stl</code> للبني، و<code>panel_white_with_verse.stl</code> مع تغيير الخيط عند {CHANGE_Z:.1f} مم.</div>
 <p class="small">المقاسات والأوزان من ملفات التصميم والسلايسر؛ التحمّل محسوب نظرياً ولم يُختبر على قطعة مطبوعة.</p>
 </body></html>"""
 
@@ -200,6 +200,7 @@ if __name__ == "__main__":
         z.write(pdf, f"{top}/guide-ar.pdf")
         for p in data["plates"]:
             z.write(os.path.join(KIT, p["file"]), f"{top}/{p['file']}")
+        z.write(os.path.join(KIT, "all_parts_one_file.3mf"), f"{top}/all_parts_one_file.3mf")
         for s in STLS:
             z.write(os.path.join(HERE, SIZE, "stl", s), f"{top}/stl/{s}")
         z.write(os.path.join(KIT, "plates_layout.png"), f"{top}/plates_layout.png")
